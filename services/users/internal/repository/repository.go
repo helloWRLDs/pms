@@ -23,8 +23,6 @@ func New(db *sqlx.DB) *Repository {
 
 func (r *Repository) Create(ctx context.Context, user domain.User) (string, error) {
 
-	tx := r.db.MustBeginTx(ctx, nil)
-
 	q, args, _ := r.gen.
 		Insert("Users").
 		Columns("id", "first_name", "last_name", "email", "password").
