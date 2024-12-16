@@ -1,46 +1,40 @@
 package logger
 
 import (
-	"context"
-	"io"
-	"log"
-	"log/slog"
+	"os"
 
-	"github.com/fatih/color"
+	log "github.com/sirupsen/logrus"
 )
 
-type PrettyHandlerOptions struct {
-	slog.HandlerOptions
+type Config struct {
+	Dev  bool
+	Path string
 }
 
-type PrettyHandler struct {
-	slog.Handler
-	l     *log.Logger
-	attrs map[string]any
-	group string
-}
+func (c Config) Init() {
+	if c.Dev || c.Path == "" {
+		log.SetFormatter(&log.TextFormatter{
+			DisableColors: false,
+			FullTimestamp: false,
+		})
+		log.SetOutput(os.Stdout)
+		log.SetLevel(log.DebugLevel)
+	} else {
+		log.SetFormatter(&log.JSONFormatter{})
+		log.SetLevel(log.ErrorLevel)
+		f, err := os.OpenFile(c.Path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
+		if err != nil {
+			panic(err)
+		}
 
-func NewPrettyHandler(out io.Writer, opts PrettyHandlerOptions) *PrettyHandler {
-	return &PrettyHandler{
-		l:       log.New(out, "", 0),
-		attrs:   make(map[string]any, 0),
-		group:   "",
-		Handler: slog.NewJSONHandler(out, &opts.HandlerOptions),
+		log.SetOutput(f)
 	}
 }
 
-func (h PrettyHandler) Handle(ctx context.Context, r slog.Record) error {
-	level := r.Level.String()
-	switch r.Level {
-	case slog.LevelInfo:
-		level = color.GreenString(level)
-	case slog.LevelWarn:
-		level = color.YellowString(level)
-	case slog.LevelDebug:
-		level = color.HiBlueString(level)
-	case slog.LevelError:
-		level = color.RedString(level)
+func (c Config) Close() {
+	if !c.Dev && c.Path != "" {
+		if f, ok := log.StandardLogger().Out.(*os.File); ok {
+			f.Close()
+		}
 	}
-	h.l.Printf("[%s] %s", r.Time.String(), level)
-	return nil
 }
