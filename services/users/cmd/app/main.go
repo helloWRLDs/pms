@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"pms.pkg/datastore/sqlite"
+	"pms.pkg/types/ctx"
 	"pms.pkg/utils"
 	"pms.users/internal/domain"
 	userrepo "pms.users/internal/repository"
@@ -26,12 +27,12 @@ func main() {
 		println(utils.JSON(err))
 		os.Exit(1)
 	}
-	id, err := repo.Create(context.Background(), *user)
+	id, err := repo.Create(ctx.New(context.Background()), *user)
 	if err != nil {
 		println(utils.JSON(err))
 		os.Exit(1)
 	}
-	usr, err := repo.GetByID(context.Background(), id)
+	usr, err := repo.GetByID(ctx.New(context.Background()), id)
 	if err != nil {
 		println(utils.JSON(err))
 		os.Exit(1)
