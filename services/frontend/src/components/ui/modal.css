@@ -1,0 +1,46 @@
+.modal {
+    padding: 1rem 1rem;
+    z-index: 10;
+    border-radius: 8px;
+    position: fixed;
+    width: 50%;
+    height: 50%;
+    top: 10%;
+    right: 25%;
+    background: linear-gradient(36deg, blue, purple, blue);
+    box-shadow: 10px 10px 10px rgb(27, 27, 27);
+    opacity: 0.97;
+}
+
+.modal-header {
+    max-height: 100px;
+}
+
+.modal-close-btn {
+    background-color: inherit;
+    outline: none;
+    border: none;
+    display: block;
+    float: right;
+    height: 1.5rem;
+    cursor: pointer;
+}
+
+.modal-close-btn:hover {
+    background-color: inherit;
+    outline: none;
+    border: none;
+}
+
+.modal-title {
+    font-size: 30px;
+    margin: 0 auto;
+}
+
+.hidden {
+    display: none;
+}
+
+.fixed {
+    display: fixed;
+}
