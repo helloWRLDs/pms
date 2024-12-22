@@ -7,9 +7,8 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	cfg := logger.Config{
+	logger.Init(logger.Config{
 		Dev: true,
-	}
-	cfg.Init()
+	})
 	m.Run()
 }

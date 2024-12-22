@@ -2,13 +2,13 @@ package errs
 
 import "fmt"
 
-type errHTTP struct {
+type ErrHTTP struct {
 	Status  int    `json:"status"`
 	Message string `json:"msg"`
 	Err     string `json:"err"`
 }
 
-func (e errHTTP) Error() string {
+func (e ErrHTTP) Error() string {
 	return fmt.Sprintf("[%d] %s - %s", e.Status, e.Err, e.Message)
 }
 
@@ -24,7 +24,7 @@ var httpMessages = map[int]string{
 }
 
 func WrapHttp(err error) error {
-	resultErr := errHTTP{
+	resultErr := ErrHTTP{
 		Message: err.Error(),
 	}
 

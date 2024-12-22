@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import useAuth from './hooks/useAuth'
 import { Button } from './components/ui/Button'
 import { Modal } from './components/ui/Modal'
 import { useModal } from './hooks/useModal'
 import { useLoading } from './hooks/useToast'
+import { infoToast } from './utils/toast'
 
 function App() {
-  const [count, setCount] = useState(0)
 
   const {isAuthenticated} = useAuth()
   useEffect(() => {
@@ -24,7 +24,10 @@ function App() {
         await sleep(5000)
         done('fetched users', true)
       }}>Yo</Button>
-      <Button size='md' onClick={toggleSomeModal}>Toggle Modal</Button>
+      <Button size='md' onClick={ () => {
+        toggleSomeModal()
+        infoToast("user created")
+      }}>Toggle Modal</Button>
       <Modal visible={someModal} title='Some modal title' onClose={closeSomeModal}>
         Some modal
       </Modal>
