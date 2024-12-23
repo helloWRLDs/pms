@@ -3,6 +3,7 @@ go 1.23.2
 use (
 	./pkg
 	./services/test
-	./services/users
+	./services/auth
+	./services/notifier
 	./services/api-gateway
 )
