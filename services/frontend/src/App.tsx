@@ -5,6 +5,8 @@ import { Modal } from './components/ui/Modal'
 import { useModal } from './hooks/useModal'
 import { useLoading } from './hooks/useToast'
 import { infoToast } from './utils/toast'
+import { Header } from './components/ui/Header'
+import { Gi3dGlasses } from "react-icons/gi";
 
 function App() {
 
@@ -18,8 +20,13 @@ function App() {
   const [someModal, toggleSomeModal, closeSomeModal] = useModal(false)
 
   return (
-    <>
-      <Button size='md' color='danger' onClick= {async() => {
+    <div className='container'>
+      <Header logoURL='./src/assets/logo.png'>
+
+      </Header>
+
+
+      <Button size='md' color='primary-1' icon={Gi3dGlasses} onClick= {async() => {
         const { done } = useLoading('loading users...')
         await sleep(5000)
         done('fetched users', true)
@@ -31,7 +38,7 @@ function App() {
       <Modal visible={someModal} title='Some modal title' onClose={closeSomeModal}>
         Some modal
       </Modal>
-    </>
+    </div>
   )
 }
 

@@ -6,7 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"pms.pkg/cfg"
 	"pms.pkg/utils"
-	"pms.users/config"
+	"pms.users/internal/config"
 )
 
 func main() {

@@ -1,18 +1,21 @@
 .main-btn {
-    background-color: var(--main-color);
     font-family: inherit;
     font-weight: 500;
     font-size: 1em;
-    outline: 4px auto -webkit-focus-ring-color;
+    outline: 1px auto -webkit-focus-ring-color;
     cursor: pointer;
     border: 1px solid transparent;
     border-radius: 8px;
     transition: border-color .2s;
     padding: 0.5em 1em;
+    animation: 2s button-slide ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
 }
 
 .main-btn:hover {
-    background-color: blue;
+    background-color: var(--primary-color-2);
 }
 
 .main-btn:focus,
@@ -20,22 +23,16 @@
     outline: 4px auto -webkit-focus-ring-color
 }
 
-.primary {
-    background-color: green;
-    color: white;
-}
-
-.secondary {
-    background-color: blue;
-    color: white;
-}
-
-.danger {
-    background-color: red;
-    color: white;
-}
-
 .sm {
     font-size: .5rem;
     padding: .5rem 0.5rem;
+}
+
+@keyframes button-slide {
+    0% {
+    }
+
+    100% {
+        transform:rotateX(360deg);
+    }
 }
