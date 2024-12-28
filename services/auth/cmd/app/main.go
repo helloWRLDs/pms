@@ -4,13 +4,13 @@ import (
 	"flag"
 
 	"github.com/sirupsen/logrus"
+	"pms.auth/internal/config"
 	"pms.pkg/cfg"
 	"pms.pkg/utils"
-	"pms.users/internal/config"
 )
 
 func main() {
-	path := flag.String("path", "./services/users/.env", "path to .env file")
+	path := flag.String("path", "./services/auth/.env", "path to .env file")
 	flag.Parse()
 
 	// db, err := sqlite.Open(*dsn)

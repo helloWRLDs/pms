@@ -1,4 +1,4 @@
-module pms.users
+module pms.auth
 
 go 1.23.2
 

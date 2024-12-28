@@ -16,3 +16,7 @@ func Open(dsn string) (*sqlx.DB, error) {
 	}
 	return db, nil
 }
+
+func Close(db *sqlx.DB) error {
+	return db.Close()
+}
