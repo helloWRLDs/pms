@@ -1,6 +1,12 @@
 package errs
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
 
 type ErrHTTP struct {
 	Status  int    `json:"status"`
@@ -21,6 +27,45 @@ var httpMessages = map[int]string{
 	422: "Unporcessable Entity",
 	429: "Too Many Requests",
 	500: "Internal Server Error",
+}
+
+func GRPCtoHTTP(err error) error {
+	var resultErr ErrHTTP
+
+	st, ok := status.FromError(err)
+	if !ok {
+		resultErr.Status = http.StatusInternalServerError
+		resultErr.Err = httpMessages[resultErr.Status]
+		resultErr.Message = "Unknown error"
+		return resultErr
+	}
+
+	switch st.Code() {
+	case codes.InvalidArgument:
+		resultErr.Status = http.StatusBadRequest
+	case codes.Unauthenticated:
+		resultErr.Status = http.StatusUnauthorized
+	case codes.PermissionDenied:
+		resultErr.Status = http.StatusForbidden
+	case codes.NotFound:
+		resultErr.Status = http.StatusNotFound
+	case codes.AlreadyExists:
+		resultErr.Status = http.StatusConflict
+	case codes.ResourceExhausted:
+		resultErr.Status = http.StatusTooManyRequests
+	case codes.Internal:
+		resultErr.Status = http.StatusInternalServerError
+	case codes.Unavailable:
+		resultErr.Status = http.StatusBadGateway
+	case codes.DeadlineExceeded:
+		resultErr.Status = http.StatusGatewayTimeout
+	default:
+		resultErr.Status = http.StatusInternalServerError
+	}
+	resultErr.Err = httpMessages[resultErr.Status]
+	resultErr.Message = st.Message()
+
+	return resultErr
 }
 
 func WrapHttp(err error) error {

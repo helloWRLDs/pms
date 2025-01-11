@@ -23,5 +23,6 @@ func Test_GrpcErr(t *testing.T) {
 		Field:  "id",
 		Value:  "fdsfsdfdsfds",
 	}
-	t.Log(WrapGRPC(err).Error())
+	t.Logf("%#v", WrapGRPC(err))
+	t.Logf("%#v", GRPCtoHTTP(WrapGRPC(err)))
 }
