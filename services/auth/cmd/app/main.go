@@ -5,7 +5,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"pms.auth/internal/config"
-	"pms.pkg/cfg"
 	"pms.pkg/utils"
 )
 
@@ -36,7 +35,7 @@ func main() {
 	// }
 	// println(utils.JSON(usr))
 
-	cfg, err := cfg.Load[config.Config](*path)
+	cfg, err := utils.LoadConfig[config.Config](*path)
 	if err != nil {
 		logrus.Fatal("failed to load config", "err", err)
 	}

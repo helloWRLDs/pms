@@ -11,8 +11,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"pms.api-gateway/internal/config"
 	"pms.api-gateway/internal/router"
-	"pms.pkg/cfg"
 	"pms.pkg/logger"
+	"pms.pkg/utils"
 )
 
 var (
@@ -23,7 +23,7 @@ func init() {
 	path := flag.String("path", "./services/api-gateway/.env", "path to .env")
 	flag.Parse()
 
-	c, err := cfg.Load[config.Config](*path)
+	c, err := utils.LoadConfig[config.Config](*path)
 	if err != nil {
 		logrus.Fatal("failed to parse app config", "err", err)
 	}

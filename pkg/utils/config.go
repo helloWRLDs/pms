@@ -1,4 +1,4 @@
-package cfg
+package utils
 
 import (
 	"github.com/caarlos0/env/v11"
@@ -6,7 +6,7 @@ import (
 )
 
 // Config parser
-func Load[T any](path string) (T, error) {
+func LoadConfig[T any](path string) (T, error) {
 	var t T
 	err := godotenv.Load(path)
 	if err != nil {
