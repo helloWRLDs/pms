@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greeting Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .footer {
+            font-size: 12px;
+            color: #888888;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h1>Hello {{.Name}},</h1>
+        <p>
+            We hope this message finds you well. We're reaching out to share some exciting updates and opportunities we think you'll love!
+        </p>
+        <p>
+            Stay tuned for more updates, and don't hesitate to reach out if you have any questions.
+        </p>
+        <p>Best regards,</p>
+        <p>{{ .CompanyName }}</p>
+        <div class="footer">
+            <p>You’re receiving this email because you subscribed to our updates.</p>
+        </div>
+    </div>
+</body>
+</html>
