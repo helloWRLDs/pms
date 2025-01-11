@@ -2,11 +2,12 @@ package sqlite
 
 import (
 	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
+
+	_ "github.com/cznic/sqlite"
 )
 
 func Open(dsn string) (*sqlx.DB, error) {
-	db, err := sqlx.Open("sqlite3", dsn)
+	db, err := sqlx.Open("sqlite", dsn)
 	if err != nil {
 		return nil, err
 	}

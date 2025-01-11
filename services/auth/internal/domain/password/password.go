@@ -1,4 +1,4 @@
-package domain
+package password
 
 import (
 	"golang.org/x/crypto/bcrypt"
@@ -7,7 +7,7 @@ import (
 
 type Password string
 
-func NewPassword(password string) (Password, error) {
+func New(password string) (Password, error) {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return "", errs.ErrInvalidInput{

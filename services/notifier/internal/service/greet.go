@@ -1,12 +1,19 @@
 package service
 
 import (
+	"context"
+
 	"github.com/sirupsen/logrus"
 	"pms.notifier/internal/modules/email/render"
 )
 
-func (s *NotifierService) GreetUser(name, email string) error {
-	log := logrus.WithField("func", "GreetUser")
+func (s *NotifierService) GreetUser(ctx context.Context, name, email string) error {
+	log := logrus.WithFields(logrus.Fields{
+		"func":  "GreetUser",
+		"name":  name,
+		"email": email,
+	})
+	log.Info("GreetUser called")
 
 	greeting := render.GreetContent{
 		Name:        name,
@@ -23,5 +30,6 @@ func (s *NotifierService) GreetUser(name, email string) error {
 		log.WithError(err).Error("failed to send email")
 		return err
 	}
+	log.Info("email sent successfuly")
 	return nil
 }

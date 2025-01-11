@@ -13,28 +13,26 @@ type RepositoryDetails struct {
 	Value     string
 }
 
-type RepositoryOpts func(*RepositoryDetails)
-
-func WithOperation(operation string) RepositoryOpts {
+func WithOperation(operation string) func(*RepositoryDetails) {
 	return func(rd *RepositoryDetails) {
 		rd.Operation = operation
 	}
 }
 
-func WithField(field, value string) RepositoryOpts {
+func WithField(field, value string) func(*RepositoryDetails) {
 	return func(rd *RepositoryDetails) {
 		rd.Field = field
 		rd.Value = value
 	}
 }
 
-func WithObject(object string) RepositoryOpts {
+func WithObject(object string) func(*RepositoryDetails) {
 	return func(rd *RepositoryDetails) {
 		rd.Object = object
 	}
 }
 
-func (rd RepositoryDetails) MapSQL(err error, opts ...RepositoryOpts) error {
+func (rd RepositoryDetails) MapSQL(err error, opts ...func(*RepositoryDetails)) error {
 	if err == nil {
 		return nil
 	}

@@ -1,29 +1,51 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
+	"pms.auth/internal/domain/password"
+	"pms.auth/internal/domain/timestamp"
+	"pms.pkg/protobuf/dto"
+)
 
 type User struct {
-	ID        uuid.UUID `db:"id"`
-	FirstName string    `db:"first_name"`
-	LastName  string    `db:"last_name"`
-	Email     Email     `db:"email"`
-	Password  Password  `db:"password"`
+	ID        uuid.UUID           `db:"id"`
+	FullName  string              `db:"full_name"`
+	Email     string              `db:"email"`
+	Password  password.Password   `db:"password"`
+	CreatedAt timestamp.Timestamp `db:"created_at"`
+	UpdatedAt timestamp.Timestamp `db:"updated_at"`
 }
 
-func NewUser(firstName, lastName, email, password string) (*User, error) {
-	e := Email(email)
-	if err := e.Validate(); err != nil {
-		return nil, err
+func (u User) DTO() dto.User {
+	return dto.User{
+		Id:        u.ID.String(),
+		FullName:  u.FullName,
+		Email:     u.Email,
+		CreatedAt: timestamppb.New(time.Time(u.CreatedAt)),
+		UpdatedAt: timestamppb.New(time.Time(u.UpdatedAt)),
 	}
-	p, err := NewPassword(password)
-	if err != nil {
-		return nil, err
+}
+
+func (u *User) FromDTO(dto *dto.User) {
+	if dto == nil {
+		return
 	}
-	return &User{
-		ID:        uuid.New(),
-		FirstName: firstName,
-		LastName:  lastName,
-		Email:     e,
-		Password:  p,
-	}, nil
+	if dto.Id != "" {
+		id, err := uuid.Parse(dto.Id)
+		if err == nil {
+			u.ID = id
+		}
+	}
+	if dto.CreatedAt != nil {
+		u.CreatedAt = timestamp.Timestamp(dto.CreatedAt.AsTime())
+	}
+	if dto.UpdatedAt != nil {
+		u.UpdatedAt = timestamp.Timestamp(dto.UpdatedAt.AsTime())
+	}
+	u.FullName = dto.FullName
+	u.Email = dto.Email
+	u.Password = password.Password(dto.Password)
 }

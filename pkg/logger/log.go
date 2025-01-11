@@ -27,7 +27,7 @@ func Init(cfg Config) {
 			},
 		})
 		log.SetOutput(os.Stdout)
-		log.SetLevel(log.InfoLevel)
+		log.SetLevel(log.DebugLevel)
 	} else {
 		log.SetFormatter(&log.JSONFormatter{})
 		log.SetLevel(log.ErrorLevel)

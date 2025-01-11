@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package notifier;
+
+option go_package = "pkg/protobuf/services;pb";
+
+service Notifier {
+    rpc Greet(GreetRequest) returns (GreetResponse);
+}
+
+message GreetRequest {
+    string email = 1;
+    string name = 2;
+}
+
+message GreetResponse {
+    bool success = 1;
+}
