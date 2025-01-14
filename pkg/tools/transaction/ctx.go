@@ -17,7 +17,7 @@ func StartCTX(ctx context.Context, db *sqlx.DB) (context.Context, error) {
 		"func": "transaction.Start",
 	})
 
-	_, err := RetireveCTX(ctx)
+	_, err := RetrieveCTX(ctx)
 	if err == nil {
 		log.Debug("tx already started")
 		return ctx, nil
@@ -35,7 +35,7 @@ func StartCTX(ctx context.Context, db *sqlx.DB) (context.Context, error) {
 	return ctx, nil
 }
 
-func RetireveCTX(ctx context.Context) (*sqlx.Tx, error) {
+func RetrieveCTX(ctx context.Context) (*sqlx.Tx, error) {
 	log := logrus.WithFields(logrus.Fields{
 		"func": "transaction.Retrieve",
 	})
@@ -56,7 +56,7 @@ func EndCTX(ctx context.Context, err error) {
 		"hasErr": err != nil,
 	})
 
-	tx, retieveErr := RetireveCTX(ctx)
+	tx, retieveErr := RetrieveCTX(ctx)
 	if retieveErr != nil {
 		log.WithError(err).Error("failed to retrieve tx")
 		return

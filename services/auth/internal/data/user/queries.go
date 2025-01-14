@@ -23,7 +23,7 @@ func (r *Repository) CreateUser(ctx context.Context, newUser domain.User) (err e
 		err = r.errctx.MapSQL(err, errs.WithOperation("create"))
 	}()
 
-	tx, err := transaction.RetireveCTX(ctx)
+	tx, err := transaction.RetrieveCTX(ctx)
 	if err != nil {
 		tx, err = transaction.Start(r.DB)
 		if err != nil {
@@ -57,7 +57,7 @@ func (r *Repository) GetByEmail(ctx context.Context, email string) (user domain.
 		err = r.errctx.MapSQL(err, errs.WithField("email", email), errs.WithOperation("retrieve"))
 	}()
 
-	tx, err := transaction.RetireveCTX(ctx)
+	tx, err := transaction.RetrieveCTX(ctx)
 	if err != nil {
 		tx, err = transaction.Start(r.DB)
 		if err != nil {
@@ -82,6 +82,7 @@ func (r *Repository) GetByEmail(ctx context.Context, email string) (user domain.
 }
 
 func (r *Repository) Count(ctx context.Context, filter list.Filters) int {
+
 	return 1
 }
 
@@ -107,7 +108,7 @@ func (r *Repository) GetByID(ctx context.Context, id string) (user domain.User, 
 		err = r.errctx.MapSQL(err, errs.WithField("id", id), errs.WithOperation("retrieve"))
 	}()
 
-	tx, err := transaction.RetireveCTX(ctx)
+	tx, err := transaction.RetrieveCTX(ctx)
 	if err != nil {
 		tx, err = transaction.Start(r.DB)
 		if err != nil {

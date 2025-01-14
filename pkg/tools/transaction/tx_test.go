@@ -64,7 +64,7 @@ func TestStart_NewTransaction(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Verify transaction in context
-	retrievedTx, err := RetireveCTX(newCtx)
+	retrievedTx, err := RetrieveCTX(newCtx)
 	assert.NoError(t, err)
 	assert.NotNil(t, retrievedTx)
 
