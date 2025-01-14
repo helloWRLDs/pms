@@ -3,32 +3,18 @@ package render
 import (
 	"bytes"
 	"fmt"
-	"reflect"
 	"text/template"
 
 	"pms.pkg/errs"
 )
 
-var (
-	templates = map[string]string{
-		"render.GreetContent": greetTemplate,
-	}
-	subjects = map[string]string{
-		"render.GreetContent": "Greeting",
-	}
-)
-
-func Render(value any) ([]byte, error) {
-	rt := reflect.TypeOf(value).String()
-
-	templateContent, ok := templates[rt]
-	if !ok {
-		return nil, errs.ErrInternal{
-			Reason: "failed finding email template",
-		}
+func Render(value Renderable) ([]byte, error) {
+	tmpl, err := getTemplate(value.Template())
+	if err != nil {
+		return []byte{}, err
 	}
 
-	t, err := template.New("email").Parse(templateContent)
+	t, err := template.New("email").Parse(string(tmpl))
 	if err != nil {
 		return nil, errs.ErrInternal{
 			Reason: "failed parsing email template",
@@ -37,11 +23,7 @@ func Render(value any) ([]byte, error) {
 
 	var buf bytes.Buffer
 	headers := "MIME-version: 1.0;\nContent-Type: text/html;"
-	subject, ok := subjects[rt]
-	if !ok {
-		subject = "No Subject"
-	}
-	buf.Write([]byte(fmt.Sprintf("Subject: %s\n%s\n\n", subject, headers)))
+	buf.Write([]byte(fmt.Sprintf("Subject: %s\n%s\n\n", value.Subject(), headers)))
 
 	if err := t.Execute(&buf, value); err != nil {
 		return nil, errs.ErrInternal{
