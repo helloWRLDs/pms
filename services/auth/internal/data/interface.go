@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"pms.auth/internal/domain"
-	"pms.pkg/types/list"
+	"pms.pkg/type/list"
 )
 
 type Reader interface {

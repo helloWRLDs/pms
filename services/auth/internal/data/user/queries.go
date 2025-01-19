@@ -8,7 +8,7 @@ import (
 	"pms.auth/internal/domain"
 	"pms.pkg/errs"
 	"pms.pkg/tools/transaction"
-	"pms.pkg/types/list"
+	"pms.pkg/type/list"
 )
 
 func (r *Repository) CreateUser(ctx context.Context, newUser domain.User) (err error) {
@@ -34,11 +34,7 @@ func (r *Repository) CreateUser(ctx context.Context, newUser domain.User) (err e
 		}()
 	}
 
-	query, args, _ := r.gen.
-		Insert("users").
-		Columns("full_name", "email", "password").
-		Values(newUser.FullName, newUser.Email, newUser.Password).
-		ToSql()
+	query, args, _ := r.gen.InsertWithStruct("users", newUser).ToSql()
 
 	if _, err := tx.Exec(query, args...); err != nil {
 		log.WithError(err).Error("failed to create user")

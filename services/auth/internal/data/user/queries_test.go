@@ -31,6 +31,7 @@ func Test_GetByEmail(t *testing.T) {
 	user, err := repo.GetByEmail(context.Background(), email)
 	assert.NoError(t, err)
 	t.Log(utils.JSON(user))
+	t.Log(user.CreatedAt.Format)
 }
 
 func Test_GetByID(t *testing.T) {

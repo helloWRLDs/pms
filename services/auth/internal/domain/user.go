@@ -1,13 +1,11 @@
 package domain
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"pms.auth/internal/domain/password"
-	"pms.auth/internal/domain/timestamp"
 	"pms.pkg/protobuf/dto"
+	"pms.pkg/type/timestamp"
 )
 
 type User struct {
@@ -24,8 +22,8 @@ func (u User) DTO() dto.User {
 		Id:        u.ID.String(),
 		FullName:  u.FullName,
 		Email:     u.Email,
-		CreatedAt: timestamppb.New(time.Time(u.CreatedAt)),
-		UpdatedAt: timestamppb.New(time.Time(u.UpdatedAt)),
+		CreatedAt: timestamppb.New(u.CreatedAt.Time),
+		UpdatedAt: timestamppb.New(u.CreatedAt.Time),
 	}
 }
 
@@ -40,10 +38,10 @@ func (u *User) FromDTO(dto *dto.User) {
 		}
 	}
 	if dto.CreatedAt != nil {
-		u.CreatedAt = timestamp.Timestamp(dto.CreatedAt.AsTime())
+		u.CreatedAt = timestamp.WithFormat(dto.CreatedAt.AsTime(), timestamp.SQLITE_FORMAT)
 	}
 	if dto.UpdatedAt != nil {
-		u.UpdatedAt = timestamp.Timestamp(dto.UpdatedAt.AsTime())
+		u.UpdatedAt = timestamp.WithFormat(dto.UpdatedAt.AsTime(), timestamp.SQLITE_FORMAT)
 	}
 	u.FullName = dto.FullName
 	u.Email = dto.Email

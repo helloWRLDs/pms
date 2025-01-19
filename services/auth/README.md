@@ -1,3 +1,1 @@
-
-- CRUD
-- Authorize
+# Authorization Service
