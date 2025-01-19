@@ -7,10 +7,7 @@ import (
 )
 
 func Test_Render(t *testing.T) {
-	greet := GreetContent{
-		CompanyName: "",
-		Name:        "Bob",
-	}
+	greet := NewGreetContent("Bob", "AITU")
 	t.Log("subject: ", greet.Subject())
 	t.Log("template: ", greet.Template())
 

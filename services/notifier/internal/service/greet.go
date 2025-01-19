@@ -13,12 +13,9 @@ func (s *NotifierService) GreetUser(ctx context.Context, name, email string) err
 		"name":  name,
 		"email": email,
 	})
-	log.Info("GreetUser called")
+	log.Debug("GreetUser called")
 
-	greeting := render.GreetContent{
-		Name:        name,
-		CompanyName: "<company-name>",
-	}
+	greeting := render.NewGreetContent(name, "<company-name>")
 
 	data, err := render.Render(greeting)
 	if err != nil {
@@ -30,6 +27,6 @@ func (s *NotifierService) GreetUser(ctx context.Context, name, email string) err
 		log.WithError(err).Error("failed to send email")
 		return err
 	}
-	log.Info("email sent successfuly")
+	log.Debug("email sent successfuly")
 	return nil
 }

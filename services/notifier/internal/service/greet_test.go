@@ -8,6 +8,6 @@ import (
 )
 
 func Test_Greeter(t *testing.T) {
-	err := Notifier.GreetUser(context.Background(), "Bob", "danil.li24x@gmail.com")
+	err := Notifier.GreetUser(context.Background(), "Danil", "danil.li24x@gmail.com")
 	assert.NoError(t, err)
 }

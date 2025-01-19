@@ -11,7 +11,7 @@ import (
 func Render(value Renderable) ([]byte, error) {
 	tmpl, err := getTemplate(value.Template())
 	if err != nil {
-		return []byte{}, err
+		return nil, err
 	}
 
 	t, err := template.New("email").Parse(string(tmpl))

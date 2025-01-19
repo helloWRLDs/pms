@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"flag"
 
 	"pms.notifier/internal/config"
+	"pms.notifier/internal/service"
 	"pms.pkg/utils"
 )
 
@@ -15,5 +17,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	print(utils.JSON(conf))
+	notifer := service.New(conf.Gmail)
+	notifer.GreetUser(context.Background(), "John", "danil.li24x@gmail.com")
 }
