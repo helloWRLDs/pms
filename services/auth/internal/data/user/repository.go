@@ -1,34 +1,25 @@
 package userdata
 
 import (
+	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
-	"pms.auth/internal/data"
 	"pms.pkg/errs"
-	"pms.pkg/tools/sqlbuilder"
 )
 
 var (
-	_ data.Reader = &Repository{}
+	_ Reader = &Repository{}
 )
 
 type Repository struct {
 	DB     *sqlx.DB
-	gen    *sqlbuilder.Builder
+	gen    sq.StatementBuilderType
 	errctx errs.RepositoryDetails
 }
 
 func New(db *sqlx.DB) *Repository {
-	repo := &Repository{
+	return &Repository{
 		DB:     db,
-		gen:    sqlbuilder.New(sqlbuilder.SQLITE),
-		errctx: errs.RepositoryDetails{Object: "user"},
+		gen:    sq.StatementBuilder.PlaceholderFormat(sq.Question),
+		errctx: errs.RepositoryDetails{Object: "user", DBType: "SQLITE"},
 	}
-	repo.gen.IgnoreOnInsert(
-		"id",
-		"created_at",
-		"updated_at",
-	)
-	repo.ApplyMigrations()
-
-	return repo
 }

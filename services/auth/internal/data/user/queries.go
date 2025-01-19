@@ -5,13 +5,14 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sirupsen/logrus"
-	"pms.auth/internal/domain"
+	userdomain "pms.auth/internal/domain/user"
+	"pms.pkg/datastore/utils"
 	"pms.pkg/errs"
 	"pms.pkg/tools/transaction"
 	"pms.pkg/type/list"
 )
 
-func (r *Repository) CreateUser(ctx context.Context, newUser domain.User) (err error) {
+func (r *Repository) CreateUser(ctx context.Context, newUser userdomain.User) (err error) {
 	log := logrus.WithFields(logrus.Fields{
 		"func":      "CreateUser",
 		"email":     newUser.Email,
@@ -20,7 +21,7 @@ func (r *Repository) CreateUser(ctx context.Context, newUser domain.User) (err e
 	log.Debug("CreateUser called")
 
 	defer func() {
-		err = r.errctx.MapSQL(err, errs.WithOperation("create"))
+		err = r.errctx.MapSQL(err, errs.WithOperation("create"), errs.WithField("email", newUser.Email))
 	}()
 
 	tx, err := transaction.RetrieveCTX(ctx)
@@ -34,7 +35,15 @@ func (r *Repository) CreateUser(ctx context.Context, newUser domain.User) (err e
 		}()
 	}
 
-	query, args, _ := r.gen.InsertWithStruct("users", newUser).ToSql()
+	mapper := utils.
+		NewEnityMapper(newUser).
+		Ignore("id", "created_at", "updated_at")
+
+	query, args, _ := r.gen.
+		Insert("user").
+		Columns(mapper.Columns()...).
+		Values(mapper.Values()...).
+		ToSql()
 
 	if _, err := tx.Exec(query, args...); err != nil {
 		log.WithError(err).Error("failed to create user")
@@ -44,7 +53,7 @@ func (r *Repository) CreateUser(ctx context.Context, newUser domain.User) (err e
 	return nil
 }
 
-func (r *Repository) GetByEmail(ctx context.Context, email string) (user domain.User, err error) {
+func (r *Repository) GetByEmail(ctx context.Context, email string) (user userdomain.User, err error) {
 	log := logrus.
 		WithField("email", email).
 		WithField("func", "GetByEmail")
@@ -66,7 +75,7 @@ func (r *Repository) GetByEmail(ctx context.Context, email string) (user domain.
 
 	query, args, _ := r.gen.
 		Select("*").
-		From("users").
+		From("user").
 		Where(sq.Eq{"email": email}).
 		ToSql()
 
@@ -86,7 +95,7 @@ func (r *Repository) Exists(ctx context.Context, email string) bool {
 	var exists bool
 	query := `
 		SELECT EXISTS(
-			SELECT * FROM Users WHERE email = ?
+			SELECT * FROM User WHERE email = ?
 		);
 	`
 	if err := r.DB.QueryRowx(query, email).Scan(&exists); err != nil {
@@ -95,7 +104,7 @@ func (r *Repository) Exists(ctx context.Context, email string) bool {
 	return exists
 }
 
-func (r *Repository) GetByID(ctx context.Context, id string) (user domain.User, err error) {
+func (r *Repository) GetByID(ctx context.Context, id string) (user userdomain.User, err error) {
 	log := logrus.
 		WithField("id", id).
 		WithField("func", "Get")
@@ -117,7 +126,7 @@ func (r *Repository) GetByID(ctx context.Context, id string) (user domain.User, 
 
 	query, args, _ := r.gen.
 		Select("*").
-		From("users").
+		From("user").
 		Where(sq.Eq{"id": id}).
 		ToSql()
 
@@ -128,6 +137,6 @@ func (r *Repository) GetByID(ctx context.Context, id string) (user domain.User, 
 	return user, nil
 }
 
-func (r *Repository) List(ctx context.Context, filter list.Filters) (list.List[domain.User], error) {
-	return list.List[domain.User]{}, nil
+func (r *Repository) List(ctx context.Context, filter list.Filters) (list.List[userdomain.User], error) {
+	return list.List[userdomain.User]{}, nil
 }

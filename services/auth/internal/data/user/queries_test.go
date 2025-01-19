@@ -5,14 +5,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"pms.auth/internal/domain"
-	"pms.auth/internal/domain/password"
+	userdomain "pms.auth/internal/domain/user"
+	"pms.auth/internal/domain/user/password"
 	"pms.pkg/tools/transaction"
 	"pms.pkg/utils"
 )
 
 func Test_CreateUser(t *testing.T) {
-	user := domain.User{
+	user := userdomain.User{
 		FullName: "Bob",
 		Email:    "bob@gmail.com",
 	}
@@ -44,7 +44,7 @@ func Test_GetByID(t *testing.T) {
 }
 
 func Test_Transaction(t *testing.T) {
-	user := domain.User{
+	user := userdomain.User{
 		FullName: "Bob",
 		Email:    "bob@gmail.com",
 	}

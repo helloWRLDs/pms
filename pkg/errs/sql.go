@@ -4,9 +4,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 type RepositoryDetails struct {
+	DBType    string
 	Operation string
 	Object    string
 	Field     string
@@ -39,16 +41,22 @@ func (rd RepositoryDetails) MapSQL(err error, opts ...func(*RepositoryDetails)) 
 	for _, fn := range opts {
 		fn(&rd)
 	}
-	switch {
-	case errors.Is(err, sql.ErrNoRows):
+	if errors.Is(err, sql.ErrNoRows) {
 		return ErrNotFound{
 			Object: rd.Object,
 			Field:  rd.Field,
 			Value:  rd.Value,
 		}
-	default:
-		return ErrInternal{
-			Reason: fmt.Sprintf("failed to %s %s", rd.Operation, rd.Object),
+	}
+	if rd.DBType == "SQLITE" {
+		if strings.Contains(err.Error(), "2067") {
+			return ErrConflict{
+				Reason: fmt.Sprintf("%s with %s = %s already exists", rd.Object, rd.Field, rd.Value),
+			}
 		}
+	}
+
+	return ErrInternal{
+		Reason: fmt.Sprintf("failed to %s %s", rd.Operation, rd.Object),
 	}
 }

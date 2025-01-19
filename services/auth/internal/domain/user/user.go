@@ -1,9 +1,9 @@
-package domain
+package userdomain
 
 import (
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"pms.auth/internal/domain/password"
+	"pms.auth/internal/domain/user/password"
 	"pms.pkg/protobuf/dto"
 	"pms.pkg/type/timestamp"
 )
@@ -12,7 +12,7 @@ type User struct {
 	ID        uuid.UUID           `db:"id"`
 	FullName  string              `db:"full_name"`
 	Email     string              `db:"email"`
-	Password  password.Password   `db:"password"`
+	Password  password.Password   `db:"password_hash"`
 	CreatedAt timestamp.Timestamp `db:"created_at"`
 	UpdatedAt timestamp.Timestamp `db:"updated_at"`
 }
