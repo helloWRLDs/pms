@@ -11,7 +11,7 @@ var (
 			ClientID:     "",
 			ClientSecret: "",
 			RedirectURL:  "",
-			HOST:         "https://api.github.co",
+			HOST:         "https://api.github.com",
 			Scopes:       []string{"user"},
 		},
 		accessToken: "token",

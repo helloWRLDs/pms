@@ -41,10 +41,6 @@ func (c *Client) SetToken(code string) error {
 		Headers: c.setHeaders(),
 		Body:    []byte(data.Encode()),
 	}
-	if err := details.Build(); err != nil {
-		log.WithError(err).Error("failed to build request")
-		return err
-	}
 
 	status, res, err := details.Make()
 	if err != nil {

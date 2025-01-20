@@ -45,3 +45,7 @@ func New(conf config.Config) *Server {
 
 	return &srv
 }
+
+func (r *Server) Start() error {
+	return r.Listen(r.Host)
+}
