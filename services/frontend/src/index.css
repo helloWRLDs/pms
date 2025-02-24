@@ -1,92 +1,22 @@
-:root {
-  --background-color-1: white;
+@import "tailwindcss";
 
-  --primary-color-1: #2C3E50;
-  --primary-color-2: #4A90E2;
-  --primary-color-2: #4A90E2;
-  --primary-color-3: #87CEEB;
-  --primary-color-4: #DCEFFE;
-  --primary-color-5: #34495E;
-  
-  --neutral-color-1: #F5F5F5;
-  --neutral-color-2: #2E2E2E;
 
-  
-  --accent-color-1: #4682B4;
-  --accent-color-2: #007BA7;
-  --accent-color-2: #B0E0E6;
+@theme {
+  /* Primary Color Shades */
+--color-primary-100: rgb(50, 50, 50);   /* Lightest */
+--color-primary-200: rgb(40, 40, 40);
+--color-primary-300: rgb(35, 35, 35);
+--color-primary-400: rgb(28, 28, 28);
+--color-primary-500: rgb(21, 21, 21);   /* Base */
+--color-primary-600: rgb(15, 15, 15);
+--color-primary-700: rgb(10, 10, 10);   /* Darkest */
 
-  margin: 0;
-  padding: 0;
-  outline: none;
-  border: none;
-
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Neutral Color Shades */
+--color-neutral-100: rgb(180, 180, 180); /* Lightest */
+--color-neutral-200: rgb(160, 160, 160);
+--color-neutral-300: rgb(140, 140, 140);
+--color-neutral-400: rgb(120, 120, 120);
+--color-neutral-500: rgb(102, 102, 102); /* Base */
+--color-neutral-600: rgb(80, 80, 80);
+--color-neutral-700: rgb(60, 60, 60);   /* Darkest */
 }
-
-.primary-1 {
-  background-color: var(--primary-color-1);
-}
-
-.primary-2 {
-  background-color: var(--primary-color-2);
-}
-.primary-3 {
-  background-color: var(--primary-color-3);
-}
-.primary-4 {
-  background-color: var(--primary-color-4);
-}
-.primary-5 {
-  background-color: var(--primary-color-5);
-}
-
-/* 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --primary-color-1: #ffffff;
-    --neutral-color: #454545;
-    --accent-color: #F1AB86;
-  }
-}
-
-@media (preferes-color-scheme: light) {
-  :root {
-    --primary-color-1: #251605;
-    --neutral-color: #C57B57;
-    --accent-color: #F1AB86;
-  }
-} */
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  /* margin: 0; */
-  /* display: flex; */
-  min-width: 320px;
-  min-height: 100vh;
-  background-color: var(--background-color-1);
-}
-
-.container {
-  background-color: var(--accent-color);
-  width: 1200px;
-  margin: 0 auto;
-}
-

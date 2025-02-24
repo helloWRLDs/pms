@@ -1,45 +1,31 @@
-import { useEffect } from 'react'
-import useAuth from './hooks/useAuth'
-import { Button } from './components/ui/Button'
-import { Modal } from './components/ui/Modal'
-import { useModal } from './hooks/useModal'
-import { useLoading } from './hooks/useToast'
-import { infoToast } from './utils/toast'
-import { Header } from './components/ui/Header'
-import { Gi3dGlasses } from "react-icons/gi";
+import { useEffect } from "react";
+import useAuth from "./hooks/useAuth";
+import { Header } from "./components/ui/Header";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import HomePage from "./pages/HomePage.tsx";
+import DashboardPage from "./pages/DashboardPage.tsx";
+import LoginPage from "./pages/LoginPage.tsx";
+import RegisterPage from "./pages/RegisterPage.tsx";
 
 function App() {
-
-  const {isAuthenticated} = useAuth()
+  const { isAuthenticated } = useAuth();
   useEffect(() => {
-    console.log(isAuthenticated)
-  }, [])
-
-  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-  const [someModal, toggleSomeModal, closeSomeModal] = useModal(false)
+    console.log(isAuthenticated);
+  }, []);
 
   return (
-    <div className='container'>
-      <Header logoURL='./src/assets/logo.png'>
-
-      </Header>
-
-
-      <Button size='md' color='primary-1' icon={Gi3dGlasses} onClick= {async() => {
-        const { done } = useLoading('loading users...')
-        await sleep(5000)
-        done('fetched users', true)
-      }}>Yo</Button>
-      <Button size='md' onClick={ () => {
-        toggleSomeModal()
-        infoToast("user created")
-      }}>Toggle Modal</Button>
-      <Modal visible={someModal} title='Some modal title' onClose={closeSomeModal}>
-        Some modal
-      </Modal>
-    </div>
-  )
+    <>
+      <Header logoURL="./src/assets/logo.png" />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+        </Routes>
+      </BrowserRouter>
+    </>
+  );
 }
 
-export default App
+export default App;

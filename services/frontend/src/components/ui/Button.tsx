@@ -1,5 +1,4 @@
 import { ComponentProps, FC, ReactNode } from "react";
-import './button.css'
 import { IconType } from "react-icons";
 
 

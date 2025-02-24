@@ -1,6 +1,5 @@
 import { PropsWithChildren } from 'react';
 import { IoCloseSharp } from "react-icons/io5";
-import './modal.css'
 import { useOutsideClick } from '../../hooks/useModal';
 
 interface Props extends PropsWithChildren {

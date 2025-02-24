@@ -3,9 +3,14 @@ import { isTokenValid } from "../utils/jwt";
 
 const AUTH_KEY = "auth";
 
+interface UserData {
+  id: string;
+  email: string;
+}
+
 interface AuthState {
   token: string | null;
-  user: { id: string; email: string } | null;
+  user: UserData | null;
 }
 
 const loadInitialState = (): AuthState => {
