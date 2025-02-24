@@ -3,7 +3,10 @@ package userdata
 import (
 	"context"
 	"testing"
+	"time"
 
+	"github.com/gofiber/fiber/v2/log"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	userdomain "pms.auth/internal/domain/user"
 	"pms.auth/internal/domain/user/password"
@@ -21,8 +24,17 @@ func Test_CreateUser(t *testing.T) {
 		t.Fatal(err)
 	}
 	user.Password = pass
+	id := uuid.New()
+	user.ID = id
+	log.Info(id)
 
-	err = repo.CreateUser(context.Background(), user)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err = repo.Create(
+		ctx,
+		user,
+	)
 	assert.NoError(t, err)
 }
 
@@ -53,7 +65,7 @@ func Test_Transaction(t *testing.T) {
 		transaction.EndCTX(ctx, err)
 	}()
 	assert.NoError(t, err)
-	err = repo.CreateUser(ctx, user)
+	err = repo.Create(ctx, user)
 	assert.NoError(t, err)
 }
 

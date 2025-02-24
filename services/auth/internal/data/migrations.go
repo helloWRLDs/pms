@@ -28,27 +28,26 @@ func (r *Repository) ApplyMigrations(db *sqlx.DB) error {
 		return err
 	}
 
-	// err = fs.WalkDir(migrations, "docs", func(path string, d fs.DirEntry, err error) error {
-	// 	log := log.WithField("path", path)
-	// 	if strings.HasSuffix(path, "sql") {
-	// 		q, err := migrations.ReadFile(path)
-	// 		if err != nil {
-	// 			log.WithError(err).Error("failed read script file")
-	// 			return err
-	// 		}
-	// 		_, err = tx.Exec(string(q))
-	// 		if err != nil {
-	// 			log.WithError(err).Error("failed to apply migration")
-	// 			return err
-	// 		}
-	// 		log.Debug("applied migration")
-	// 		return nil
-	// 	}
-	// 	return nil
-	// })
-	// if err != nil {
-	// 	return err
-	// }
 	log.Debug("migrations applied successfuly")
+	return nil
+}
+
+func (r *Repository) RevertMigrations(db *sqlx.DB) error {
+	log := logrus.WithFields(logrus.Fields{
+		"func": "RevertMigrations",
+	})
+
+	goose.SetBaseFS(migrations)
+
+	if err := goose.SetDialect("sqlite3"); err != nil {
+		log.WithError(err).Error("failed to set dialect - sqlite3")
+		return err
+	}
+
+	if err := goose.Down(db.DB, "migrations"); err != nil {
+		log.WithError(err).Error("failed to revert migrations")
+		return err
+	}
+	log.Debug("failed to revert migrations")
 	return nil
 }

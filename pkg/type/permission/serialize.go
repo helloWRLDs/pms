@@ -32,15 +32,18 @@ func (p *PermissionSet) Scan(value interface{}) error {
 		*p = []Permission{}
 		return nil
 	}
+
 	str, ok := value.(string)
 	if !ok {
-		return fmt.Errorf("invalid data type")
+		return fmt.Errorf("invalid data type for PermissionSet: %T", value)
 	}
+
 	var permString []string
 	if err := json.Unmarshal([]byte(str), &permString); err != nil {
 		return err
 	}
-	var permSet []Permission
+
+	var permSet PermissionSet
 	for _, perm := range permString {
 		permSet = append(permSet, ParsePermission(perm))
 	}
@@ -48,6 +51,10 @@ func (p *PermissionSet) Scan(value interface{}) error {
 	return nil
 }
 
-func (p *PermissionSet) Value() (driver.Value, error) {
-	return json.Marshal(p.StringArray())
+func (p PermissionSet) Value() (driver.Value, error) {
+	data, err := json.Marshal(p.StringArray())
+	if err != nil {
+		return nil, err
+	}
+	return string(data), nil
 }

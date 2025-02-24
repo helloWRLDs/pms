@@ -17,8 +17,8 @@ func (c *Client) setHeaders(headers ...string) map[string]string {
 	h := make(map[string]string, 0)
 	if c.accessToken != "" {
 		h["Authorization"] = fmt.Sprintf("Bearer %s", c.accessToken)
-		h["Content-Type"] = "application/json"
 	}
+	h["Content-Type"] = "application/json"
 	for i := 0; i < len(headers); i += 2 {
 		if i+2 > len(headers) {
 			continue

@@ -1,4 +1,4 @@
-package userdata
+package data
 
 import (
 	"os"
@@ -10,18 +10,17 @@ import (
 )
 
 const (
-	dsn = "../../../data/users.db"
+	dsn = "../../data/users.db"
 )
 
 var (
-	repo Repository
+	repo *Repository
 )
 
 func TestMain(m *testing.M) {
 	setupLogger()
 	setupDB()
 	code := m.Run()
-	terminate(repo)
 	os.Exit(code)
 }
 
@@ -38,11 +37,9 @@ func setupDB() {
 	if err != nil {
 		logrus.WithError(err).Fatal("failed to connect to db")
 	}
-	repo = *New(db)
+	repo = New(db)
 }
 
-func terminate(repo Repository) {
-	if err := repo.DB.Close(); err != nil {
-		panic(err)
-	}
+func Test_Test(t *testing.T) {
+	t.Log("migrate test")
 }

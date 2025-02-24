@@ -4,6 +4,7 @@ import (
 	"context"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	userdomain "pms.auth/internal/domain/user"
 	"pms.pkg/datastore/utils"
@@ -12,7 +13,7 @@ import (
 	"pms.pkg/type/list"
 )
 
-func (r *Repository) CreateUser(ctx context.Context, newUser userdomain.User) (err error) {
+func (r *Repository) Create(ctx context.Context, newUser userdomain.User) (err error) {
 	log := logrus.WithFields(logrus.Fields{
 		"func":      "CreateUser",
 		"email":     newUser.Email,
@@ -37,7 +38,11 @@ func (r *Repository) CreateUser(ctx context.Context, newUser userdomain.User) (e
 
 	mapper := utils.
 		NewEnityMapper(newUser).
-		Ignore("id", "created_at", "updated_at")
+		Ignore("created_at", "updated_at")
+
+	if newUser.ID == uuid.Nil {
+		mapper.Ignore("id")
+	}
 
 	query, args, _ := r.gen.
 		Insert("user").
@@ -48,6 +53,9 @@ func (r *Repository) CreateUser(ctx context.Context, newUser userdomain.User) (e
 	if _, err := tx.Exec(query, args...); err != nil {
 		log.WithError(err).Error("failed to create user")
 		return err
+	}
+	if err != nil {
+		log.WithError(err).Error("failed to retieve last inserted id")
 	}
 	log.Debug("user created")
 	return nil

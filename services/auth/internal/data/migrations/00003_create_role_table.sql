@@ -3,7 +3,9 @@
 CREATE TABLE IF NOT EXISTS "Role" (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	name TEXT UNIQUE NOT NULL,
-	permissions TEXT NOT NULL DEFAULT '[]' -- Store JSON as TEXT
+	permissions TEXT NOT NULL DEFAULT '[]', -- Store JSON as TEXT
+	org_id VARCHAR(36) DEFAULT NULL,
+	FOREIGN KEY (org_id) REFERENCES Organization(id) ON DELETE CASCADE
 );
 -- +goose StatementEnd
 
