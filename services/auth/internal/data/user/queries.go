@@ -4,20 +4,18 @@ import (
 	"context"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-	userdomain "pms.auth/internal/domain/user"
-	"pms.pkg/datastore/utils"
+	userentity "pms.auth/internal/entity/user"
 	"pms.pkg/errs"
 	"pms.pkg/tools/transaction"
 	"pms.pkg/type/list"
 )
 
-func (r *Repository) Create(ctx context.Context, newUser userdomain.User) (err error) {
+func (r *Repository) Create(ctx context.Context, newUser userentity.User) (err error) {
 	log := logrus.WithFields(logrus.Fields{
-		"func":      "CreateUser",
-		"email":     newUser.Email,
-		"full_name": newUser.FullName,
+		"func":  "CreateUser",
+		"email": newUser.Email,
+		"name":  newUser.Name,
 	})
 	log.Debug("CreateUser called")
 
@@ -36,18 +34,10 @@ func (r *Repository) Create(ctx context.Context, newUser userdomain.User) (err e
 		}()
 	}
 
-	mapper := utils.
-		NewEnityMapper(newUser).
-		Ignore("created_at", "updated_at")
-
-	if newUser.ID == uuid.Nil {
-		mapper.Ignore("id")
-	}
-
 	query, args, _ := r.gen.
 		Insert("user").
-		Columns(mapper.Columns()...).
-		Values(mapper.Values()...).
+		Columns("name", "email", "password").
+		Values(newUser.Name, newUser.Email, newUser.Password).
 		ToSql()
 
 	if _, err := tx.Exec(query, args...); err != nil {
@@ -61,7 +51,7 @@ func (r *Repository) Create(ctx context.Context, newUser userdomain.User) (err e
 	return nil
 }
 
-func (r *Repository) GetByEmail(ctx context.Context, email string) (user userdomain.User, err error) {
+func (r *Repository) GetByEmail(ctx context.Context, email string) (user userentity.User, err error) {
 	log := logrus.
 		WithField("email", email).
 		WithField("func", "GetByEmail")
@@ -112,7 +102,7 @@ func (r *Repository) Exists(ctx context.Context, email string) bool {
 	return exists
 }
 
-func (r *Repository) GetByID(ctx context.Context, id string) (user userdomain.User, err error) {
+func (r *Repository) GetByID(ctx context.Context, id string) (user userentity.User, err error) {
 	log := logrus.
 		WithField("id", id).
 		WithField("func", "Get")
@@ -145,6 +135,6 @@ func (r *Repository) GetByID(ctx context.Context, id string) (user userdomain.Us
 	return user, nil
 }
 
-func (r *Repository) List(ctx context.Context, filter list.Filters) (list.List[userdomain.User], error) {
-	return list.List[userdomain.User]{}, nil
+func (r *Repository) List(ctx context.Context, filter list.Filters) (list.List[userentity.User], error) {
+	return list.List[userentity.User]{}, nil
 }

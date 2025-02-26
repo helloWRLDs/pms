@@ -8,16 +8,16 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	userdomain "pms.auth/internal/domain/user"
 	"pms.auth/internal/domain/user/password"
+	userentity "pms.auth/internal/entity/user"
 	"pms.pkg/tools/transaction"
 	"pms.pkg/utils"
 )
 
 func Test_CreateUser(t *testing.T) {
-	user := userdomain.User{
-		FullName: "Bob",
-		Email:    "bob@gmail.com",
+	user := userentity.User{
+		Name:  "Bob",
+		Email: "bob@gmail.com",
 	}
 	pass, err := password.New("12345")
 	if err != nil {
@@ -56,9 +56,9 @@ func Test_GetByID(t *testing.T) {
 }
 
 func Test_Transaction(t *testing.T) {
-	user := userdomain.User{
-		FullName: "Bob",
-		Email:    "bob@gmail.com",
+	user := userentity.User{
+		Name:  "Bob",
+		Email: "bob@gmail.com",
 	}
 	ctx, err := transaction.StartCTX(context.Background(), repo.DB)
 	defer func() {

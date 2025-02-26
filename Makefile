@@ -1,5 +1,5 @@
 # Set environment
-include .env
+# include .env
 
 path:
 	@export GOPATH=$$HOME/go
@@ -17,7 +17,6 @@ protoc:
 	@echo "Generating protobuf files..."
 	protoc  --go_out=. --go-grpc_out=. .\services\${SERVICE}\proto\${SERVICE}_service.proto
 	protoc  --go_out=. --go-grpc_out=. .\services\${SERVICE}\proto\${SERVICE}.proto
-
 
 # Run services
 run:

@@ -8,20 +8,48 @@ import "google/protobuf/timestamp.proto";
 
 message User {
     string id = 1;
-    string full_name = 2;
+    string name = 2;
     string email = 3;
     string password = 4;
     google.protobuf.Timestamp created_at = 5;
     google.protobuf.Timestamp updated_at = 6;
 }
 
+message Company {
+    string id = 1;
+    string name = 2;
+    string codename = 3;
+    google.protobuf.Timestamp created_at = 4;
+    google.protobuf.Timestamp updated_at = 5;
+}
+
+message Participant {
+    int32 id = 1;
+    User user = 2;
+    Company company = 3;
+    string permissions = 4;
+    google.protobuf.Timestamp created_at = 5;
+    google.protobuf.Timestamp updated_at = 6;
+}
+
+message NewParticipant {
+    string user_id = 1;
+    string company_id = 2;
+    string permissions = 3;
+}
+
+message NewCompany {
+    string name = 1;
+    string codename = 2;
+}
+
 message NewUser {
-    string full_name = 1;
+    string name = 1;
     string email = 2;
     string password = 3;
 }
 
-message UserCreds {
+message UserCredentials {
     string email = 1;
     string password = 2;
 }

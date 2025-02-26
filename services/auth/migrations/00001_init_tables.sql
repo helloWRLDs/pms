@@ -1,0 +1,43 @@
+-- +goose Up
+-- +goose StatementBegin
+CREATE TABLE IF NOT EXISTS "User" (
+	"id" VARCHAR(36) UNIQUE,
+	"email" VARCHAR NOT NULL UNIQUE,
+	"password" VARCHAR,
+	"name" VARCHAR NOT NULL,
+	"created_at" TIMESTAMP DEFAULT (CURRENT_TIMESTAMP),
+	"updated_at" TIMESTAMP DEFAULT (CURRENT_TIMESTAMP),
+	PRIMARY KEY("id")
+);
+
+CREATE TABLE IF NOT EXISTS "Company" (
+	"id" VARCHAR(36) UNIQUE,
+	"name" VARCHAR UNIQUE,
+	"codename" TEXT,
+	"created_at" TIMESTAMP DEFAULT (CURRENT_TIMESTAMP),
+	"updated_at" TIMESTAMP DEFAULT (CURRENT_TIMESTAMP),
+	PRIMARY KEY("id")
+);
+
+CREATE TABLE IF NOT EXISTS "Participant" (
+	"id" INTEGER,
+	"user_id" VARCHAR NOT NULL,
+	"company_id" VARCHAR NOT NULL,
+	"permissions" TEXT,
+	"created_at" TIMESTAMP DEFAULT (CURRENT_TIMESTAMP),
+	"updated_at" TIMESTAMP DEFAULT (CURRENT_TIMESTAMP),
+	PRIMARY KEY("id"),
+	FOREIGN KEY ("user_id") REFERENCES "User"("id")
+	ON UPDATE NO ACTION ON DELETE CASCADE,
+	FOREIGN KEY ("company_id") REFERENCES "Company"("id")
+	ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+DROP TABLE "Participant";
+DROP TABLE "Company";
+DROP TABLE "User";
+-- +goose StatementEnd

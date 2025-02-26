@@ -8,6 +8,7 @@ import (
 
 var (
 	_ Reader = &Repository{}
+	_ Writer = &Repository{}
 )
 
 type Repository struct {

@@ -2,4 +2,14 @@
 
 ## ERD
 
-![erd](./docs/erd.png)
+![erd](./docs/auth_erd.png)
+
+## Migrations
+
+```bash
+goose -dir ./migrations sqlite "./data/users.db" up
+```
+
+```bash
+goose -dir ./migrations sqlite "./data/users.db" down
+```
