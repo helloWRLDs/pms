@@ -1,15 +1,13 @@
 package github
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/sirupsen/logrus"
-	"pms.pkg/utils/request"
+	"pms.pkg/tools/httpclient"
 )
 
 func (c *Client) AuthURL(state string) string {
@@ -35,21 +33,20 @@ func (c *Client) SetToken(code string) error {
 	data.Set("code", code)
 	data.Set("redirect_uri", c.Conf.RedirectURL)
 
-	details := request.Details{
-		Method:  http.MethodPost,
-		URL:     "https://github.com/login/oauth/access_token",
-		Headers: c.setHeaders(),
-		Body:    []byte(data.Encode()),
-	}
+	res, err := httpclient.New().
+		Method("POST").
+		URL("https://github.com/login/oauth/access_token").
+		Body(data.Encode()).
+		Headers(c.headers()...).
+		Do()
 
-	status, res, err := details.Make()
 	if err != nil {
 		log.WithError(err).Error("failed to make request")
 		return err
 	}
 
-	if status >= 400 {
-		log.WithField("res", string(res)).Error("GitHub OAuth request failed")
+	if res.Status >= 400 {
+		log.WithField("res", res.Status).Error("GitHub OAuth request failed")
 		return errors.New("GitHub OAuth request failed")
 	}
 
@@ -59,12 +56,9 @@ func (c *Client) SetToken(code string) error {
 		Scope       string `json:"scope"`
 	}
 
-	if err = json.Unmarshal(res, &authResponse); err != nil {
-		log.WithError(err).Error("failed to parse GitHub token response")
+	if err = res.ScanJSON(&authResponse); err != nil {
 		return err
 	}
-
 	c.accessToken = authResponse.AccessToken
-
 	return nil
 }

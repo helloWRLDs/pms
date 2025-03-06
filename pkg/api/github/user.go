@@ -1,13 +1,12 @@
 package github
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"pms.pkg/tools/httpclient"
 	"pms.pkg/utils"
-	"pms.pkg/utils/request"
 )
 
 type User struct {
@@ -27,35 +26,29 @@ type User struct {
 	UpdatedAt        time.Time `json:"updated_at"`
 }
 
-func (c *Client) GetUserData() (User, error) {
+func (c *Client) GetUserData() (user User, err error) {
 	log := logrus.WithField("func", "GetUserData")
 
 	if !utils.ContainsInArray(c.Conf.Scopes, "user") {
-		return User{}, fmt.Errorf("missing scope for this action")
+		return user, fmt.Errorf("missing scope for this action")
 	}
 
-	details := request.Details{
-		Method:  "GET",
-		URL:     fmt.Sprintf("%s/user", c.Conf.HOST),
-		Headers: c.setHeaders(),
-	}
-	err := details.Build()
-	if err != nil {
-		log.WithError(err).Error("failed to build request")
-		return User{}, err
-	}
-	status, res, err := details.Make()
+	res, err := httpclient.New().
+		Method("GET").
+		Headers(c.headers()...).
+		URL(fmt.Sprintf("%s/user", c.Conf.HOST)).
+		Do()
+
 	if err != nil {
 		log.WithError(err).Error("failed to make request")
-		return User{}, err
+		return user, err
 	}
-	if status >= 400 {
-		log.WithField("res", string(res)).Error("failed to make request")
-		return User{}, err
+	if res.Status >= 400 {
+		log.WithField("res", res.Status).Error("failed to make request")
+		return user, err
 	}
-	var user User
-	if err = json.Unmarshal(res, &user); err != nil {
-		return User{}, err
+	if err = res.ScanJSON(&user); err != nil {
+		return user, err
 	}
 	return user, nil
 }

@@ -10,6 +10,12 @@ type Config struct {
 	Scopes       []string
 }
 
+func (c *Client) headers() []string {
+	return []string{
+		"Authorization", fmt.Sprintf("Bearer %s", c.accessToken),
+	}
+}
+
 // Default headers:
 //  - Content-Type: application/json
 //  - Authorization: Bearer <access-token>
