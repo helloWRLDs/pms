@@ -26,11 +26,11 @@ func TestMain(m *testing.M) {
 }
 
 func setupLogger() {
-	conf := logger.Config{
-		Dev:  true,
-		Path: "",
-	}
-	logger.Init(conf)
+	logger.WithConfig(
+		logger.WithDev(true),
+		logger.WithLevel("debug"),
+		logger.WithCaller(true),
+	).Init()
 }
 
 func setupDB() {
@@ -38,7 +38,7 @@ func setupDB() {
 	if err != nil {
 		logrus.WithError(err).Fatal("failed to connect to db")
 	}
-	repo = *New(db)
+	repo = *New(db, logger.Log)
 }
 
 func terminate(repo Repository) {

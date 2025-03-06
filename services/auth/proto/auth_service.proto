@@ -8,22 +8,16 @@ import "services/auth/proto/auth.proto";
 
 service AuthService {
     rpc LoginUser(LoginUserRequest) returns (LoginUserResponse);
-    rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
-
     rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
-    rpc GetUser(GetUserRequest) returns (GetUserResponse);
-    rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse);
-    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+}
 
-    rpc CreateCompany(CreateCompanyRequest) returns (CreateCompanyResponse);
-    rpc GetCompany(GetCompanyRequest) returns (GetCompanyResponse);
-    rpc DeleteCompany(DeleteCompanyRequest) returns (DeleteCompanyResponse);
-    rpc UpdateCompany(UpdateCompanyRequest) returns (UpdateCompanyResponse);
+message LoginUserRequest {
+    auth.UserCredentials credentials = 1;
+}
 
-    rpc RegisterParticipant(RegisterParticipantRequest) returns (RegisterParticipantResponse);
-    rpc GetParticipant(GetParticipantRequest) returns (GetParticipantResponse);
-    rpc DeleteParticipant(DeleteParticipantRequest) returns (DeleteParticipantResponse);
-    rpc UpdateParticipant(UpdateParticipantRequest) returns (UpdateParticipantResponse);
+message LoginUserResponse {
+    bool success = 1;
+    auth.AuthPayload payload = 2;
 }
 
 message RegisterUserRequest {
@@ -33,117 +27,4 @@ message RegisterUserRequest {
 message RegisterUserResponse {
     bool success = 1;
     auth.User user = 2;
-}
-
-message LoginUserRequest {
-    auth.UserCredentials credentials = 1;
-}
-
-message LoginUserResponse {
-    string access_token = 1;
-    int64 access_exp = 2;
-}
-
-message GetUserRequest {
-    string id = 1;
-}
-
-message GetUserResponse {
-    auth.User user = 1;
-}
-
-message ValidateTokenRequest {
-    string access_token = 1;
-}
-
-message ValidateTokenResponse {
-    bool valid = 1;
-    string user_id = 2;
-    string email = 3;
-}
-
-message UpdateUserRequest {
-    auth.User updated_user = 1;
-}
-
-message UpdateUserResponse {
-    bool success = 1;
-    auth.User user = 2;
-}
-
-message DeleteUserRequest {
-    string id = 1;
-}
-
-message DeleteUserResponse {
-    bool success = 1;
-}
-
-message CreateCompanyRequest {
-    NewCompany new_company = 1;
-}
-
-message CreateCompanyResponse {
-    bool success = 1;
-    auth.Company company = 2;
-}
-
-message GetCompanyRequest {
-    string id = 1;
-
-}
-
-message GetCompanyResponse {
-    auth.Company company = 1;
-}
-
-message RegisterParticipantRequest {
-    auth.NewParticipant new_participant = 1;
-}
-
-message RegisterParticipantResponse {
-    bool success = 1;
-    auth.Participant participant = 2;
-}
-
-message GetParticipantRequest {
-    int32 id = 1;
-}
-
-message GetParticipantResponse {
-    auth.Participant participant = 1;
-}
-
-message DeleteCompanyRequest {
-    string id = 1;
-}
-
-message UpdateCompanyRequest {
-    auth.Company updated_company = 1;
-}
-
-message DeleteParticipantRequest {
-    string user_id = 1;
-}
-
-message UpdateParticipantRequest {
-    auth.Participant updated_participant = 1;
-}
-
-message DeleteCompanyResponse {
-    bool success = 1;
-}
-
-message UpdateCompanyResponse {
-    bool success = 1;
-    auth.Company company = 2;
-}
-
-message DeleteParticipantResponse {
-    bool success = 1;
-}
-
-message UpdateParticipantResponse {
-    bool success = 1;
-    auth.Participant participant = 2;
 }

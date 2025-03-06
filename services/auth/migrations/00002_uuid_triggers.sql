@@ -33,3 +33,5 @@ END;
 DROP TRIGGER UUIDv4_generate_Users;
 DROP TRIGGER UUIDv4_generate_Company;
 -- +goose StatementEnd
+a9a32b97-b966-49b0-92bb-fb9302b03a28
+7f2c42bf-73cb-4559-8ad5-323243de57d3

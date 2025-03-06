@@ -2,9 +2,32 @@ syntax = "proto3";
 
 package auth;
 
-option go_package = "pkg/protobuf/dto";
+option go_package = "pkg/protobuf/services;pb";
 
 import "google/protobuf/timestamp.proto";
+
+service AuthService {
+    rpc LoginUser(LoginUserRequest) returns (LoginUserResponse);
+    rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
+}
+
+message LoginUserRequest {
+    UserCredentials credentials = 1;
+}
+
+message LoginUserResponse {
+    bool success = 1;
+    AuthPayload payload = 2;
+}
+
+message RegisterUserRequest {
+    NewUser new_user = 1;
+}
+
+message RegisterUserResponse {
+    bool success = 1;
+    User user = 2;
+}
 
 message User {
     string id = 1;

@@ -1,67 +1,55 @@
-package grpc
+package grpchandler
 
 import (
 	"context"
 
+	"go.uber.org/zap"
+	"pms.auth/internal/logic"
+	"pms.pkg/errs"
 	pb "pms.pkg/protobuf/services"
 )
 
 type ServerGRPC struct {
 	pb.UnimplementedAuthServiceServer
+
+	logic *logic.Logic
+	log   *zap.SugaredLogger
 }
 
-func (s *ServerGRPC) CreateCompany(context.Context, *pb.CreateCompanyRequest) (*pb.CreateCompanyResponse, error) {
-	return nil, nil
+func New(logic *logic.Logic, log *zap.SugaredLogger) *ServerGRPC {
+	return &ServerGRPC{
+		logic: logic,
+		log:   log,
+	}
 }
 
-func (s *ServerGRPC) DeleteCompany(context.Context, *pb.DeleteCompanyRequest) (*pb.DeleteCompanyResponse, error) {
-	return nil, nil
+func (s *ServerGRPC) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (res *pb.LoginUserResponse, err error) {
+	defer func() {
+		err = errs.WrapGRPC(err)
+	}()
+
+	payload, err := s.logic.LoginUser(ctx, req.Credentials)
+	if err != nil {
+		return nil, err
+	}
+	res = new(pb.LoginUserResponse)
+	res.Success = true
+	res.Payload = payload
+	return res, nil
 }
 
-func (s *ServerGRPC) DeleteParticipant(context.Context, *pb.DeleteParticipantRequest) (*pb.DeleteParticipantResponse, error) {
-	return nil, nil
-}
-
-func (s *ServerGRPC) DeleteUser(context.Context, *pb.DeleteUserRequest) (*pb.DeleteUserResponse, error) {
-	return nil, nil
-}
-
-func (s *ServerGRPC) GetCompany(context.Context, *pb.GetCompanyRequest) (*pb.GetCompanyResponse, error) {
-	return nil, nil
-}
-
-func (s *ServerGRPC) GetParticipant(context.Context, *pb.GetParticipantRequest) (*pb.GetParticipantResponse, error) {
-	return nil, nil
-}
-
-func (s *ServerGRPC) GetUser(context.Context, *pb.GetUserRequest) (*pb.GetUserResponse, error) {
-	return nil, nil
-}
-
-func (s *ServerGRPC) LoginUser(context.Context, *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
-	return nil, nil
-}
-
-func (s *ServerGRPC) RegisterParticipant(context.Context, *pb.RegisterParticipantRequest) (*pb.RegisterParticipantResponse, error) {
-	return nil, nil
-}
-
-func (s *ServerGRPC) RegisterUser(context.Context, *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
-	return nil, nil
-}
-
-func (s *ServerGRPC) UpdateCompany(context.Context, *pb.UpdateCompanyRequest) (*pb.UpdateCompanyResponse, error) {
-	return nil, nil
-}
-
-func (s *ServerGRPC) UpdateParticipant(context.Context, *pb.UpdateParticipantRequest) (*pb.UpdateParticipantResponse, error) {
-	return nil, nil
-}
-
-func (s *ServerGRPC) UpdateUser(context.Context, *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
-	return nil, nil
-}
-
-func (s *ServerGRPC) ValidateToken(context.Context, *pb.ValidateTokenRequest) (*pb.ValidateTokenResponse, error) {
-	return nil, nil
+func (s *ServerGRPC) RegisterUser(ctx context.Context, req *pb.RegisterUserRequest) (res *pb.RegisterUserResponse, err error) {
+	log := s.log.With("func", "RegisterUser", "pkg", "grpchandler")
+	defer func() {
+		err = errs.WrapGRPC(err)
+	}()
+	res = new(pb.RegisterUserResponse)
+	created, err := s.logic.RegisterUser(ctx, req.NewUser)
+	if err != nil {
+		log.Errorw("failed to register user", "err", err)
+		return res, err
+	}
+	res.Success = true
+	res.User = created
+	return res, nil
 }

@@ -1,19 +1,22 @@
 package logic
 
 import (
-	userdata "pms.auth/internal/data/user"
+	"go.uber.org/zap"
+	"pms.auth/internal/config"
+	"pms.auth/internal/data"
 )
 
-type AuthLogic struct {
-	repo *userdata.Repository
+type Logic struct {
+	repo *data.Repository
+	conf *config.Config
+
+	log *zap.SugaredLogger
 }
 
-func New(repo *userdata.Repository) *AuthLogic {
-	return &AuthLogic{
+func New(repo *data.Repository, conf *config.Config, log *zap.SugaredLogger) *Logic {
+	return &Logic{
 		repo: repo,
+		conf: conf,
+		log:  log,
 	}
 }
-
-// func (l *AuthLogic) RegsterUser() (domain.User, error) {
-
-// }

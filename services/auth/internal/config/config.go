@@ -1,9 +1,9 @@
 package config
 
 import (
-	"pms.auth/internal/modules/jwt"
 	"pms.pkg/datastore/sqlite"
 	"pms.pkg/logger"
+	"pms.pkg/tools/jwt"
 )
 
 type Config struct {
