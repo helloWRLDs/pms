@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	cachemodels "pms.api-gateway/internal/modules/cache/models"
 )
 
 type Config struct {
@@ -15,11 +14,11 @@ type Config struct {
 	Password string `env:"PASSWORD"`
 }
 
-type Client[T cachemodels.Cachable] struct {
+type Client[T Cachable] struct {
 	r *redis.Client
 }
 
-func New[T cachemodels.Cachable](conf Config, t T) *Client[T] {
+func New[T Cachable](conf Config, t T) *Client[T] {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     conf.Host,
 		Password: conf.Password,
@@ -39,7 +38,7 @@ func (c *Client[T]) Set(ctx context.Context, key string, t T, exp int64) error {
 	if err != nil {
 		return err
 	}
-	return c.r.Set(ctx, key, j, time.Duration(exp)*time.Second).Err()
+	return c.r.Set(ctx, key, j, time.Duration(exp)*time.Hour).Err()
 }
 
 func (c *Client[T]) Get(ctx context.Context, key string) (T, error) {

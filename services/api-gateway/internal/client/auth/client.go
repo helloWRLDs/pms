@@ -1,7 +1,7 @@
 package authclient
 
 import (
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"pms.api-gateway/internal/client"
@@ -15,33 +15,38 @@ type Config struct {
 }
 
 type AuthClient struct {
-	pb.AuthClient
+	pb.AuthServiceClient
 
 	conn *grpc.ClientConn
-	log  *logrus.Entry
+	log  *zap.SugaredLogger
 }
 
-func New(conf Config) (*AuthClient, error) {
-	log := logrus.WithField("client", "authClient")
+func New(conf Config, logger *zap.SugaredLogger) (*AuthClient, error) {
+	log := logger.With(
+		zap.String("func", "authclient.New"),
+		zap.String("host", conf.Host),
+	)
+	log.Debug("New called")
+
 	conn, err := grpc.NewClient(conf.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.WithError(err).Error("failed to connect to auth service")
+		log.Errorw("failed to connect to auth service", "err", err)
 		return nil, err
 	}
 	return &AuthClient{
-		AuthClient: pb.NewAuthClient(conn),
-		conn:       conn,
-		log:        log,
+		AuthServiceClient: pb.NewAuthServiceClient(conn),
+		conn:              conn,
+		log:               log,
 	}, nil
 }
 
 func (c *AuthClient) Close() error {
-	log := c.log.WithField("func", "Close")
+	log := c.log.With(zap.String("func", "Close"))
 	log.Debug("Close func called")
 
 	err := c.conn.Close()
 	if err != nil {
-		log.WithError(err).Error("failed to close connection")
+		log.Errorw("failed to close connection", "err", err)
 		return err
 	}
 	log.Debug("connection closed")

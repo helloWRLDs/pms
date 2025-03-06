@@ -7,7 +7,7 @@ import (
 )
 
 func (s *Server) LoginUser(c *fiber.Ctx) error {
-	var creds dto.UserCreds
+	var creds dto.UserCredentials
 	err := c.BodyParser(&creds)
 	if err != nil {
 		return errs.WrapGRPC(errs.ErrInvalidInput{
@@ -15,6 +15,25 @@ func (s *Server) LoginUser(c *fiber.Ctx) error {
 			Reason: "failed to resolve credentials",
 		})
 	}
+	payload, err := s.Logic.LoginUser(c.UserContext(), &creds)
+	if err != nil {
+		return err
+	}
 
-	return c.SendStatus(200)
+	return c.Status(200).JSON(payload)
+}
+
+func (s *Server) RegisterUser(c *fiber.Ctx) error {
+	var newUser dto.NewUser
+	if err := c.BodyParser(&newUser); err != nil {
+		return errs.ErrInvalidInput{
+			Object: "new user data",
+			Reason: "failed to parse user data",
+		}
+	}
+	created, err := s.Logic.RegisterUser(c.UserContext(), &newUser)
+	if err != nil {
+		return err
+	}
+	return c.Status(201).JSON(created)
 }

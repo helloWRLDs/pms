@@ -6,18 +6,25 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
+	"go.uber.org/zap"
 	"pms.api-gateway/internal/config"
+	"pms.api-gateway/internal/logic"
 	"pms.pkg/errs"
 )
 
 type Server struct {
 	fiber.App
 	Host string
+
+	Logic *logic.Logic
+
+	log *zap.SugaredLogger
 }
 
-func New(conf config.Config) *Server {
+func New(conf config.Config, logic *logic.Logic, log *zap.SugaredLogger) *Server {
 	srv := Server{
 		Host: conf.Host,
+		log:  log,
 		App: *fiber.New(fiber.Config{
 			AppName:           "API-GATEWAY",
 			EnablePrintRoutes: true,
@@ -42,7 +49,7 @@ func New(conf config.Config) *Server {
 	})
 
 	srv.Use(logger)
-
+	srv.Logic = logic
 	return &srv
 }
 

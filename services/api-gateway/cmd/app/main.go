@@ -8,8 +8,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"pms.api-gateway/internal/config"
+	"pms.api-gateway/internal/logic"
 	"pms.api-gateway/internal/router"
 	"pms.pkg/logger"
 	"pms.pkg/utils"
@@ -25,26 +25,27 @@ func init() {
 
 	c, err := utils.LoadConfig[config.Config](*path)
 	if err != nil {
-		logrus.Fatal("failed to parse app config", "err", err)
+		panic("failed to parse app config")
 	}
 	conf = c
-	logger.Init(conf.Log)
+	conf.Log.Init()
 }
 
 func main() {
-	log := logrus.WithField("func", "main")
-	defer logger.Close(conf.Log)
+	log := logger.Log
+	// log.Infow("config loaded", "conf", fmt.Sprintf("%#v", conf))
+	logic := logic.New(conf, log)
 
-	serv := router.New(conf)
+	serv := router.New(conf, logic, log)
 	serv.SetupRoutes()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 
 	go func() {
-		log.WithField("host", conf.Host).Info("server started")
+		log.Infow("server started", "host", conf.Host)
 		if err := serv.Start(); err != nil {
-			log.WithError(err).Fatal("server stopped")
+			log.Errorw("server stopped", "err", err)
 		}
 	}()
 
@@ -54,10 +55,10 @@ func main() {
 	defer cancel()
 
 	log.Info("stopping clients and connections")
-	time.Sleep(1 * time.Second)
+	logic.CloseClients(ctx)
 
 	if err := serv.ShutdownWithContext(ctx); err != nil {
-		log.WithError(err).Fatal("failed to gracefully shut down server")
+		log.Fatalw("failed to gracefully shut down server", "err", err)
 	}
 
 	log.Info("Server stopped gracefully")
