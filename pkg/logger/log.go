@@ -1,48 +1,66 @@
 package logger
 
 import (
-	"os"
-	"path"
-	"runtime"
-	"strings"
-
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type Config struct {
-	Dev  bool   `env:"DEV"`
-	Path string `env:"PATH"`
+	Dev        bool   `env:"DEV"`
+	Level      string `env:"LEVEL"`
+	FileOutput bool   `env:"FILE_OUTPUT"`
+	FilePath   string `env:"FILE_PATH"`
+	StackTrace bool   `env:"STACKTRACE"`
+	Caller     bool   `env:"CALLER"`
 }
 
-func Init(cfg Config) {
-	if cfg.Dev || cfg.Path == "" {
-		log.SetFormatter(&log.TextFormatter{
-			DisableColors: false,
-			FullTimestamp: false,
-			CallerPrettyfier: func(f *runtime.Frame) (function string, file string) {
-				s := strings.Split(f.Function, ".")
-				funcname := s[len(s)-1]
-				_, filename := path.Split(f.File)
-				return funcname, filename
-			},
-		})
-		log.SetOutput(os.Stdout)
-		log.SetLevel(log.DebugLevel)
+var Log *zap.SugaredLogger
+
+func init() {
+	WithConfig(
+		WithDev(true),
+		WithCaller(true),
+		WithLevel("debug"),
+	).Init()
+}
+
+// Set from env or config
+func (conf *Config) Init() {
+	var (
+		encoding       string
+		encConfig      zapcore.EncoderConfig
+		outputChannels = []string{"stderr"}
+	)
+	if conf.Level == "" {
+		conf.Level = "INFO"
+	}
+	if conf.FileOutput {
+		outputChannels = append(outputChannels, conf.FilePath)
+	}
+	if conf.Dev {
+		encoding = "console"
+		encConfig = zap.NewDevelopmentEncoderConfig()
 	} else {
-		log.SetFormatter(&log.JSONFormatter{})
-		log.SetLevel(log.ErrorLevel)
-		f, err := os.OpenFile(cfg.Path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0664)
-		if err != nil {
-			panic(err)
-		}
-		log.SetOutput(f)
+		encoding = "json"
+		encConfig = zap.NewProductionEncoderConfig()
 	}
-}
 
-func Close(conf Config) {
-	if !conf.Dev && conf.Path != "" {
-		if f, ok := log.StandardLogger().Out.(*os.File); ok {
-			f.Close()
-		}
+	zapConf := zap.Config{
+		Level: func(level string) zap.AtomicLevel {
+			lvl, err := zap.ParseAtomicLevel(level)
+			if err != nil {
+				lvl = zap.NewAtomicLevel()
+			}
+			return lvl
+		}(conf.Level),
+		DisableCaller:     !conf.Caller,
+		DisableStacktrace: !conf.StackTrace,
+		OutputPaths:       outputChannels,
+		ErrorOutputPaths:  outputChannels,
+		Encoding:          encoding,
+		EncoderConfig:     encConfig,
 	}
+	logger := zap.Must(zapConf.Build())
+	defer logger.Sync()
+	Log = logger.Sugar()
 }
