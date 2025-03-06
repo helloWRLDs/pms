@@ -4,6 +4,7 @@ use (
 	./pkg
 	./services/test
 	./services/auth
+	./services/backlog
 	./services/notifier
 	./services/api-gateway
 )

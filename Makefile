@@ -15,10 +15,10 @@ grpc.init: path
 # Generate gRPC code from .proto files
 protoc:
 	@echo "Generating protobuf files..."
-	protoc  --go_out=. --go-grpc_out=. .\services\${SERVICE}\proto\${SERVICE}_service.proto
-	protoc  --go_out=. --go-grpc_out=. .\services\${SERVICE}\proto\${SERVICE}.proto
+	protoc  --go_out=. --go-grpc_out=. .\services\${service}\proto\${service}_service.proto
+	protoc  --go_out=. --go-grpc_out=. .\services\${service}\proto\${service}.proto
 
 # Run services
 run:
 	@echo "Running service: $(service)"
-	go run ./pms.$(service)/cmd/app --path=./services/$(service)/.env
+	go run ./services/$(service)/cmd/app --path=./services/$(service)/.env
