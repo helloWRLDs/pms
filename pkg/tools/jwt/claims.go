@@ -7,7 +7,9 @@ import (
 )
 
 type AccessTokenClaims struct {
-	Email string `json:"email"`
+	Email     string `json:"email"`
+	UserID    string `json:"user_id"`
+	SessionID string `json:"session_id"`
 	jwt.RegisteredClaims
 }
 

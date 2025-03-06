@@ -5,9 +5,15 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"pms.pkg/protobuf/dto"
 )
 
-func (j *Config) GenerateAccessToken(claims AccessTokenClaims) (string, error) {
+func (j *Config) GenerateAccessToken(session_id string, userData *dto.User) (string, error) {
+	claims := &AccessTokenClaims{
+		Email:     userData.Email,
+		UserID:    userData.Id,
+		SessionID: session_id,
+	}
 	claims.RegisteredClaims = jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(j.TTL))),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -15,7 +21,6 @@ func (j *Config) GenerateAccessToken(claims AccessTokenClaims) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
 	tokenString, err := token.SignedString([]byte(j.Secret))
 	if err != nil {
 		return "", err
