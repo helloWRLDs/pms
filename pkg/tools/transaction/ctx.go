@@ -4,28 +4,25 @@ import (
 	"context"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/sirupsen/logrus"
 	"pms.pkg/errs"
+	"pms.pkg/logger"
 )
 
 type ContextKey string
 
 const TX_KEY ContextKey = "TX"
 
-func StartCTX(ctx context.Context, db *sqlx.DB) (context.Context, error) {
-	log := logrus.WithFields(logrus.Fields{
-		"func": "transaction.Start",
-	})
+func Start(ctx context.Context, db *sqlx.DB) (context.Context, error) {
+	log := logger.Log.Named("tx.Start")
 
-	_, err := RetrieveCTX(ctx)
-	if err == nil {
-		log.Debug("tx already started")
+	if tx := Retrieve(ctx); tx != nil {
+		log.Debug("tx already exists")
 		return ctx, nil
 	}
 
 	tx, err := db.Beginx()
 	if err != nil {
-		log.WithError(err).Error("failed to start tx")
+		log.Errorw("failed to start tx", "err", err)
 		return ctx, errs.ErrInternal{
 			Reason: "failed to start tx",
 		}
@@ -35,43 +32,69 @@ func StartCTX(ctx context.Context, db *sqlx.DB) (context.Context, error) {
 	return ctx, nil
 }
 
-func RetrieveCTX(ctx context.Context) (*sqlx.Tx, error) {
-	log := logrus.WithFields(logrus.Fields{
-		"func": "transaction.Retrieve",
-	})
+func End(ctx context.Context, err error) {
+	log := logger.Log.Named("tx.Retrieve")
+
+	tx := Retrieve(ctx)
+	if tx == nil {
+		return
+	}
+
+	if err != nil {
+		if rollbackErr := tx.Rollback(); rollbackErr != nil {
+			log.Errorw("failed to rollback tx", "err", err)
+		} else {
+			log.Debug("tx rolled back")
+		}
+	} else {
+		if commitErr := tx.Commit(); commitErr != nil {
+			log.Errorw("failed to commit tx", "err", err)
+		} else {
+			log.Debug("tx committed")
+		}
+	}
+}
+
+func Retrieve(ctx context.Context) *sqlx.Tx {
+	log := logger.Log.Named("tx.Retrieve")
 
 	tx, ok := ctx.Value(TX_KEY).(*sqlx.Tx)
 	if !ok {
 		log.Debug("tx not found")
-		return nil, errs.ErrNotFound{
-			Object: "tx",
-		}
+		return nil
 	}
-	return tx, nil
+	log.Debug("tx found")
+	return tx
 }
 
-func EndCTX(ctx context.Context, err error) {
-	log := logrus.WithFields(logrus.Fields{
-		"func":   "transaction.End",
-		"hasErr": err != nil,
-	})
+func Commit(ctx context.Context) error {
+	log := logger.Log.Named("tx.Commit")
 
-	tx, retieveErr := RetrieveCTX(ctx)
-	if retieveErr != nil {
-		log.WithError(err).Error("failed to retrieve tx")
-		return
+	tx := Retrieve(ctx)
+	if tx == nil {
+		log.Debug("tx not found")
+		return nil
 	}
-	if err != nil {
-		if rollbackErr := tx.Rollback(); rollbackErr != nil {
-			log.WithError(rollbackErr).Error("failed to rollback tx")
-		} else {
-			log.Debug("tx rollback successful")
-		}
-	} else {
-		if commitErr := tx.Commit(); commitErr != nil {
-			log.WithError(commitErr).Error("failed to commit tx")
-		} else {
-			log.Debug("tx commit successful")
-		}
+
+	if err := tx.Commit(); err != nil {
+		log.Errorw("failed to commit tx manually")
+		return err
 	}
+	log.Debug("tx commited manually")
+	return nil
+}
+
+func Rollback(ctx context.Context) error {
+	log := logger.Log.Named("tx.Rollback")
+
+	tx := Retrieve(ctx)
+	if tx == nil {
+		return nil
+	}
+	if err := tx.Rollback(); err != nil {
+		log.Errorw("failed to rollback tx manually")
+		return err
+	}
+	log.Debug("tx rollbacked manually")
+	return nil
 }

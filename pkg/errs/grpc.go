@@ -6,6 +6,10 @@ import (
 )
 
 func WrapGRPC(err error) error {
+	if err == nil {
+		return nil
+	}
+
 	var (
 		resultErr error
 		msg       = err.Error()
