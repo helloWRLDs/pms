@@ -7,7 +7,7 @@ import (
 	authclient "pms.api-gateway/internal/client/auth"
 	"pms.api-gateway/internal/config"
 	"pms.api-gateway/internal/models"
-	"pms.api-gateway/internal/modules/cache"
+	"pms.pkg/datastore/redis"
 	"pms.pkg/tools/scheduler"
 )
 
@@ -16,7 +16,7 @@ type Logic struct {
 
 	AuthClient *authclient.AuthClient
 
-	Sessions *cache.Client[models.Session]
+	Sessions *redis.Client[models.Session]
 	Tasks    map[string]*scheduler.Task
 
 	stopTicker chan struct{}
@@ -29,7 +29,7 @@ func New(config config.Config, log *zap.SugaredLogger) *Logic {
 		log:        log,
 		stopTicker: make(chan struct{}),
 		Tasks:      make(map[string]*scheduler.Task),
-		Sessions:   cache.New(config.Redis, models.Session{}),
+		Sessions:   redis.New(config.Redis, models.Session{}),
 	}
 	l.InitTasks()
 	for _, task := range l.Tasks {

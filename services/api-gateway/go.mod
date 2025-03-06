@@ -6,12 +6,13 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/sirupsen/logrus v1.9.3
+	go.uber.org/zap v1.27.0
 	pms.pkg v0.0.0
 )
 
 require (
+	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	go.uber.org/zap v1.27.0 // indirect
 )
 
 replace pms.pkg => ../../pkg

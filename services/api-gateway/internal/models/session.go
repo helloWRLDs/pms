@@ -3,11 +3,11 @@ package models
 import (
 	"time"
 
-	"pms.api-gateway/internal/modules/cache"
+	"pms.pkg/datastore/redis"
 	"pms.pkg/utils/ctx"
 )
 
-var _ cache.Cachable = &Session{}
+var _ redis.Cachable = &Session{}
 var _ ctx.ContextKeyHolder = &Session{}
 
 type Session struct {
