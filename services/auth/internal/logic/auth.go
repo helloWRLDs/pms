@@ -3,13 +3,17 @@ package logic
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"pms.auth/internal/entity"
 	"pms.pkg/errs"
-	"pms.pkg/protobuf/dto"
+	"pms.pkg/tools/jwtoken"
+	"pms.pkg/transport/grpc/dto"
+	"pms.pkg/type/claims"
 	"pms.pkg/utils/validators"
 )
 
@@ -40,8 +44,18 @@ func (l *Logic) LoginUser(ctx context.Context, creds *dto.UserCredentials) (payl
 	if err := bcrypt.CompareHashAndPassword([]byte(existingUser.Password), []byte(creds.Password)); err != nil {
 		return nil, err
 	}
+
+	claims := claims.AccessTokenClaims{
+		Email:     existingUser.Email,
+		UserID:    existingUser.ID.String(),
+		SessionID: uuid.NewString(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
 	sessionID := uuid.NewString()
-	accessToken, err := l.conf.JWT.GenerateAccessToken(sessionID, existingUser.DTO())
+	accessToken, err := jwtoken.GenerateAccessToken(claims, &l.conf.JWT)
 	if err != nil {
 		return nil, errs.ErrInternal{
 			Reason: "failed to generate jwt token",
@@ -51,6 +65,8 @@ func (l *Logic) LoginUser(ctx context.Context, creds *dto.UserCredentials) (payl
 	payload.SessionId = sessionID
 	payload.User = existingUser.DTO()
 	payload.AccessToken = accessToken
+	payload.Exp = claims.ExpiresAt.Time.Unix()
+
 	return payload, nil
 }
 

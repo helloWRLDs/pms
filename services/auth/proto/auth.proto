@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package auth;
 
-option go_package = "pkg/protobuf/dto";
+option go_package = "pkg/transport/grpc/dto";
 
 import "google/protobuf/timestamp.proto";
 
@@ -58,6 +58,7 @@ message AuthPayload {
     string access_token = 2;
     string refresh_token = 3; 
     User user = 4;
+    int64 exp = 5;
 }
 
 message NewUser {

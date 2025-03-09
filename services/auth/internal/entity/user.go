@@ -3,7 +3,7 @@ package entity
 import (
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"pms.pkg/protobuf/dto"
+	"pms.pkg/transport/grpc/dto"
 	"pms.pkg/type/timestamp"
 )
 
