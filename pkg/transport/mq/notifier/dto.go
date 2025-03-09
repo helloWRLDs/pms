@@ -9,7 +9,7 @@ var (
 )
 
 type GreetMessage struct {
-	mqtp.MetaData
+	MetaData
 	Name string `json:"name"`
 }
 

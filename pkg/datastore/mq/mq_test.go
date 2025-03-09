@@ -118,7 +118,7 @@ func Test_ProduceGreetMessage(t *testing.T) {
 	}
 	greetMsg := notifiermq.GreetMessage{
 		Name: "Danil",
-		MetaData: mqtp.MetaData{
+		MetaData: notifiermq.MetaData{
 			ToEmail: "danil.li24x@gmail.com",
 		},
 	}
