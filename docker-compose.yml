@@ -11,3 +11,9 @@ services:
       - ./redis.conf:/usr/local/etc/redis/redis.conf
     command:
       - "redis-server"
+
+  rabbitmq:
+    image: rabbitmq:3.10.7-management
+    ports:
+      - 5672:5672
+      - 15672:15672
