@@ -5,7 +5,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"pms.api-gateway/internal/client"
-	pb "pms.pkg/protobuf/services"
+	pb "pms.pkg/transport/grpc/services"
 )
 
 var _ client.Client = &AuthClient{}

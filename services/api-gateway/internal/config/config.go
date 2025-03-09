@@ -2,21 +2,22 @@ package config
 
 import (
 	authclient "pms.api-gateway/internal/client/auth"
-	notifierclient "pms.api-gateway/internal/client/notifier"
+	"pms.pkg/datastore/mq"
 	"pms.pkg/datastore/redis"
 	"pms.pkg/logger"
-	"pms.pkg/tools/jwt"
+	"pms.pkg/tools/jwtoken"
 )
 
 type Config struct {
 	Host string `env:"HOST"`
 
-	JWT jwt.Config `envPrefix:"JWT_"`
+	JWT jwtoken.Config `envPrefix:"JWT_"`
 
 	Redis redis.Config `envPrefix:"REDIS_"`
 
-	Auth     authclient.Config     `envPrefix:"AUTH_"`
-	Notifier notifierclient.Config `envPrefix:"NOTIFIER_"`
+	Auth           authclient.Config `envPrefix:"AUTH_"`
+	NotificationMQ mq.Config         `envPrefix:"NOTIFICATION_"`
+	// Notifier notifierclient.Config `envPrefix:"NOTIFIER_"`
 
 	Log logger.Config `envPrefix:"LOG_"`
 }

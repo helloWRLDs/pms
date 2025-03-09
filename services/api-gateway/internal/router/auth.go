@@ -3,7 +3,7 @@ package router
 import (
 	"github.com/gofiber/fiber/v2"
 	"pms.pkg/errs"
-	"pms.pkg/protobuf/dto"
+	"pms.pkg/transport/grpc/dto"
 )
 
 func (s *Server) LoginUser(c *fiber.Ctx) error {
