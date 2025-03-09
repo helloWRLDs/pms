@@ -3,28 +3,32 @@ package service
 import (
 	"context"
 
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 	"pms.notifier/internal/modules/email/render"
+	"pms.pkg/logger"
 )
 
 func (s *NotifierService) GreetUser(ctx context.Context, name, email string) error {
-	log := logrus.WithFields(logrus.Fields{
-		"func":  "GreetUser",
-		"name":  name,
-		"email": email,
-	})
-	log.Debug("GreetUser called")
+	log := logger.Log.With(
+		zap.String("func", "service.GreetUser"),
+		zap.String("name", name),
+		zap.String("email", email),
+	)
+	log.Debug("service.GreetUser called")
 
-	greeting := render.NewGreetContent(name, "<company-name>")
+	greeting := render.GreetContent{
+		Name:        name,
+		CompanyName: "<company-name>",
+	}
 
 	data, err := render.Render(greeting)
 	if err != nil {
-		log.WithError(err).Error("failed to render email")
+		log.Errorw("failed to render email", "err", err)
 		return err
 	}
 
 	if err := s.Email.Send(data, email); err != nil {
-		log.WithError(err).Error("failed to send email")
+		log.Errorw("failed to send email", "err", err)
 		return err
 	}
 	log.Debug("email sent successfuly")

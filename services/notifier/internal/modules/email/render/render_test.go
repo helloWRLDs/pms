@@ -1,19 +1,29 @@
 package render
 
 import (
+	"reflect"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func Test_Render(t *testing.T) {
-	greet := NewGreetContent("Bob", "AITU")
-	t.Log("subject: ", greet.Subject())
-	t.Log("template: ", greet.Template())
+	greet := GreetContent{
+		"Bob", "AITU",
+	}
+	t.Logf("%#v", mqTable(greet))
+}
 
-	tmpl, err := getTemplate(greet.Template())
+func mqTable(data interface{}) (table map[string]interface{}) {
+	table = make(map[string]interface{}, 0)
+	v := reflect.ValueOf(data)
 
-	assert.NotNil(t, tmpl)
-	assert.NoError(t, err)
-	t.Log("template length: ", len(tmpl))
+	t := v.Type()
+	for i := 0; i < v.NumField(); i++ {
+		field := t.Field(i)
+		value := v.Field(i)
+		if !value.CanInterface() {
+			continue
+		}
+		table[field.Name] = value.Interface()
+	}
+	return
 }

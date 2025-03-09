@@ -1,11 +1,15 @@
 package render
 
+import "encoding/json"
+
 type Renderable interface {
 	Template() string
 	Subject() string
 }
 
-type RenderInfo struct {
-	template string
-	subject  string
+func Parse(data []byte, dst interface{}) error {
+	if err := json.Unmarshal(data, &dst); err != nil {
+		return err
+	}
+	return nil
 }
