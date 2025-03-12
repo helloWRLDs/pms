@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 	"pms.auth/internal/logic"
 	"pms.pkg/errs"
-	pb "pms.pkg/protobuf/services"
+	pb "pms.pkg/transport/grpc/services"
 )
 
 type ServerGRPC struct {

@@ -5,6 +5,14 @@ import (
 	"strings"
 )
 
+type ErrUnavalaiable struct {
+	Object string
+}
+
+func (e ErrUnavalaiable) Error() string {
+	return fmt.Sprintf("%s is unavaliable", e.Object)
+}
+
 type ErrInvalidInput struct {
 	Object string
 	Reason string

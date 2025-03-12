@@ -3,12 +3,12 @@ package config
 import (
 	"pms.pkg/datastore/sqlite"
 	"pms.pkg/logger"
-	"pms.pkg/tools/jwt"
+	"pms.pkg/tools/jwtoken"
 )
 
 type Config struct {
-	Host string        `env:"HOST"`
-	DB   sqlite.Config `envPrefix:"SQLITE_"`
-	Log  logger.Config `envPrefix:"LOG_"`
-	JWT  jwt.Config    `envPrefix:"JWT_"`
+	Host string         `env:"HOST"`
+	DB   sqlite.Config  `envPrefix:"SQLITE_"`
+	Log  logger.Config  `envPrefix:"LOG_"`
+	JWT  jwtoken.Config `envPrefix:"JWT_"`
 }

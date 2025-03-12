@@ -1,49 +1,28 @@
 package notifierclient
 
 import (
-	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"pms.api-gateway/internal/client"
-	pb "pms.pkg/protobuf/services"
+	"context"
+
+	"go.uber.org/zap"
+	"pms.pkg/datastore/mq"
+	notifiermq "pms.pkg/transport/mq/notifier"
 )
 
-var _ client.Client = &NotifierClient{}
+func New(conf mq.Config, logger *zap.SugaredLogger) (*mq.Publisher, error) {
+	log := logger.With(
+		zap.String("func", "notifierclient.New"),
+	)
+	log.Debug("notifierclient.New called")
 
-type Config struct {
-	Host string `env:"HOST"`
-}
-
-type NotifierClient struct {
-	pb.NotifierClient
-
-	conn *grpc.ClientConn
-	log  *logrus.Entry
-}
-
-func New(conf Config) (*NotifierClient, error) {
-	log := logrus.WithField("client", "notifierClient")
-	conn, err := grpc.NewClient(conf.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	pub, err := mq.NewPublisher(context.Background(), mq.PublisherOpts{
+		Config: conf,
+		Logger: log,
+		Queue:  notifiermq.Queue,
+	})
 	if err != nil {
-		log.WithError(err).Error("failed to connect to notifier service")
+		log.Errorw("failed to create notifier pub", "err", err)
 		return nil, err
 	}
-	return &NotifierClient{
-		NotifierClient: pb.NewNotifierClient(conn),
-		conn:           conn,
-		log:            log,
-	}, nil
-}
-
-func (c *NotifierClient) Close() error {
-	log := c.log.WithField("func", "Close")
-	log.Debug("Close func called")
-
-	err := c.conn.Close()
-	if err != nil {
-		log.WithError(err).Error("failed to close connection")
-		return err
-	}
-	log.Debug("connection closed")
-	return nil
+	log.Debug("notification pub created")
+	return pub, nil
 }

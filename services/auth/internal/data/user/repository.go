@@ -1,16 +1,24 @@
 package userdata
 
 import (
+	"context"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
+	"pms.auth/internal/entity"
 	"pms.pkg/errs"
 )
 
 var (
-	_ Reader = &Repository{}
-	_ Writer = &Repository{}
+	_ Reader[entity.User] = &Repository{}
+	_ Writer[entity.User] = &Repository{}
+	_ UserRepository      = &Repository{}
 )
+
+type UserRepository interface {
+	GetByEmail(ctx context.Context, email string) (entity.User, error)
+}
 
 type Repository struct {
 	DB     *sqlx.DB

@@ -6,6 +6,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 	"pms.pkg/errs"
+	"pms.pkg/tools/jwtoken"
+	"pms.pkg/type/claims"
 	"pms.pkg/utils/ctx"
 )
 
@@ -25,7 +27,7 @@ func (s *Server) Authorize() fiber.Handler {
 		}
 		token = token[7:]
 
-		decoded, err := s.Logic.Config.JWT.DecodeToken(token)
+		decoded, err := jwtoken.DecodeToken(token, &claims.AccessTokenClaims{}, &s.Logic.Config.JWT)
 		if err != nil {
 			return errs.ErrUnauthorized{
 				Reason: "failed verifying token",
@@ -38,6 +40,17 @@ func (s *Server) Authorize() fiber.Handler {
 			}
 		}
 		c.SetUserContext(ctx.Embed(c.Context(), session))
+		return c.Next()
+	}
+}
+
+func (s *Server) RequireAuthService() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		if s.Logic.AuthClient() == nil {
+			return errs.ErrUnavalaiable{
+				Object: "auth Service",
+			}
+		}
 		return c.Next()
 	}
 }

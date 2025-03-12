@@ -27,6 +27,7 @@ var httpMessages = map[int]string{
 	422: "Unporcessable Entity",
 	429: "Too Many Requests",
 	500: "Internal Server Error",
+	503: "Service Unavailable",
 }
 
 func GRPCtoHTTP(err error) error {
@@ -88,6 +89,8 @@ func WrapHttp(err error) error {
 		resultErr.Status = 422
 	case ErrTooManyRequests:
 		resultErr.Status = 429
+	case ErrUnavalaiable:
+		resultErr.Status = 503
 	default:
 		resultErr.Status = 500
 	}

@@ -1,4 +1,4 @@
-package jwt
+package jwtoken
 
 type Config struct {
 	TTL    int64  `env:"TTL"` // in hours

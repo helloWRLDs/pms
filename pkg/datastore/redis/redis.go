@@ -18,7 +18,7 @@ type Client[T Cachable] struct {
 	r *redis.Client
 }
 
-func New[T Cachable](conf Config, t T) *Client[T] {
+func New[T Cachable](conf *Config, t T) *Client[T] {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     conf.Host,
 		Password: conf.Password,

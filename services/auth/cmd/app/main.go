@@ -5,7 +5,6 @@ import (
 	"net"
 	"os"
 
-	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"pms.auth/internal/config"
@@ -14,7 +13,7 @@ import (
 	"pms.auth/internal/logic"
 	"pms.pkg/datastore/sqlite"
 	"pms.pkg/logger"
-	pb "pms.pkg/protobuf/services"
+	pb "pms.pkg/transport/grpc/services"
 	"pms.pkg/utils"
 )
 
@@ -26,7 +25,7 @@ func init() {
 
 	c, err := utils.LoadConfig[config.Config](*path)
 	if err != nil {
-		logrus.Fatal("failed to parse app config", "err", err)
+		panic("failed to parse app config")
 	}
 	conf = c
 	conf.Log.Init()

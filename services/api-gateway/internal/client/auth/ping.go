@@ -7,7 +7,7 @@ func (c *AuthClient) Ping() bool {
 
 	if c.State() == connectivity.Idle {
 		c.log.Warn("Connection is IDLE, attempting to wake it up...")
-		c.conn.Connect() // Forces transition from IDLE to CONNECTING/READY
+		c.conn.Connect()
 	}
 
 	return c.State() == connectivity.Ready

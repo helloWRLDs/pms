@@ -2,11 +2,12 @@ package logic
 
 import (
 	"context"
+	"time"
 
 	"go.uber.org/zap"
 	"pms.api-gateway/internal/models"
-	"pms.pkg/protobuf/dto"
-	pb "pms.pkg/protobuf/services"
+	"pms.pkg/transport/grpc/dto"
+	pb "pms.pkg/transport/grpc/services"
 	"pms.pkg/utils"
 )
 
@@ -14,7 +15,7 @@ func (l *Logic) RegisterUser(ctx context.Context, newUser *dto.NewUser) (*dto.Us
 	req := pb.RegisterUserRequest{
 		NewUser: newUser,
 	}
-	registered, err := l.AuthClient.RegisterUser(ctx, &req)
+	registered, err := l.authClient.RegisterUser(ctx, &req)
 	if err != nil {
 		print(utils.JSON(err))
 		return nil, err
@@ -32,20 +33,21 @@ func (l *Logic) LoginUser(ctx context.Context, creds *dto.UserCredentials) (*dto
 	req := pb.LoginUserRequest{
 		Credentials: creds,
 	}
-	payload, err := l.AuthClient.LoginUser(ctx, &req)
+	res, err := l.authClient.LoginUser(ctx, &req)
 	if err != nil {
 		log.Errorw("failed to login user", "err", err)
 		return nil, err
 	}
 	session := models.Session{
-		ID:           payload.Payload.SessionId,
-		UserID:       payload.Payload.User.Id,
-		AccessToken:  payload.Payload.AccessToken,
-		RefreshToken: payload.Payload.RefreshToken,
+		ID:           res.Payload.SessionId,
+		UserID:       res.Payload.User.Id,
+		AccessToken:  res.Payload.AccessToken,
+		RefreshToken: res.Payload.RefreshToken,
+		Expires:      time.Unix(res.Payload.Exp, 0),
 	}
-	if err := l.Sessions.Set(ctx, payload.Payload.SessionId, session, 24); err != nil {
+	if err := l.Sessions.Set(ctx, session.ID, session, 24); err != nil {
 		log.Errorw("failed to setup session", "err", err)
 		return nil, err
 	}
-	return payload.Payload, nil
+	return res.Payload, nil
 }

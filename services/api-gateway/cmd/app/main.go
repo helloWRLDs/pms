@@ -33,7 +33,6 @@ func init() {
 
 func main() {
 	log := logger.Log
-	// log.Infow("config loaded", "conf", fmt.Sprintf("%#v", conf))
 	logic := logic.New(conf, log)
 
 	serv := router.New(conf, logic, log)

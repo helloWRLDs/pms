@@ -21,16 +21,13 @@ func Run(ctx context.Context, task *Task) {
 	task.SetStatus(TASK_STATUS_RUNNING)
 
 	go func() {
-		log.Debug("Starting task in goroutine")
 		defer func() {
 			ticker.Stop()
-			log.Debug("exiting task goroutine")
 		}()
 
 		for {
 			select {
 			case <-ticker.C:
-				log.Debug("running task func")
 				switch task.Status() {
 				case TASK_STATUS_PAUSED:
 					continue

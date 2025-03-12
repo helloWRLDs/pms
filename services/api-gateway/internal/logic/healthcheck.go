@@ -5,6 +5,7 @@ import (
 	"time"
 
 	authclient "pms.api-gateway/internal/client/auth"
+	notifierclient "pms.api-gateway/internal/client/notifier"
 	"pms.pkg/tools/scheduler"
 )
 
@@ -15,34 +16,95 @@ func (l *Logic) InitTasks() {
 		Func:        l.CheckAuthHealth,
 		Interval:    30 * time.Second,
 	}
+	notifierTask := &scheduler.Task{
+		ID:          "notifier-mq-connector",
+		MaxAttempts: -1,
+		Func:        l.CheckNotifierHealth,
+		Interval:    30 * time.Second,
+	}
+
 	l.Tasks[authTask.ID] = authTask
+	l.Tasks[notifierTask.ID] = notifierTask
 }
 
 func (l *Logic) CheckAuthHealth(ctx context.Context) error {
 	log := l.log.With("func", "CheckAuthHealth")
-	if l.AuthClient != nil {
-		if l.AuthClient.Ping() {
+
+	l.mu.Lock()
+	currentAuthClient := l.authClient
+	l.mu.Unlock()
+
+	if currentAuthClient != nil {
+		if currentAuthClient.Ping() {
 			log.Debug("auth conn is ok")
 			return nil
 		}
 		log.Debug("auth conn has been lost. Reconnecting...")
-		l.AuthClient = nil
 	}
 
 	newClient, err := authclient.New(l.Config.Auth, l.log)
 	if err != nil {
-		log.Errorw("failed to establish conn", "err", err)
+		log.Errorw("failed to establish auth conn", "err", err)
 		return err
 	}
-	l.AuthClient = newClient
-	log.Info("conn established")
+
+	l.mu.Lock()
+	l.authClient = newClient
+	l.mu.Unlock()
+
+	log.Info("auth conn re-established")
+	return nil
+}
+
+func (l *Logic) CheckNotifierHealth(ctx context.Context) error {
+	log := l.log.With("func", "CheckNotifierHealth")
+	log.Debug("CheckNotifierHealth called")
+
+	l.mu.Lock()
+	currentMQClient := l.notificationMQ // Copy to avoid accessing while unlocked
+	l.mu.Unlock()
+
+	if currentMQClient != nil {
+		if currentMQClient.ConnState() == "READY" {
+			log.Debug("notifier conn is ok")
+			return nil
+		}
+		log.Debug("notifier conn has been lost. Reconnecting...")
+	}
+
+	newClient, err := notifierclient.New(l.Config.NotificationMQ, l.log)
+	if err != nil {
+		log.Errorw("failed to establish notifier conn", "err", err)
+		return err
+	}
+
+	l.mu.Lock()
+	l.notificationMQ = newClient
+	l.mu.Unlock()
+
+	log.Info("notifier conn re-established")
 	return nil
 }
 
 func (l *Logic) CloseClients(ctx context.Context) {
 	log := l.log.With("func", "CloseClients")
 
-	if err := l.AuthClient.Close(); err != nil {
-		log.Errorw("failed to close auth client conn", "err", err)
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	if l.authClient != nil {
+		if err := l.authClient.Close(); err != nil {
+			log.Errorw("failed to close auth client conn", "err", err)
+		} else {
+			log.Debug("auth client connection closed")
+		}
+	}
+
+	if l.notificationMQ != nil {
+		if err := l.notificationMQ.Close(); err != nil {
+			log.Errorw("failed to close notifier client conn", "err", err)
+		} else {
+			log.Debug("notifier client connection closed")
+		}
 	}
 }
