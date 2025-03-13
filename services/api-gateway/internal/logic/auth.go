@@ -6,6 +6,7 @@ import (
 
 	"go.uber.org/zap"
 	"pms.api-gateway/internal/models"
+	"pms.pkg/logger"
 	"pms.pkg/transport/grpc/dto"
 	pb "pms.pkg/transport/grpc/services"
 	"pms.pkg/utils"
@@ -24,7 +25,7 @@ func (l *Logic) RegisterUser(ctx context.Context, newUser *dto.NewUser) (*dto.Us
 }
 
 func (l *Logic) LoginUser(ctx context.Context, creds *dto.UserCredentials) (*dto.AuthPayload, error) {
-	log := l.log.With(
+	log := logger.Enabled(l.log, true).With(
 		zap.String("func", "logic.LoginUser"),
 		zap.String("email", creds.Email),
 	)

@@ -1,10 +1,8 @@
 package router
 
 import (
-	"os"
-
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"go.uber.org/zap"
 	"pms.api-gateway/internal/config"
@@ -40,15 +38,8 @@ func New(conf config.Config, logic *logic.Logic, log *zap.SugaredLogger) *Server
 	}
 
 	srv.Use(requestid.New())
+	srv.Use(cors.New())
 
-	logger := logger.New(logger.Config{
-		Format:        "[${ip}]:${port}(${locals:requestid}) ${status} - ${method} ${path}\n",
-		TimeFormat:    "02-Jan-2006",
-		DisableColors: false,
-		Output:        os.Stdout,
-	})
-
-	srv.Use(logger)
 	srv.Logic = logic
 	return &srv
 }

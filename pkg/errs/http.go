@@ -3,6 +3,7 @@ package errs
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -70,8 +71,14 @@ func GRPCtoHTTP(err error) error {
 }
 
 func WrapHttp(err error) error {
+	if err == nil {
+		return nil
+	}
 	resultErr := ErrHTTP{
 		Message: err.Error(),
+	}
+	if strings.HasPrefix(err.Error(), "rpc error") {
+		return GRPCtoHTTP(err)
 	}
 
 	switch err.(type) {

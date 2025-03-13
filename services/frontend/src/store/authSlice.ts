@@ -1,27 +1,18 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { isTokenValid } from "../utils/jwt";
+import { AuthData } from "../lib/user";
 
 const AUTH_KEY = "auth";
 
-interface UserData {
-  id: string;
-  email: string;
-}
-
-interface AuthState {
-  token: string | null;
-  user: UserData | null;
-}
-
-const loadInitialState = (): AuthState => {
-  const nullState: AuthState = { token: null, user: null };
+const loadInitialState = (): AuthData => {
+  const nullState: AuthData = {};
   try {
     const data = localStorage.getItem(AUTH_KEY);
     if (!data) {
       return nullState;
     }
-    const state: AuthState = JSON.parse(data);
-    if (!isTokenValid(state.token || "")) {
+    const state: AuthData = JSON.parse(data);
+    if (!isTokenValid(state.access_token || "")) {
       return nullState;
     }
     return state;
@@ -37,13 +28,13 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login: (state: AuthState, action: PayloadAction<AuthState>) => {
-      state.token = action.payload.token;
+    login: (state: AuthData, action: PayloadAction<AuthData>) => {
+      state.access_token = action.payload.access_token;
       state.user = action.payload.user;
       localStorage.setItem(AUTH_KEY, JSON.stringify(state));
     },
-    logout: (state: AuthState) => {
-      state.token = null;
+    logout: (state: AuthData) => {
+      state.access_token = null;
       state.user = null;
       localStorage.removeItem(AUTH_KEY);
     },

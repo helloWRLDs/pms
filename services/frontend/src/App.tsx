@@ -8,9 +8,10 @@ import LoginPage from "./pages/LoginPage.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
 
 function App() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   useEffect(() => {
     console.log(isAuthenticated);
+    console.log(user);
   }, []);
 
   return (

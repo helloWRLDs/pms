@@ -7,9 +7,12 @@ import { useMemo } from "react";
 const useAuth = () => {
   const dispatch = useDispatch();
 
-  const { token, user } = useSelector((state: RootState) => state);
+  const { access_token, user } = useSelector((state: RootState) => state);
 
-  const isAuthenticated = useMemo(() => isTokenValid(token || ""), [token]);
+  const isAuthenticated = useMemo(
+    () => isTokenValid(access_token || ""),
+    [access_token]
+  );
 
   const handleLogin = (auth: RootState) => {
     dispatch(login(auth));
@@ -20,7 +23,7 @@ const useAuth = () => {
   };
 
   return {
-    token,
+    access_token,
     user,
     isAuthenticated,
     login: handleLogin,

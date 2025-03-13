@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { toastOpts } from "../../utils/toast";
 
 interface Props {
-  onLogin: (email: string, password: string) => void;
+  onLogin: (email: string, password: string) => Promise<void>;
 }
 
 const LoginForm: FC<Props> = (props) => {
@@ -16,8 +16,7 @@ const LoginForm: FC<Props> = (props) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  // ✅ Handle Form Submission
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!email) {
       toast.error("Email is required!", toastOpts);
       return;
@@ -28,8 +27,12 @@ const LoginForm: FC<Props> = (props) => {
     }
 
     // ✅ Call `onLogin` prop
-    props.onLogin(email, password);
-    toast.success("Login successful!", toastOpts);
+    try {
+      await props.onLogin(email, password);
+      toast.success("Login successful!", toastOpts);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (

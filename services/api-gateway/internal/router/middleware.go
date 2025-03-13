@@ -60,7 +60,7 @@ func (s *Server) SecureHeaders() fiber.Handler {
 		c.Set("X-XSS-Protection", "1; mode=block")
 		c.Set("X-Frame-Options", "deny")
 		c.Set("X-Content-Type-Options", "nosniff")
-		c.Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		// c.Set("Referrer-Policy", "strict-origin-when-cross-origin")
 		return c.Next()
 	}
 }
