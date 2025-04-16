@@ -1,49 +1,61 @@
 package router
 
 import (
+	"time"
+
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/requestid"
-	"go.uber.org/zap"
-	"pms.api-gateway/internal/config"
-	"pms.api-gateway/internal/logic"
-	"pms.pkg/errs"
+	"github.com/gofiber/fiber/v2/log"
 )
 
-type Server struct {
-	fiber.App
-	Host string
+func (s *Server) SetupREST() {
+	api := s.Group("/api")
 
-	Logic *logic.Logic
+	s.Use(s.SecureHeaders())
 
-	log *zap.SugaredLogger
+	v1 := api.Group("/v1")
+
+	v1.Get("/healthcheck", s.HealthcheckHandler)
+
+	v1.Route("/auth", func(auth fiber.Router) {
+		auth.Use(s.RequireAuthService())
+
+		auth.Post("/login", s.LoginUser)
+		auth.Post("/register", s.RegisterUser)
+	})
+
+	v1.Route("/background-tasks", func(tasks fiber.Router) {
+		tasks.Get("/", s.ListBackgroundTasks)
+	})
 }
 
-func New(conf config.Config, logic *logic.Logic, log *zap.SugaredLogger) *Server {
-	srv := Server{
-		Host: conf.Host,
-		log:  log,
-		App: *fiber.New(fiber.Config{
-			AppName:           "API-GATEWAY",
-			EnablePrintRoutes: true,
-			ErrorHandler: func(c *fiber.Ctx, err error) error {
-				if err == nil {
-					return nil
-				}
+func (s *Server) SetupWS() {
+	s.Use("/ws", func(c *fiber.Ctx) error {
+		if websocket.IsWebSocketUpgrade(c) {
+			c.Locals("allowed", true)
 
-				http := errs.WrapHttp(err).(errs.ErrHTTP)
-				return c.Status(http.Status).JSON(http)
-			},
-		}),
-	}
+			return c.Next()
+		}
+		return fiber.ErrUpgradeRequired
+	})
 
-	srv.Use(requestid.New())
-	srv.Use(cors.New())
+	s.Get("/ws/dashboard/:id", websocket.New(s.DashboardStream))
 
-	srv.Logic = logic
-	return &srv
-}
+	go func() { // dashboard chages db writer
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
 
-func (r *Server) Start() error {
-	return r.Listen(r.Host)
+		for range ticker.C {
+			if len(s.DashboardHub.GetClients()) == 0 {
+				log.Infow("no clients connected")
+				continue
+			}
+			if len(s.DashboardHub.GetCache()) == 0 {
+				log.Infow("no tasks to save")
+				continue
+			}
+			log.Infow("saving tasks to db...", "tasks", s.DashboardHub.GetCache())
+			s.DashboardHub.Clean()
+		}
+	}()
 }

@@ -11,7 +11,6 @@ import (
 	"pms.pkg/utils/ctx"
 )
 
-// Find session in redis and put into context
 func (s *Server) Authorize() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		log := s.log.With(

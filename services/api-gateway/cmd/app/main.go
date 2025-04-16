@@ -36,7 +36,8 @@ func main() {
 	logic := logic.New(conf, log)
 
 	serv := router.New(conf, logic, log)
-	serv.SetupRoutes()
+	serv.SetupWS()
+	serv.SetupREST()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
