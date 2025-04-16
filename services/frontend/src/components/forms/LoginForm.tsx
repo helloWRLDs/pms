@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { MdEmail, MdLock, MdVisibility, MdVisibilityOff } from "react-icons/md";
+import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { toast } from "react-toastify";
 import { toastOpts } from "../../utils/toast";
 
@@ -26,7 +26,6 @@ const LoginForm: FC<Props> = (props) => {
       return;
     }
 
-    // ✅ Call `onLogin` prop
     try {
       await props.onLogin(email, password);
       toast.success("Login successful!", toastOpts);
@@ -38,57 +37,57 @@ const LoginForm: FC<Props> = (props) => {
   return (
     <div>
       {/* Email Input */}
-      <div className="mb-4">
-        <label htmlFor="email" className="relative block">
-          <MdEmail
-            size={20}
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--color-neutral-400)]"
-          />
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            className="w-full h-12 pl-10 pr-4 border border-[var(--color-neutral-400)] rounded-lg bg-[var(--color-primary-400)] text-[var(--color-neutral-100)] focus:ring-2 focus:ring-[var(--color-primary-200)] focus:border-[var(--color-primary-200)] outline-none transition"
-          />
+      <div className="relative z-0 mb-4">
+        <input
+          type="text"
+          value={email}
+          id="form-email"
+          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
+          placeholder=" "
+          required={true}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <label
+          htmlFor="form-email"
+          className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-accent-600 peer-focus:dark:text-accent-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
+        >
+          Email
         </label>
       </div>
 
-      {/* Password Input */}
-      <div className="mb-4">
-        <label htmlFor="password" className="relative block">
-          <MdLock
-            size={20}
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--color-neutral-400)]"
-          />
-          <input
-            type={showPassword ? "text" : "password"}
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            className="w-full h-12 pl-10 pr-10 border border-[var(--color-neutral-400)] rounded-lg bg-[var(--color-primary-400)] text-[var(--color-neutral-100)] focus:ring-2 focus:ring-[var(--color-primary-200)] focus:border-[var(--color-primary-200)] outline-none transition"
-          />
-          {/* Toggle Password Visibility */}
-          <button
-            type="button"
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 cursor-pointer"
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? (
-              <MdVisibility size={22} />
-            ) : (
-              <MdVisibilityOff size={22} />
-            )}
-          </button>
+      <div className="relative z-0 mb-4">
+        <input
+          type={showPassword ? "text" : "password"}
+          id="form-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required={true}
+          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
+          placeholder=" "
+        />
+        <label
+          htmlFor="form-password"
+          className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-accent-600 peer-focus:dark:text-accent-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
+        >
+          Password
         </label>
+        <button
+          type="button"
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 cursor-pointer hover:text-accent-500 transition-all ease-in-out duration-300"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? (
+            <MdVisibility size={22} />
+          ) : (
+            <MdVisibilityOff size={22} />
+          )}
+        </button>
       </div>
 
       {/* Submit Button */}
       <button
         onClick={handleSubmit}
-        className="w-full bg-primary-300 hover:bg-primary-200 text-neutral-100 cursor-pointer font-semibold py-3 rounded-lg transition"
+        className="w-full bg-primary-300 hover:bg-accent-200 hover:text-primary-100 text-neutral-100 cursor-pointer font-semibold py-3 rounded-lg transition-all ease-in-out duration-300"
       >
         Sign In
       </button>
@@ -96,7 +95,10 @@ const LoginForm: FC<Props> = (props) => {
       {/* Signup Link */}
       <p className="text-neutral-400 text-sm mt-4 text-center">
         Don't have an account?{" "}
-        <a href="#" className="text-[var(--color-neutral-200)] hover:underline">
+        <a
+          href="/register"
+          className="text-[var(--color-neutral-200)] hover:underline hover:text-accent-500 transition-all ease-in-out duration-300"
+        >
           Sign up
         </a>
       </p>

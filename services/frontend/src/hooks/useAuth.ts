@@ -1,21 +1,21 @@
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../store/authStore";
-import { login, logout } from "../store/authSlice";
+import { RootState, login, logout } from "../store/authStore";
 import { isTokenValid } from "../utils/jwt";
 import { useMemo } from "react";
+import { AuthData } from "../lib/user";
 
 const useAuth = () => {
   const dispatch = useDispatch();
 
-  const { access_token, user } = useSelector((state: RootState) => state);
+  const { access_token, user } = useSelector((state: RootState) => state.auth);
 
   const isAuthenticated = useMemo(
     () => isTokenValid(access_token || ""),
     [access_token]
   );
 
-  const handleLogin = (auth: RootState) => {
-    dispatch(login(auth));
+  const handleLogin = (state: AuthData) => {
+    dispatch(login(state));
   };
 
   const handleLogout = () => {

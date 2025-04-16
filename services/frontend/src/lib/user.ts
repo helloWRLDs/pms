@@ -12,8 +12,8 @@ export interface User {
 }
 
 export interface AuthData {
-  session_id?: string | null;
-  access_token?: string | null;
-  user?: User | null;
-  exp?: number | null;
+  session_id?: string;
+  access_token?: string;
+  user?: User;
+  exp?: number;
 }

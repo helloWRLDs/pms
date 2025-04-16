@@ -1,22 +1,68 @@
 @import "tailwindcss";
 
+:root {
+  font-family: "IBM Plex Sans", sans-serif;
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  height: 100%;
+  min-height: 100%;
+}
+
+footer {
+  clear: both;
+  position: relative;
+  height: 200px;
+  margin-top: -200px;
+}
 
 @theme {
   /* Primary Color Shades */
---color-primary-100: rgb(50, 50, 50);   /* Lightest */
---color-primary-200: rgb(40, 40, 40);
---color-primary-300: rgb(35, 35, 35);
---color-primary-400: rgb(28, 28, 28);
---color-primary-500: rgb(21, 21, 21);   /* Base */
---color-primary-600: rgb(15, 15, 15);
---color-primary-700: rgb(10, 10, 10);   /* Darkest */
+  --color-primary-100: rgb(71, 73, 71);
+  --color-primary-200: rgb(61, 63, 61);
+  --color-primary-300: rgb(56, 58, 56);
+  --color-primary-400: rgb(51, 53, 51);  /* Base */
+  --color-primary-500: rgb(41, 43, 41);
+  --color-primary-600: rgb(36, 38, 36);
+  --color-primary-700: rgb(26, 28, 26);  /* Darker */
 
-/* Neutral Color Shades */
---color-neutral-100: rgb(180, 180, 180); /* Lightest */
---color-neutral-200: rgb(160, 160, 160);
---color-neutral-300: rgb(140, 140, 140);
---color-neutral-400: rgb(120, 120, 120);
---color-neutral-500: rgb(102, 102, 102); /* Base */
---color-neutral-600: rgb(80, 80, 80);
---color-neutral-700: rgb(60, 60, 60);   /* Darkest */
+  /* Secondary Color Shades */
+  --color-secondary-100: rgb(56, 56, 55);
+  --color-secondary-200: rgb(46, 46, 45);
+  --color-secondary-300: rgb(41, 41, 40);
+  --color-secondary-400: rgb(36, 36, 35); /* Base */
+  --color-secondary-500: rgb(30, 30, 29);
+  --color-secondary-600: rgb(25, 25, 24);
+  --color-secondary-700: rgb(20, 20, 19);
+
+  /* Accent Color Shades */
+  --color-accent-100: rgb(255, 225, 120);
+  --color-accent-200: rgb(250, 215, 106);
+  --color-accent-300: rgb(247, 209, 99);
+  --color-accent-400: rgb(245, 203, 92);  /* Base */
+  --color-accent-500: rgb(235, 195, 85);
+  --color-accent-600: rgb(225, 185, 78);
+  --color-accent-700: rgb(215, 175, 71);
+
+  /* Muted Color Shades */
+  --color-muted-100: rgb(242, 245, 238);
+  --color-muted-200: rgb(237, 240, 233);
+  --color-muted-300: rgb(235, 238, 230);
+  --color-muted-400: rgb(232, 237, 223); /* Base */
+  --color-muted-500: rgb(222, 227, 215);
+  --color-muted-600: rgb(212, 217, 205);
+  --color-muted-700: rgb(202, 207, 195);
+
+  /* Soft Color Shades */
+  --color-soft-100: rgb(222, 230, 227);
+  --color-soft-200: rgb(217, 225, 222);
+  --color-soft-300: rgb(212, 220, 217);
+  --color-soft-400: rgb(207, 219, 213); /* Base */
+  --color-soft-500: rgb(197, 209, 203);
+  --color-soft-600: rgb(187, 199, 193);
+  --color-soft-700: rgb(177, 189, 183);
 }

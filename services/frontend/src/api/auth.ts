@@ -1,4 +1,4 @@
-import { AuthData, UserCredentials } from "../lib/user";
+import { AuthData, User, UserCredentials } from "../lib/user";
 import { request } from "./api";
 import { APIConfig } from "./client";
 
@@ -18,7 +18,11 @@ const authAPI = (access_token?: string) => {
     return req.post<AuthData>("/auth/login", creds);
   };
 
-  return { login };
+  const register = (newUser: User): Promise<void> => {
+    return req.post<void>("/auth/register", newUser);
+  };
+
+  return { login, register };
 };
 
 export default authAPI;
