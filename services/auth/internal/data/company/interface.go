@@ -1,5 +1,6 @@
-package comapanydata
+package companydata
 
-type Reader interface {
-	
+type Reader[T any] interface {
+}
+type Writer[T any] interface {
 }
