@@ -1,4 +1,4 @@
-package ctx
+package ctxutils
 
 import "context"
 
@@ -9,5 +9,5 @@ func Embed(ctx context.Context, t ContextKeyHolder) context.Context {
 
 func Get(ctx context.Context, key ContextKey) (t ContextKeyHolder, ok bool) {
 	t, ok = ctx.Value(key).(ContextKeyHolder)
-	return
+	return t, ok
 }

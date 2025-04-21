@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"pms.pkg/logger"
 )
 
 type Config struct {
@@ -42,14 +43,12 @@ func (c *Client[T]) Set(ctx context.Context, key string, t T, exp int64) error {
 }
 
 func (c *Client[T]) Get(ctx context.Context, key string) (T, error) {
+	log := logger.Log.With("func", "Get")
+	log.Info("Get called")
+
 	var t T
-	val, err := c.r.Get(ctx, key).Result()
-	if err != nil {
-		if err == redis.Nil {
-			return t, nil
-		}
-		return t, err
-	}
+	val := c.r.Get(ctx, key).Val()
+	log.Infow("raw data from redis", "val", val, "key", key)
 	if err := json.Unmarshal([]byte(val), &t); err != nil {
 		return t, err
 	}

@@ -19,21 +19,18 @@ func GenerateAccessToken[T jwt.Claims](claims T, conf *Config) (string, error) {
 	return tokenString, nil
 }
 
-func DecodeToken[T jwt.Claims](token string, claims T, conf *Config) (T, error) {
+func DecodeToken(token string, claims jwt.Claims, conf *Config) (jwt.Claims, error) {
 	decoded, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")
 		}
 		return []byte(conf.Secret), nil
 	})
-
 	if err != nil {
-		return claims, err
+		return nil, err
 	}
-
-	if claims, ok := decoded.Claims.(T); ok && decoded.Valid {
-		return claims, nil
+	if decoded.Valid {
+		return decoded.Claims, nil
 	}
-
-	return claims, errors.New("invalid token or claims")
+	return nil, errors.New("invalid token or claims")
 }
