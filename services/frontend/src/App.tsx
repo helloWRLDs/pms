@@ -9,7 +9,9 @@ import RegisterPage from "./pages/RegisterPage.tsx";
 import ChatPage from "./pages/ChatPage.tsx";
 import ProfilePage from "./pages/ProfilePage.tsx";
 import ProjectsPage from "./pages/ProjectsPage.tsx";
-import Footer from "./components/ui/Footer.tsx";
+import AgileDashboard from "./pages/AgileDashboard.tsx";
+import CompaniesPage from "./pages/CompaniesPage.tsx";
+// import Footer from "./components/ui/Footer.tsx";
 
 function App() {
   const { isAuthenticated, user } = useAuth();
@@ -24,13 +26,15 @@ function App() {
         <Header logoURL="./src/assets/logo.png" />
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/agile-dashboard" element={<AgileDashboard />} />
 
           {/* authorization */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
 
+          <Route path="/companies" element={<CompaniesPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           {/* projects */}
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/projects/:id" />

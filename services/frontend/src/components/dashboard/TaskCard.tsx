@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Icon } from "../ui/Icon";
-import { Task } from "../../lib/task";
+import { Task } from "../../lib/task/task";
 
 interface Props {
   task: Task;

@@ -1,8 +1,9 @@
-import { ComponentProps, FC, useEffect } from "react";
+import { ComponentProps, FC, useEffect, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import { FaCircleUser } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
+import authAPI from "../../api/auth";
+import { User } from "../../lib/user";
 
 interface HeaderProps extends ComponentProps<"div"> {
   logoURL: string;
@@ -16,12 +17,27 @@ const NAV_ITEMS = [
 ];
 
 export const Header: FC<HeaderProps> = ({ logoURL, className }) => {
-  const { isAuthenticated, logout } = useAuth();
+  const { access_token, user, isAuthenticated, logout } = useAuth();
+  const [userProfile, setUserProfile] = useState<User>();
 
   const navigate = useNavigate();
 
+  const loadUser = async () => {
+    if (user) {
+      try {
+        const fetchedUser = await authAPI(access_token).getUser(user?.id);
+        setUserProfile(fetchedUser);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
+
   useEffect(() => {
     console.log(isAuthenticated);
+    if (user && isAuthenticated) {
+      loadUser();
+    }
   }, []);
 
   return (
@@ -50,11 +66,14 @@ export const Header: FC<HeaderProps> = ({ logoURL, className }) => {
         <div className="ml-auto text-soft-200 font-semibold text-sm">
           {isAuthenticated ? (
             <Menu as="div" className="relative inline-block text-left">
-              <div>
-                <MenuButton className="inline-flex items-center gap-2 rounded-md  px-4 py-2 text-gray-900 text-sm font-medium  transition cursor-pointer">
-                  <FaCircleUser className="h-10 w-10" color="white" />
-                </MenuButton>
-              </div>
+              <MenuButton className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-gray-900 text-sm font-medium  transition cursor-pointer">
+                <div className="bg-white rounded-full">
+                  <img
+                    src={`data:image/jpeg;base64,${userProfile?.avatar_img}`}
+                    className="w-10 h-10 rounded-full"
+                  />
+                </div>
+              </MenuButton>
 
               <MenuItems className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white ring-1 ring-black/5 shadow-lg focus:outline-none">
                 <div className="py-1">

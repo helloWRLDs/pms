@@ -6,7 +6,10 @@ export interface UserCredentials {
 export interface User {
   id: string;
   email: string;
+  phone: string;
   name: string;
+  bio: string;
+  avatar_img: string;
   created_at: number;
   updated_at: number;
 }

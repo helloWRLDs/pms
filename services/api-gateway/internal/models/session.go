@@ -4,11 +4,11 @@ import (
 	"time"
 
 	"pms.pkg/datastore/redis"
-	"pms.pkg/utils/ctx"
+	ctxutils "pms.pkg/utils/ctx"
 )
 
 var _ redis.Cachable = &Session{}
-var _ ctx.ContextKeyHolder = &Session{}
+var _ ctxutils.ContextKeyHolder = &Session{}
 
 type Session struct {
 	ID           string    `json:"session_id"`
@@ -22,6 +22,6 @@ func (s Session) GetDB() int {
 	return 0
 }
 
-func (s Session) ContextKey() ctx.ContextKey {
-	return ctx.ContextKey("session")
+func (s Session) ContextKey() ctxutils.ContextKey {
+	return ctxutils.ContextKey("session")
 }

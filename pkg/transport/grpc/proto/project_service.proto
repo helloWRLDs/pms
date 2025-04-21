@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package project;
+
+option go_package = "pkg/transport/grpc/services;pb";
+
+import "pkg/transport/grpc/proto/project.proto";
+
+service ProjectService {
+    rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse);
+}
+
+message CreateProjectRequest {
+    project.ProjectCreation creation = 1;
+}
+
+message CreateProjectResponse {
+    bool success = 1;
+    project.Project created_project = 2;
+}

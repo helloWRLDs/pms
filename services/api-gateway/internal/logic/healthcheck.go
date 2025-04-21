@@ -14,13 +14,13 @@ func (l *Logic) InitTasks() {
 		ID:          "auth-client-connector",
 		MaxAttempts: -1,
 		Func:        l.CheckAuthHealth,
-		Interval:    30 * time.Second,
+		Interval:    10 * time.Second,
 	}
 	notifierTask := &scheduler.Task{
 		ID:          "notifier-mq-connector",
 		MaxAttempts: -1,
 		Func:        l.CheckNotifierHealth,
-		Interval:    30 * time.Second,
+		Interval:    10 * time.Second,
 	}
 
 	l.Tasks[authTask.ID] = authTask

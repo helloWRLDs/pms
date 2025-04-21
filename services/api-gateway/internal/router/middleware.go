@@ -8,7 +8,7 @@ import (
 	"pms.pkg/errs"
 	"pms.pkg/tools/jwtoken"
 	"pms.pkg/type/claims"
-	"pms.pkg/utils/ctx"
+	ctxutils "pms.pkg/utils/ctx"
 )
 
 func (s *Server) Authorize() fiber.Handler {
@@ -20,25 +20,41 @@ func (s *Server) Authorize() fiber.Handler {
 
 		token := c.Get("Authorization")
 		if token == "" || !strings.HasPrefix(token, "Bearer ") {
+			log.Error("missing token")
 			return errs.ErrUnauthorized{
 				Reason: "token not provided",
 			}
 		}
 		token = token[7:]
 
-		decoded, err := jwtoken.DecodeToken(token, &claims.AccessTokenClaims{}, &s.Logic.Config.JWT)
+		log.Infow("jwt secrets", "ttl", s.Logic.Config.JWT.TTL, "secret", s.Logic.Config.JWT.Secret)
+		decodedRaw, err := jwtoken.DecodeToken(token, &claims.AccessTokenClaims{}, &s.Logic.Config.JWT)
 		if err != nil {
+			log.Errorw("failed decoding token", "err", err)
 			return errs.ErrUnauthorized{
 				Reason: "failed verifying token",
 			}
 		}
+
+		decoded, ok := decodedRaw.(*claims.AccessTokenClaims)
+		if !ok {
+			log.Error("failed to cast token claims")
+			return errs.ErrUnauthorized{
+				Reason: "invalid token claims",
+			}
+		}
+
+		log.Infof("claims: %#v", decoded)
 		session, err := s.Logic.Sessions.Get(c.UserContext(), decoded.SessionID)
 		if err != nil {
+			log.Error("failed to get session from cache")
 			return errs.ErrUnauthorized{
 				Reason: "failed verifying session",
 			}
 		}
-		c.SetUserContext(ctx.Embed(c.Context(), session))
+		log.Infow("got session from cache", "session", session)
+		ctx := ctxutils.Embed(c.UserContext(), session)
+		c.SetUserContext(ctx)
 		return c.Next()
 	}
 }

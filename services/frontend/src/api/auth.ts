@@ -1,4 +1,5 @@
 import { AuthData, User, UserCredentials } from "../lib/user";
+import { UserCreation } from "../lib/user/new";
 import { request } from "./api";
 import { APIConfig } from "./client";
 
@@ -18,11 +19,19 @@ const authAPI = (access_token?: string) => {
     return req.post<AuthData>("/auth/login", creds);
   };
 
-  const register = (newUser: User): Promise<void> => {
+  const register = (newUser: UserCreation): Promise<void> => {
     return req.post<void>("/auth/register", newUser);
   };
 
-  return { login, register };
+  const getUser = (id: string): Promise<User> => {
+    return req.get<User>(`/users/${id}`);
+  };
+
+  const updateUser = (id: string, updated_user: User): Promise<void> => {
+    return req.put<void>(`/users/${id}`, updated_user);
+  };
+
+  return { login, register, getUser, updateUser };
 };
 
 export default authAPI;

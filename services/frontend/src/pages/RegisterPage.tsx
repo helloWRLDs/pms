@@ -1,25 +1,30 @@
 import { FC, useEffect } from "react";
-import { PageSettings } from "./page";
 import RegisterForm from "../components/forms/RegisterForm";
 import authAPI from "../api/auth";
-import { register } from "module";
 import { useNavigate } from "react-router-dom";
-
-class RegisterPageSettings extends PageSettings {}
+import { errorToast } from "../utils/toast";
+import { usePageSettings } from "../hooks/usePageSettings";
 
 const RegisterPage: FC = () => {
-  const settings = new RegisterPageSettings("Sign up");
+  usePageSettings({ title: "Sign up", requireAuth: false });
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    settings.setup();
-  }, []);
-
-  const handleRegister = async (email: string, password: string) => {
-    // const res = await authAPI().register({ email: email, password: password });
-    // register(res);
-    navigate("/");
+  const handleRegister = async (
+    email: string,
+    password: string,
+    name: string
+  ) => {
+    try {
+      await authAPI().register({
+        email: email,
+        password: password,
+        name: name,
+      });
+      navigate("/");
+    } catch (e) {
+      errorToast("Failed to registre user");
+    }
   };
   return (
     <div className="flex justify-center items-center min-h-lvh bg-primary-600">

@@ -7,3 +7,11 @@ func Ptr[T comparable](value T) *T {
 	}
 	return &value
 }
+
+func Value[T comparable](ptr *T) T {
+	var null T
+	if ptr == nil {
+		return null
+	}
+	return *ptr
+}

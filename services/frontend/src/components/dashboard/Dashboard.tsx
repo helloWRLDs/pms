@@ -165,13 +165,13 @@ import {
   Draggable,
   DropResult,
 } from "@hello-pangea/dnd";
-import { Task } from "../../lib/task";
+import { Task } from "../../lib/task/task";
 import TaskCard from "./TaskCard";
 import { capitalize } from "../../utils/string";
 import { toast } from "react-toastify";
 import { toastOpts } from "../../utils/toast";
 import useWs from "../../hooks/useWs";
-import { getTaskStatuses } from "../../lib/taskStatus";
+import { getTaskStatuses } from "../../lib/task/status";
 
 type TaskMap = Record<string, Task[]>; // { status: [tasks] }
 

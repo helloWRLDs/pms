@@ -7,9 +7,9 @@
 ## Migrations
 
 ```bash
-goose -dir ./migrations sqlite "./data/users.db" up
+goose -dir ./services/auth/migrations sqlite "./services/auth/data/users.db" up
 ```
 
 ```bash
-goose -dir ./migrations sqlite "./data/users.db" down
+goose -dir ./services/auth/migrations sqlite "./services/auth/data/users.db" down
 ```

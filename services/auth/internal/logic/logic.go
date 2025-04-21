@@ -7,7 +7,7 @@ import (
 )
 
 type Logic struct {
-	repo *data.Repository
+	Repo *data.Repository
 	conf *config.Config
 
 	log *zap.SugaredLogger
@@ -15,7 +15,7 @@ type Logic struct {
 
 func New(repo *data.Repository, conf *config.Config, log *zap.SugaredLogger) *Logic {
 	return &Logic{
-		repo: repo,
+		Repo: repo,
 		conf: conf,
 		log:  log,
 	}

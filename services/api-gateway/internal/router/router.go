@@ -24,6 +24,21 @@ func (s *Server) SetupREST() {
 		auth.Post("/register", s.RegisterUser)
 	})
 
+	v1.Route("/users", func(user fiber.Router) {
+		user.Use(s.RequireAuthService())
+		user.Use(s.Authorize())
+
+		user.Get("/:id", s.GetUser)
+	})
+
+	v1.Route("/companies", func(comp fiber.Router) {
+		comp.Use(s.RequireAuthService())
+		comp.Use(s.Authorize())
+
+		comp.Get("/", s.ListCompanies)
+		comp.Get("/:id", s.GetCompany)
+	})
+
 	v1.Route("/background-tasks", func(tasks fiber.Router) {
 		tasks.Get("/", s.ListBackgroundTasks)
 	})

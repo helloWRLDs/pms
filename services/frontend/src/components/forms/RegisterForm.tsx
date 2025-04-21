@@ -1,6 +1,5 @@
 import { FC, useState } from "react";
-import { errorToast, toastOpts } from "../../utils/toast";
-import { toast } from "react-toastify";
+import { errorToast } from "../../utils/toast";
 
 interface Props {
   onRegister: (email: string, password: string, name: string) => Promise<void>;
@@ -15,7 +14,7 @@ const RegisterForm: FC<Props> = (props) => {
   const handleSubmit = async () => {
     try {
       await props.onRegister(email, password, name);
-      toast.success("Register successful!", toastOpts);
+      // toast.success("Register successful!", toastOpts);
     } catch (e) {
       console.log(e);
       errorToast("Register failed!");
@@ -32,6 +31,7 @@ const RegisterForm: FC<Props> = (props) => {
           className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
           placeholder=" "
           required={true}
+          autoComplete="off"
           onChange={(e) => setName(e.target.value)}
         />
         <label
@@ -50,6 +50,7 @@ const RegisterForm: FC<Props> = (props) => {
           className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
           placeholder=" "
           required={true}
+          autoComplete="off"
           onChange={(e) => setEmail(e.target.value)}
         />
         <label

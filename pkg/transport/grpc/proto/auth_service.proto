@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "pkg/transport/grpc/services;pb";
+
+import "pkg/transport/grpc/proto/auth.proto";
+
+service AuthService {
+    rpc LoginUser(LoginUserRequest) returns (LoginUserResponse);
+    rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
+    rpc ListCompanies(ListCompaniesRequest) returns (ListCompaniesResponse);
+    rpc GetCompany(GetCompanyRequest) returns (GetCompanyResponse);
+
+    rpc GetUser(GetUserRequest) returns (GetUserResponse);
+}
+
+message LoginUserRequest {
+    auth.UserCredentials credentials = 1;
+}
+
+message LoginUserResponse {
+    bool success = 1;
+    auth.AuthPayload payload = 2;
+}
+
+message RegisterUserRequest {
+    auth.NewUser new_user = 1;
+}
+
+message RegisterUserResponse {
+    bool success = 1;
+    auth.User user = 2;
+}
+
+
+message ListCompaniesRequest {
+    string user_id = 1;
+    int32 page = 2;
+    int32 per_page = 3;
+}
+
+message ListCompaniesResponse {
+    bool success = 1;
+    auth.CompanyList companies = 2;
+}
+
+message GetCompanyRequest {
+    string id = 1;
+}
+
+message GetCompanyResponse {
+    bool success = 1;
+    auth.Company company = 2;
+}
+
+message GetUserRequest {
+    string userID = 1;
+}
+
+message GetUserResponse {
+    bool success = 1;
+    auth.User user = 2;
+}
+

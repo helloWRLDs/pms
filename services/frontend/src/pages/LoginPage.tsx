@@ -3,12 +3,11 @@ import LoginForm from "../components/forms/LoginForm";
 import authAPI from "../api/auth";
 import useAuth from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { PageSettings } from "./page";
-
-class LoginPageSettings extends PageSettings {}
+import { usePageSettings } from "../hooks/usePageSettings";
 
 const LoginPage: FC = () => {
-  const settings = new LoginPageSettings("Sign in", true, true, false);
+  usePageSettings({ requireAuth: false, title: "Sign in" });
+
   const { isAuthenticated, login } = useAuth();
   const navigate = useNavigate();
 
@@ -22,9 +21,7 @@ const LoginPage: FC = () => {
     navigate("/");
   };
 
-  useEffect(() => {
-    settings.setup();
-  }, []);
+  // useEffect(() => {}, []);
 
   return (
     <div className="flex justify-center min-h-lvh bg-primary-600">

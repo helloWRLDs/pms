@@ -57,6 +57,7 @@ const LoginForm: FC<Props> = (props) => {
 
       <div className="relative z-0 mb-4">
         <input
+          autoComplete="off"
           type={showPassword ? "text" : "password"}
           id="form-password"
           value={password}

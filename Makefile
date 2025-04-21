@@ -13,6 +13,11 @@ grpc.init: path
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 # Generate gRPC code from .proto files
+genproto:
+	@echo "Generating protobuf files..."
+	protoc  --go_out=. --go-grpc_out=. .\pkg\transport\grpc\proto\${service}.proto
+	protoc --go_out=. --go-grpc_out=. .\pkg\transport\grpc\proto\${service}_service.proto
+
 protoc:
 	@echo "Generating protobuf files..."
 	protoc  --go_out=. --go-grpc_out=. .\services\${service}\proto\${service}_service.proto

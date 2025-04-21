@@ -9,6 +9,10 @@ const request = (config: APIConfig) => {
     get: <T>(url: string) => customApiClient.get<T>(url).then(responseBody),
     post: <T>(url: string, body: {}) =>
       customApiClient.post<T>(url, body).then(responseBody),
+    put: <T>(url: string, body: {}) =>
+      customApiClient.put<T>(url, body).then(responseBody),
+    delete: <T>(url: string) =>
+      customApiClient.delete<T>(url).then(responseBody),
   };
 };
 
