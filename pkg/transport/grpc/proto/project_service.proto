@@ -8,6 +8,20 @@ import "pkg/transport/grpc/proto/project.proto";
 
 service ProjectService {
     rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse);
+    rpc GetProject(GetProjectRequest) returns (GetProjectResponse);
+    rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse);
+
+    rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
+    rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
+    rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
+    rpc UpdateTask(UpdateTaskRequest) returns (UpdateTaskResponse);
+    rpc DeleteTask(DeleteTaskRequest) returns (DeleteTaskResponse);
+
+    rpc GetSprint(GetSprintRequest) returns (GetSprintResponse);
+    rpc ListSprints(ListSprintsRequest) returns (ListSprintsResponse);
+    rpc CreateSprint(CreateSprintRequest) returns (CreateSprintResponse);
+    rpc UpdateSprint(UpdateSprintRequest) returns (UpdateSprintResponse);
+    rpc DeleteSprint(DeleteSprintRequest) returns (DeleteSprintResponse);
 }
 
 message CreateProjectRequest {
@@ -17,4 +31,120 @@ message CreateProjectRequest {
 message CreateProjectResponse {
     bool success = 1;
     project.Project created_project = 2;
+}
+
+message GetProjectRequest {
+    string id = 1;
+}
+
+message GetProjectResponse {
+    bool success = 1;
+    project.Project project = 2;
+}
+
+message ListProjectsRequest {
+    int32 page = 1;
+    int32 per_page = 2;
+    string company_id = 3;
+}
+
+message ListProjectsResponse {
+    bool success = 1;
+    project.ProjectList projects = 2;
+}
+
+message GetTaskRequest {
+    string id = 1;
+}
+
+message GetTaskResponse {
+    bool success = 1;
+    project.Task task = 2;
+}
+
+message ListTasksRequest {
+    int32 page = 1;
+    int32 per_page = 2;
+    string sprint_id = 3;
+    string project_id = 4;
+    string assignee_id = 5;
+}
+
+message ListTasksResponse {
+    bool success = 1;
+    project.TaskList tasks = 2;
+}
+
+message CreateTaskRequest {
+    project.TaskCreation creation = 1;
+}
+
+message CreateTaskResponse {
+    bool success = 1;
+    project.Task created_task = 2;
+}
+
+message UpdateTaskRequest {
+    string id = 1;
+    project.Task updated_task = 2;
+}
+
+message UpdateTaskResponse {
+    bool success = 1;
+    project.Task updated_task = 2;
+}
+
+message DeleteTaskRequest {
+    string id = 1;
+}
+
+message DeleteTaskResponse {
+    bool success = 1;
+}
+
+message GetSprintRequest {
+    string id = 1;
+}
+
+message GetSprintResponse {
+    bool success = 1;
+    project.Sprint sprint = 2;
+}
+
+message ListSprintsRequest {
+    int32 page = 1;
+    int32 per_page = 2;
+    string project_id = 3;
+}
+
+message ListSprintsResponse {
+    bool success = 1;
+    project.SprintList sprints = 2;
+}
+
+message CreateSprintRequest {
+    project.SprintCreation creation = 1;
+}
+
+message CreateSprintResponse {
+    bool success = 1;
+    project.Sprint created_sprint = 2;
+}
+
+message UpdateSprintRequest {
+    string id = 1;
+    project.Sprint updated_sprint = 2;
+}
+
+message UpdateSprintResponse {
+    bool success = 1;
+    project.Sprint updated_sprint = 2;
+}
+
+message DeleteSprintRequest {
+    string id = 1;
+}
+
+message DeleteSprintResponse {
+    bool success = 1;
 }

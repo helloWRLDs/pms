@@ -6,6 +6,20 @@ option go_package = "pkg/transport/grpc/dto";
 
 import "google/protobuf/timestamp.proto";
 
+message Task {
+    string id = 1;
+    string title = 2;
+    string body = 3;
+    string status = 4;
+    string sprint_id = 5;
+    string project_id = 6;
+    int32 priority = 7;
+    google.protobuf.Timestamp created_at = 8;
+    google.protobuf.Timestamp updated_at = 9;
+    string assignee_id = 10;
+    google.protobuf.Timestamp due_date = 11;
+}
+
 message Project {
     string id = 1;
     string title = 2;
@@ -14,10 +28,67 @@ message Project {
     string company_id = 5;
     google.protobuf.Timestamp created_at = 6;
     google.protobuf.Timestamp updated_at = 7;
+    int32 total_tasks = 8;
+    repeated Sprint sprints = 9;
+    int32 completion_progress = 10;
+}
+
+message Sprint {
+    string id = 1;
+    string title = 2;
+    string description = 3;
+    string status = 4;
+    string project_id = 5;
+    google.protobuf.Timestamp created_at = 6;
+    google.protobuf.Timestamp updated_at = 7;
+    repeated Task tasks = 8;
+}
+
+// LISTS
+
+message SprintList {
+    int32 page = 1;
+    int32 per_page = 2;
+    int32 total_pages = 3;
+    int32 total_items = 4;
+    repeated Sprint items = 5;
+}
+
+message ProjectList {
+    int32 page = 1;
+    int32 per_page = 2;
+    int32 total_pages = 3;
+    int32 total_items = 4;
+    repeated Project items = 5;
+}
+
+message TaskList {
+    int32 page = 1;
+    int32 per_page = 2;
+    int32 total_pages = 3;
+    int32 total_items = 4;
+    repeated Task items = 5;
 }
 
 
 // CREATION
+
+message TaskCreation {
+    string title = 1;
+    string body = 2;
+    string status = 3;
+    string sprint_id = 4;
+    string project_id = 5;
+    int32 priority = 6;
+    string assignee_id = 7;
+    google.protobuf.Timestamp due_date = 8;
+}
+
+message SprintCreation {
+    string title = 1;
+    string description = 2;
+    string project_id = 3;
+}
 
 message ProjectCreation {
     string title = 1;

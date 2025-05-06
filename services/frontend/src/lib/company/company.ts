@@ -1,4 +1,7 @@
-export interface Company {
+import { Project } from "../project/project";
+import { List } from "../utils";
+
+export type Company = {
   id: string;
   name: string;
   codename: string;
@@ -9,4 +12,5 @@ export interface Company {
   updated_at: {
     seconds: number;
   };
-}
+  projects?: List<Project>;
+};

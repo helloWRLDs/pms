@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import { RootState, login, logout } from "../store/authStore";
+import { RootState, login, logout, updateAuthField } from "../store/authStore";
 import { isTokenValid } from "../utils/jwt";
 import { useMemo } from "react";
 import { AuthData } from "../lib/user";
@@ -22,12 +22,17 @@ const useAuth = () => {
     dispatch(logout());
   };
 
+  const updateField = (patch: Partial<AuthData>) => {
+    dispatch(updateAuthField(patch));
+  };
+
   return {
     access_token,
     user,
     isAuthenticated,
     login: handleLogin,
     logout: handleLogout,
+    updateField,
   };
 };
 

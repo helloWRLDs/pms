@@ -24,6 +24,14 @@ func (s *Server) SetupREST() {
 		auth.Post("/register", s.RegisterUser)
 	})
 
+	v1.Route("/session", func(session fiber.Router) {
+		session.Use(s.Authorize())
+
+		session.Get("/", s.GetSession)
+		session.Put("/", s.UpdateSession)
+		session.Delete("/", s.DeleteSession)
+	})
+
 	v1.Route("/users", func(user fiber.Router) {
 		user.Use(s.RequireAuthService())
 		user.Use(s.Authorize())
@@ -37,6 +45,15 @@ func (s *Server) SetupREST() {
 
 		comp.Get("/", s.ListCompanies)
 		comp.Get("/:id", s.GetCompany)
+	})
+
+	v1.Route("/projects", func(proj fiber.Router) {
+		proj.Use(s.RequireAuthService())
+		proj.Use(s.Authorize())
+
+		proj.Get("/", s.ListProjects)
+		proj.Get("/:id", s.GetProject)
+		proj.Post("/", s.CreateProject)
 	})
 
 	v1.Route("/background-tasks", func(tasks fiber.Router) {

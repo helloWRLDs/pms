@@ -37,6 +37,11 @@ func Test_SetAvatar(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func Test_UserExists(t *testing.T) {
+	exists := repo.User.Exists(context.Background(), "email", "john@example.com")
+	t.Log(exists)
+}
+
 func Test_ListUsers(t *testing.T) {
 	list, err := repo.User.List(context.Background(), list.Filters{
 		Pagination: list.Pagination{

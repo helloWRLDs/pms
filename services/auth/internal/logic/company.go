@@ -67,7 +67,7 @@ func (l *Logic) ListCompanies(ctx context.Context, userID string, filter list.Fi
 				},
 				Pagination: list.Pagination{
 					Page:    1,
-					PerPage: 10000,
+					PerPage: 100000,
 				},
 			}),
 			CreatedAt: timestamppb.New(comp.CreatedAt.Time),

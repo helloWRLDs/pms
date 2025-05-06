@@ -3,7 +3,7 @@ import useAuth from "../../hooks/useAuth";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
 import authAPI from "../../api/auth";
-import { User } from "../../lib/user";
+import { User } from "../../lib/user/new";
 
 interface HeaderProps extends ComponentProps<"div"> {
   logoURL: string;

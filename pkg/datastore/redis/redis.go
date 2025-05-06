@@ -42,6 +42,10 @@ func (c *Client[T]) Set(ctx context.Context, key string, t T, exp int64) error {
 	return c.r.Set(ctx, key, j, time.Duration(exp)*time.Hour).Err()
 }
 
+func (c *Client[T]) Delete(ctx context.Context, key string) error {
+	return c.r.Del(ctx, key).Err()
+}
+
 func (c *Client[T]) Get(ctx context.Context, key string) (T, error) {
 	log := logger.Log.With("func", "Get")
 	log.Info("Get called")

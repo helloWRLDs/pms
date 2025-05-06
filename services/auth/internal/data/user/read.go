@@ -3,6 +3,7 @@ package userdata
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	sq "github.com/Masterminds/squirrel"
 	"go.uber.org/zap"
@@ -55,6 +56,21 @@ func (r *Repository) Count(ctx context.Context, filter list.Filters) (count int6
 	return count
 }
 
+func (r *Repository) Exists(ctx context.Context, field string, value interface{}) (exists bool) {
+	log := r.log.With(
+		zap.String("func", "Exists"),
+		zap.Any("condition", fmt.Sprintf("%s: %v", field, value)),
+	)
+	log.Debug("Exists called")
+
+	q := `SELECT EXISTS(SELECT id FROM User WHERE %s = ?)`
+
+	if err := r.DB.QueryRowx(fmt.Sprintf(q, field), value).Scan(&exists); err != nil {
+		return false
+	}
+	return exists
+}
+
 // p - Particpant fields
 func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.List[entity.User], err error) {
 	log := r.log.With(
@@ -100,10 +116,17 @@ func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.Li
 	for k, v := range filter.InFields {
 		builder = builder.Where(fmt.Sprintf("u.%s IN (%v)", k, v))
 	}
-	res.TotalItems = int(r.Count(ctx, filter))
-	res.Page = filter.Page
-	res.PerPage = filter.PerPage
-	res.TotalPages = (res.TotalItems + filter.PerPage - 1) / filter.PerPage
+
+	{ // build pagination info
+		countQuery, countArgs, _ := builder.ToSql()
+		if err := r.DB.QueryRowx(strings.ReplaceAll(countQuery, "SELECT u.*", "SELECT COUNT(*)"), countArgs...).Scan(&res.TotalItems); err != nil {
+			log.Errorw("failed to count users", "err", err)
+			return list.List[entity.User]{}, err
+		}
+		res.Page = filter.Page
+		res.PerPage = filter.PerPage
+		res.TotalPages = (res.TotalItems + filter.PerPage - 1) / filter.PerPage
+	}
 
 	builder = builder.Limit(uint64(filter.PerPage)).Offset(uint64((filter.Page - 1) * filter.PerPage))
 

@@ -5,6 +5,7 @@ package auth;
 option go_package = "pkg/transport/grpc/dto";
 
 import "google/protobuf/timestamp.proto";
+import "pkg/transport/grpc/proto/project.proto";
 
 message User {
     string id = 1;
@@ -25,6 +26,7 @@ message Company {
     int64 people_count = 4;
     google.protobuf.Timestamp created_at = 5;
     google.protobuf.Timestamp updated_at = 6;
+    project.ProjectList projects = 7;
 }
 
 

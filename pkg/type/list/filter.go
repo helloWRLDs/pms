@@ -18,8 +18,10 @@ func (f Filters) String() string {
 	fmt.Fprintf(&buf, "page=%d per_page=%d ", f.Page, f.PerPage)
 	fmt.Fprintf(&buf, "created_from=%s created_to=%s ", f.Date.From, f.Date.To)
 	fmt.Fprintf(&buf, "order_by=%s ", f.Order.String())
-	for k, v := range f.Fields {
-		fmt.Fprintf(&buf, "%s=%s ", k, v)
+	if f.Fields != nil {
+		for k, v := range f.Fields {
+			fmt.Fprintf(&buf, "%s=%s ", k, v)
+		}
 	}
 
 	return buf.String()

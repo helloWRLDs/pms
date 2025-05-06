@@ -34,17 +34,24 @@ const authSlice = createSlice({
     login: (state: AuthData, action: PayloadAction<AuthData>) => {
       state.access_token = action.payload.access_token;
       state.user = action.payload.user;
+      state.session_id = action.payload.session_id;
+      state.selected_company_id = action.payload.selected_company_id;
+      state.exp = action.payload.exp;
       localStorage.setItem(AUTH_KEY, JSON.stringify(state));
     },
     logout: () => {
       localStorage.removeItem(AUTH_KEY);
       return {};
     },
+    updateAuthField: (state, action: PayloadAction<Partial<AuthData>>) => {
+      Object.assign(state, action.payload);
+      localStorage.setItem(AUTH_KEY, JSON.stringify(state));
+    },
   },
 });
 
 // Actions
-export const { login, logout } = authSlice.actions;
+export const { login, logout, updateAuthField } = authSlice.actions;
 
 // Store
 export const authStore = configureStore({

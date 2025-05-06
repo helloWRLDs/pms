@@ -19,4 +19,5 @@ export interface AuthData {
   access_token?: string;
   user?: User;
   exp?: number;
+  selected_company_id?: string;
 }

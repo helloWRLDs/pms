@@ -40,16 +40,30 @@ func (l *Logic) GetCompany(ctx context.Context, companyID string) (*dto.Company,
 	)
 	log.Debug("GetCompany called")
 
+	company := new(dto.Company)
+
 	_, err := l.GetSessionInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := l.authClient.GetCompany(ctx, &pb.GetCompanyRequest{
+	companyRes, err := l.authClient.GetCompany(ctx, &pb.GetCompanyRequest{
 		Id: companyID,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return res.Company, nil
+	company = companyRes.Company
+
+	projectsRes, err := l.projectClient.ListProjects(ctx, &pb.ListProjectsRequest{
+		Page:      1,
+		PerPage:   10,
+		CompanyId: companyID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	company.Projects = projectsRes.Projects
+
+	return company, nil
 }

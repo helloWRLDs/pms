@@ -1,16 +1,16 @@
 import { FC, useEffect, useState } from "react";
-import companyAPI from "../api/companies";
 import { List } from "../lib/utils";
 import { Company } from "../lib/company/company";
 import useAuth from "../hooks/useAuth";
 import { formatTime } from "../lib/utils/formatTime";
 import { DataTable } from "../components/ui/DataTable";
 import { usePageSettings } from "../hooks/usePageSettings";
+import authAPI from "../api/auth";
 
 const CompaniesPage: FC = () => {
   usePageSettings({ requireAuth: true, title: "Companies" });
 
-  const { access_token, isAuthenticated } = useAuth();
+  const { access_token, isAuthenticated, updateField } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedIndustry, setSelectedIndustry] = useState("all");
   const [isIndustryDropdownOpen, setIsIndustryDropdownOpen] = useState(false);
@@ -19,11 +19,23 @@ const CompaniesPage: FC = () => {
 
   const loadCompanies = async () => {
     try {
-      const res = await companyAPI(access_token).listCompanies({
+      const res = await authAPI(access_token).listCompanies({
         page: 1,
         per_page: 10,
       });
       setCompanyList(res);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleSelectCompany = async (company: Company) => {
+    try {
+      const session = await authAPI(access_token).getSession();
+      session.selected_company_id = company.id;
+      await authAPI(access_token).updateSession(session);
+
+      updateField({ selected_company_id: company.id });
     } catch (e) {
       console.error(e);
     }
@@ -241,11 +253,19 @@ const CompaniesPage: FC = () => {
                 ]}
                 renderActions={(comp) => (
                   <>
+                    <button
+                      className="cursor-pointer"
+                      onClick={() => {
+                        handleSelectCompany(comp);
+                      }}
+                    >
+                      Select
+                    </button>
                     <button className="text-[rgb(41,43,41)] hover:text-[rgb(31,33,31)] mr-4 !rounded-button">
-                      <i className="fas fa-edit"></i>
+                      Edit
                     </button>
                     <button className="text-red-600 hover:text-red-900 !rounded-button">
-                      <i className="fas fa-trash"></i>
+                      Delete
                     </button>
                   </>
                 )}

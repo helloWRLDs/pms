@@ -1,9 +1,8 @@
 import { FC, useEffect, useState } from "react";
 import authAPI from "../api/auth";
 import useAuth from "../hooks/useAuth";
-import { User } from "../lib/user";
-import { useNavigate } from "react-router-dom";
 import { usePageSettings } from "../hooks/usePageSettings";
+import { User } from "../lib/user/new";
 
 const ProfilePage: FC = () => {
   usePageSettings({ title: "Profile", requireAuth: true });

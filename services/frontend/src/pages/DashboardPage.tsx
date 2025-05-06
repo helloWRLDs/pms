@@ -1,9 +1,28 @@
-import { FC, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import { usePageSettings } from "../hooks/usePageSettings";
+import authAPI from "../api/auth";
+import useAuth from "../hooks/useAuth";
+import { Company } from "../lib/company/company";
+import { formatTime } from "../lib/utils/formatTime";
 
 const DashboardPage: FC = () => {
   usePageSettings({ title: "Dashboard", requireAuth: true });
+
+  const [org, setOrg] = useState<Company | null>(null);
+  const { access_token } = useAuth();
+
+  useEffect(() => {
+    authAPI(access_token)
+      .getCompany("8f557202-0853-4672-aafb-a0b6cae7067a")
+      .then((res) => {
+        console.log(res);
+        setOrg(res);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  }, []);
 
   const ORG = {
     id: 2,
@@ -37,7 +56,7 @@ const DashboardPage: FC = () => {
             <i className="fas fa-arrow-left"></i>
           </button>
           <h1 className="text-2xl font-bold text-gray-900">
-            {ORG.companyName} Dashboard
+            {org?.name} Dashboard
           </h1>
         </div>
         <button className="shadow-2xl group px-4 py-2 bg-secondary-100 text-white rounded-md hover:bg-accent-300 hover:text-secondary-100 cursor-pointer flex items-center">
@@ -55,7 +74,7 @@ const DashboardPage: FC = () => {
             <i className="fas fa-project-diagram text-[rgb(41,43,41)] text-xl"></i>
           </div>
           <p className="text-3xl font-bold text-gray-900">
-            {ORG.projects.length}
+            {org?.projects?.total_items}
           </p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
@@ -67,8 +86,9 @@ const DashboardPage: FC = () => {
           </div>
           <p className="text-3xl font-bold text-gray-900">
             {
-              ORG.projects.filter((project) => project.status === "active")
-                .length
+              org?.projects?.items.filter(
+                (project) => project.status === "ACTIVE"
+              ).length
             }
           </p>
         </div>
@@ -78,7 +98,7 @@ const DashboardPage: FC = () => {
             <i className="fas fa-users text-[rgb(41,43,41)] text-xl"></i>
           </div>
           <p className="text-3xl font-bold text-gray-900">
-            {ORG.numberOfPeople}
+            {org?.people_count}
           </p>
         </div>
       </div>
@@ -130,11 +150,11 @@ const DashboardPage: FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {ORG.projects.map((project) => (
+              {org?.projects?.items.map((project) => (
                 <tr key={project.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      {project.name}
+                      {project.title}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -154,27 +174,28 @@ const DashboardPage: FC = () => {
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
                       <div
                         className="bg-[rgb(41,43,41)] h-2.5 rounded-full"
-                        style={{ width: `${project.progress}%` }}
+                        style={{ width: `${project.progress ?? 0}%` }}
                       ></div>
                     </div>
                     <span className="text-sm text-gray-500 mt-1">
-                      {project.progress}%
+                      {project.progress ?? 0}%
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500">
-                      {project.startDate} - {project.endDate}
+                      {formatTime(project.created_at.seconds)} - present
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {project.teamSize} members
+                    {/* {project.teamSize} members */}
+                    20 members
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button className="text-[rgb(41,43,41)] hover:text-[rgb(31,33,31)] mr-4 !rounded-button">
-                      <i className="fas fa-edit"></i>
+                      Edit
                     </button>
                     <button className="text-red-600 hover:text-red-900 !rounded-button">
-                      <i className="fas fa-trash"></i>
+                      Remove
                     </button>
                   </td>
                 </tr>

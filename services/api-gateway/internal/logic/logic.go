@@ -6,6 +6,7 @@ import (
 
 	"go.uber.org/zap"
 	authclient "pms.api-gateway/internal/client/auth"
+	projectclient "pms.api-gateway/internal/client/project"
 	"pms.api-gateway/internal/config"
 	"pms.api-gateway/internal/models"
 	"pms.pkg/datastore/mq"
@@ -16,7 +17,9 @@ import (
 type Logic struct {
 	Config config.Config
 
-	authClient     *authclient.AuthClient
+	authClient    *authclient.AuthClient
+	projectClient *projectclient.ProjectClient
+
 	notificationMQ *mq.Publisher
 
 	Sessions *redis.Client[models.Session]

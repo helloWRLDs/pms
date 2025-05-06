@@ -1,4 +1,4 @@
-package permissions
+package consts
 
 import (
 	"database/sql/driver"

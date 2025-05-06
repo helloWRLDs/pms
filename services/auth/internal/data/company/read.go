@@ -3,6 +3,7 @@ package companydata
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	sq "github.com/Masterminds/squirrel"
 	"go.uber.org/zap"
@@ -57,10 +58,16 @@ func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.Li
 		builder = builder.Where(fmt.Sprintf("c.%s IN (%v)", k, v))
 	}
 
-	res.TotalItems = int(r.Count(ctx, filter))
-	res.Page = filter.Page
-	res.PerPage = filter.PerPage
-	res.TotalPages = (res.TotalItems + filter.PerPage - 1) / filter.PerPage
+	{
+		countQuery, countArgs, _ := builder.ToSql()
+		if err := r.DB.QueryRowx(strings.ReplaceAll(countQuery, "SELECT c.*", "SELECT COUNT(*)"), countArgs...).Scan(&res.TotalItems); err != nil {
+			log.Errorw("failed to count companies", "err", err)
+			return list.List[entity.Company]{}, err
+		}
+		res.Page = filter.Page
+		res.PerPage = filter.PerPage
+		res.TotalPages = (res.TotalItems + filter.PerPage - 1) / filter.PerPage
+	}
 
 	builder = builder.Limit(uint64(filter.PerPage)).Offset(uint64((filter.Page - 1) * filter.PerPage))
 

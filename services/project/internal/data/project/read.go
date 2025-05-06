@@ -8,10 +8,10 @@ import (
 	"go.uber.org/zap"
 	"pms.pkg/errs"
 	"pms.pkg/type/list"
-	"pms.project/internal/entity"
+	"pms.project/internal/data/models"
 )
 
-func (r *Repository) GetByID(ctx context.Context, id string) (project entity.Project, err error) {
+func (r *Repository) GetByID(ctx context.Context, id string) (project models.Project, err error) {
 	log := r.log.With(
 		zap.String("func", "GetByID"),
 		zap.String("id", id),
@@ -29,7 +29,7 @@ func (r *Repository) GetByID(ctx context.Context, id string) (project entity.Pro
 	q, a, _ := r.gen.Select("*").From(r.tableName).Where(sq.Eq{"id": id}).ToSql()
 	if err = r.DB.QueryRowx(q, a...).StructScan(&project); err != nil {
 		log.Errorw("failed to scan project", "err", err)
-		return entity.Project{}, err
+		return models.Project{}, err
 	}
 	return project, nil
 }
@@ -74,7 +74,7 @@ func (r *Repository) Count(ctx context.Context, filter list.Filters) (count int6
 	return count
 }
 
-func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.List[entity.Project], err error) {
+func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.List[models.Project], err error) {
 	log := r.log.With(
 		zap.String("func", "List"),
 		zap.String("filter", filter.String()),
@@ -91,7 +91,6 @@ func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.Li
 	builder := r.gen.
 		Select("p.*").
 		From("Project p")
-		// LeftJoin("Participant p ON c.id = p.company_id")
 
 	if filter.Date.From != "" {
 		builder = builder.Where(sq.GtOrEq{"p.created_at": filter.Date.From})
@@ -131,17 +130,17 @@ func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.Li
 	rows, err := r.DB.Queryx(query, args...)
 	if err != nil {
 		log.Errorw("failed to fetch companies", "err", err)
-		return list.List[entity.Project]{}, err
+		return list.List[models.Project]{}, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var company entity.Project
-		if err := rows.StructScan(&company); err != nil {
-			log.Errorw("failed to scan company", "err", err)
-			return list.List[entity.Project]{}, err
+		var project models.Project
+		if err := rows.StructScan(&project); err != nil {
+			log.Errorw("failed to scan project", "err", err)
+			return list.List[models.Project]{}, err
 		}
-		res.Items = append(res.Items, company)
+		res.Items = append(res.Items, project)
 	}
 
 	return res, nil
