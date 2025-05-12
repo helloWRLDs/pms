@@ -1,3 +1,8 @@
+/**
+ *
+ * @param sec 1746759414
+ * @returns 09.05.2025
+ */
 export const formatTime = (sec: number) => {
   const d = new Date(sec * 1000);
 

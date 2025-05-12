@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { toast } from "react-toastify";
-import { toastOpts } from "../../utils/toast";
+import { toastOpts } from "../../lib/utils/toast";
 
 interface Props {
   onLogin: (email: string, password: string) => Promise<void>;

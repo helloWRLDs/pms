@@ -55,6 +55,77 @@ func (s *Server) GetProject(c *fiber.Ctx) error {
 	return c.Status(200).JSON(project)
 }
 
+func (s *Server) CreateTask(c *fiber.Ctx) error {
+	log := s.log.With(
+		zap.String("func", "CreateTask"),
+		zap.String("ip", c.IP()),
+	)
+	log.Debug("CreateTask called")
+
+	var creation dto.TaskCreation
+	if err := c.BodyParser(&creation); err != nil {
+		log.Errorw("failed to parse task creation", "err", err)
+		return err
+	}
+	log.Infow("task creation", "creation", creation)
+
+	if err := s.Logic.CreateTask(c.UserContext(), &creation); err != nil {
+		log.Errorw("failed to create task", "err", err)
+		return err
+	}
+
+	return c.SendStatus(http.StatusCreated)
+}
+
+func (s *Server) GetTask(c *fiber.Ctx) error {
+	log := s.log.With(
+		zap.String("func", "GetTask"),
+		zap.String("ip", c.IP()),
+	)
+	log.Debug("GetTask called")
+
+	taskID := c.Params("taskID", "")
+	if strings.Trim(taskID, " ") == "" {
+		return errs.ErrBadGateway{
+			Object: "task_id",
+		}
+	}
+
+	task, err := s.Logic.GetTask(c.UserContext(), taskID)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(200).JSON(task)
+}
+
+func (s *Server) ListTasks(c *fiber.Ctx) error {
+	log := s.log.With(
+		zap.String("func", "ListTasks"),
+		zap.String("ip", c.IP()),
+	)
+	log.Debug("ListTasks called")
+
+	filters := list.Filters{
+		Pagination: list.Pagination{
+			Page:    c.QueryInt("page", 1),
+			PerPage: c.QueryInt("per_page", 10),
+		},
+		Fields: map[string]string{
+			"sprint_id":   c.Query("sprint_id", ""),
+			"assignee_id": c.Query("assignee_id", ""),
+			"project_id":  c.Params("projectID", ""),
+		},
+	}
+
+	tasks, err := s.Logic.ListTasks(c.UserContext(), filters)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(200).JSON(tasks)
+}
+
 func (s *Server) CreateProject(c *fiber.Ctx) error {
 	log := s.log.With(
 		zap.String("func", "CreateProject"),

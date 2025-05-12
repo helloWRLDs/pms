@@ -1,24 +1,23 @@
-export class Task {
+import { TaskStatus } from "./status";
+
+export type Task = {
   id: string;
   title: string;
   body: string;
   status: string;
-  executor: string;
-  backlog_id: string;
-  created_at: string;
-  updated_at: string;
+  sprint_id?: string;
+  project_id?: string;
+  priority: number;
+  created_at: {
+    seconds: number;
+  };
+  updated_at: {
+    seconds: number;
+  };
+  assignee_id: string;
+  due_date: {
+    seconds: number;
+  };
+};
 
-  constructor(data: any) {
-    if (typeof data == "string") {
-      data = JSON.parse(data);
-    }
-    this.id = data.id;
-    this.title = data.title;
-    this.body = data.body;
-    this.status = data.status;
-    this.executor = data.executor;
-    this.backlog_id = data.backlog_id;
-    this.created_at = data.created_at;
-    this.updated_at = data.updated_at;
-  }
-}
+export type TaskCreation = Omit<Task, "id" | "created_at" | "updated_at">;

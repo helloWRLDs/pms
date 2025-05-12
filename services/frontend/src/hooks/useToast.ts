@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import { toastOpts } from "../utils/toast";
+import { toastOpts } from "../lib/utils/toast";
 
 export const useLoading = (message: string) => {
   const id = toast.loading(message, toastOpts);

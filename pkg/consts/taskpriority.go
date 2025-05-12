@@ -3,7 +3,7 @@ package consts
 type TaskPriority int32
 
 const (
-	TASK_PRIORITY_HIGHEST TaskPriority = iota
+	TASK_PRIORITY_HIGHEST TaskPriority = iota + 1
 	TASK_PRIORITY_HIGH
 	TASK_PRIORITY_MEDIUM
 	TASK_PRIORITY_LOW

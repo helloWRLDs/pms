@@ -10,4 +10,5 @@ export type Project = {
   updated_at: {
     seconds: number;
   };
+  progress: number;
 };

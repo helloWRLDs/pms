@@ -54,6 +54,10 @@ func (s *Server) SetupREST() {
 		proj.Get("/", s.ListProjects)
 		proj.Get("/:id", s.GetProject)
 		proj.Post("/", s.CreateProject)
+
+		proj.Get("/:projectID/tasks", s.ListTasks) // /<projectID>/tasks?page=1&per_page=10&sprint_id=
+		proj.Post("/:projectID/tasks", s.CreateTask)
+		proj.Get("/:projectID/tasks/:taskID", s.GetTask)
 	})
 
 	v1.Route("/background-tasks", func(tasks fiber.Router) {

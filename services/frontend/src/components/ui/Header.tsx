@@ -1,9 +1,9 @@
 import { ComponentProps, FC, useEffect, useState } from "react";
-import useAuth from "../../hooks/useAuth";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
-import authAPI from "../../api/auth";
-import { User } from "../../lib/user/new";
+import { authAPI } from "../../api/authAPI";
+import { User } from "../../lib/user/user";
+import { useAuthStore } from "../../store/authStore";
 
 interface HeaderProps extends ComponentProps<"div"> {
   logoURL: string;
@@ -17,15 +17,16 @@ const NAV_ITEMS = [
 ];
 
 export const Header: FC<HeaderProps> = ({ logoURL, className }) => {
-  const { access_token, user, isAuthenticated, logout } = useAuth();
+  // const { access_token, user, isAuthenticated, logout } = useAuth();
+  const { auth, isAuthenticated, clearAuth } = useAuthStore();
   const [userProfile, setUserProfile] = useState<User>();
 
   const navigate = useNavigate();
 
   const loadUser = async () => {
-    if (user) {
+    if (auth && auth.user.id) {
       try {
-        const fetchedUser = await authAPI(access_token).getUser(user?.id);
+        const fetchedUser = await authAPI.getUser(auth.user?.id);
         setUserProfile(fetchedUser);
       } catch (e) {
         console.error(e);
@@ -34,8 +35,8 @@ export const Header: FC<HeaderProps> = ({ logoURL, className }) => {
   };
 
   useEffect(() => {
-    console.log(isAuthenticated);
-    if (user && isAuthenticated) {
+    console.log(isAuthenticated());
+    if (isAuthenticated()) {
       loadUser();
     }
   }, []);
@@ -64,7 +65,7 @@ export const Header: FC<HeaderProps> = ({ logoURL, className }) => {
 
         {/* Auth Status */}
         <div className="ml-auto text-soft-200 font-semibold text-sm">
-          {isAuthenticated ? (
+          {isAuthenticated() ? (
             <Menu as="div" className="relative inline-block text-left">
               <MenuButton className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-gray-900 text-sm font-medium  transition cursor-pointer">
                 <div className="bg-white rounded-full">
@@ -98,7 +99,7 @@ export const Header: FC<HeaderProps> = ({ logoURL, className }) => {
                         <button
                           type="submit"
                           onClick={() => {
-                            logout();
+                            clearAuth();
                             navigate("/login");
                           }}
                           className={`block w-full px-4 py-2 text-left text-sm ${

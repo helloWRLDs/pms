@@ -1,27 +1,34 @@
 import { FC, useEffect } from "react";
 import LoginForm from "../components/forms/LoginForm";
-import authAPI from "../api/auth";
-import useAuth from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { usePageSettings } from "../hooks/usePageSettings";
+import { authAPI } from "../api/authAPI";
+import { useAuthStore } from "../store/authStore";
 
 const LoginPage: FC = () => {
   usePageSettings({ requireAuth: false, title: "Sign in" });
 
-  const { isAuthenticated, login } = useAuth();
+  // const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated, setAuth } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(isAuthenticated);
+    // console.log(isAuthenticated);
+    if (isAuthenticated()) {
+      navigate("/");
+    }
   }, []);
 
   const handleLogin = async (email: string, password: string) => {
-    const res = await authAPI().login({ email: email, password: password });
-    login(res);
+    const res = await authAPI.login({ email: email, password: password });
+    if (!res) {
+      return;
+    }
+    setAuth(res);
+    // const res = await authAPI().login({ email: email, password: password });
+    // login(res);
     navigate("/");
   };
-
-  // useEffect(() => {}, []);
 
   return (
     <div className="flex justify-center min-h-lvh bg-primary-600">

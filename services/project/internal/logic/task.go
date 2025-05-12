@@ -36,7 +36,7 @@ func (l *Logic) CreateTask(ctx context.Context, creation *dto.TaskCreation) (id 
 		Title:     creation.GetTitle(),
 		Body:      creation.GetBody(),
 		Status:    consts.TaskStatus(creation.GetStatus()),
-		Priority:  consts.TaskPriority(creation.GetPriority()),
+		Priority:  utils.Ptr(int(creation.GetPriority())),
 		ProjectID: creation.GetProjectId(),
 		SprintID:  utils.Ptr(creation.GetSprintId()),
 		DueDate:   timestamp.NewTimestamp(creation.GetDueDate().AsTime()),

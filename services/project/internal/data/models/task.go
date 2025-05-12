@@ -9,11 +9,11 @@ import (
 )
 
 type Task struct {
-	ID        string              `data:"id"`
+	ID        string              `db:"id"`
 	Title     string              `db:"title"`
 	Body      string              `db:"body"`
 	Status    consts.TaskStatus   `db:"status"`
-	Priority  consts.TaskPriority `db:"priority"`
+	Priority  *int                `db:"priority"`
 	ProjectID string              `db:"project_id"`
 	SprintID  *string             `db:"sprint_id"`
 	DueDate   timestamp.Timestamp `db:"due_date"`
@@ -29,7 +29,7 @@ func (t Task) DTO() *dto.Task {
 		Status:    string(t.Status),
 		SprintId:  utils.Value(t.SprintID),
 		ProjectId: t.ProjectID,
-		Priority:  int32(t.Priority),
+		Priority:  int32(utils.Value(t.Priority)),
 		CreatedAt: timestamppb.New(t.Created.Time),
 		UpdatedAt: timestamppb.New(t.Updated.Time),
 		DueDate:   timestamppb.New(t.DueDate.Time),

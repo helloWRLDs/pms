@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS "Task" (
     "project_id" VARCHAR DEFAULT NULL,
     "sprint_id" VARCHAR DEFAULT NULL,
     "status" TEXT,
-    "priority" INTEGER,
+    "priority" INTEGER DEFAULT 1,
     "due_date" DATE,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
