@@ -113,10 +113,10 @@ func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.Li
 		LeftJoin("TaskAssignment a ON a.task_id = t.id")
 
 	if filter.Date.From != "" {
-		builder = builder.Where(sq.GtOrEq{"p.created_at": filter.Date.From})
+		builder = builder.Where(sq.GtOrEq{"t.created_at": filter.Date.From})
 	}
 	if filter.Date.To != "" {
-		builder = builder.Where(sq.LtOrEq{"p.created_at": filter.Date.To})
+		builder = builder.Where(sq.LtOrEq{"t.created_at": filter.Date.To})
 	}
 
 	if filter.Order.By != "" {
