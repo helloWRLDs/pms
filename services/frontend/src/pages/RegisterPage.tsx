@@ -3,7 +3,7 @@ import RegisterForm from "../components/forms/RegisterForm";
 import { useNavigate } from "react-router-dom";
 import { errorToast } from "../lib/utils/toast";
 import { usePageSettings } from "../hooks/usePageSettings";
-import { authAPI } from "../api/authAPI";
+import authAPI from "../api/auth";
 
 const RegisterPage: FC = () => {
   usePageSettings({ title: "Sign up", requireAuth: false });

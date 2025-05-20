@@ -9,7 +9,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"pms.pkg/consts"
 	"pms.pkg/transport/grpc/dto"
-	"pms.pkg/type/list"
 	"pms.pkg/utils"
 )
 
@@ -47,14 +46,11 @@ func Test_ListTasks(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	filter := list.Filters{
-		Pagination: list.Pagination{
-			Page:    1,
-			PerPage: 10,
-		},
-		Fields: map[string]string{
-			"t.project_id": "1",
-		},
+	filter := &dto.TaskFilter{
+		Page:      1,
+		PerPage:   10,
+		ProjectId: "fc6ba40d-8d0a-48b1-a84d-e358f6438aa1",
+		Status:    string(consts.TASK_STATUS_DONE),
 	}
 
 	list, err := logic.ListTasks(ctx, filter)

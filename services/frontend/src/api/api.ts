@@ -23,7 +23,7 @@ export class API {
       } | null = localStorage.getItem(LocalStorageKeysMap.AUTH)
         ? JSON.parse(localStorage.getItem(LocalStorageKeysMap.AUTH)!)
         : null;
-      if (auth?.state.auth) {
+      if (auth && auth.state && auth.state.auth) {
         config.headers.Authorization = `Bearer ${auth.state.auth.access_token}`;
       }
       return config;

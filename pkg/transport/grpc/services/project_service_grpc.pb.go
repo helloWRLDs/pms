@@ -19,19 +19,24 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ProjectService_CreateProject_FullMethodName = "/project.ProjectService/CreateProject"
-	ProjectService_GetProject_FullMethodName    = "/project.ProjectService/GetProject"
-	ProjectService_ListProjects_FullMethodName  = "/project.ProjectService/ListProjects"
-	ProjectService_GetTask_FullMethodName       = "/project.ProjectService/GetTask"
-	ProjectService_ListTasks_FullMethodName     = "/project.ProjectService/ListTasks"
-	ProjectService_CreateTask_FullMethodName    = "/project.ProjectService/CreateTask"
-	ProjectService_UpdateTask_FullMethodName    = "/project.ProjectService/UpdateTask"
-	ProjectService_DeleteTask_FullMethodName    = "/project.ProjectService/DeleteTask"
-	ProjectService_GetSprint_FullMethodName     = "/project.ProjectService/GetSprint"
-	ProjectService_ListSprints_FullMethodName   = "/project.ProjectService/ListSprints"
-	ProjectService_CreateSprint_FullMethodName  = "/project.ProjectService/CreateSprint"
-	ProjectService_UpdateSprint_FullMethodName  = "/project.ProjectService/UpdateSprint"
-	ProjectService_DeleteSprint_FullMethodName  = "/project.ProjectService/DeleteSprint"
+	ProjectService_CreateProject_FullMethodName     = "/project.ProjectService/CreateProject"
+	ProjectService_GetProject_FullMethodName        = "/project.ProjectService/GetProject"
+	ProjectService_ListProjects_FullMethodName      = "/project.ProjectService/ListProjects"
+	ProjectService_GetTask_FullMethodName           = "/project.ProjectService/GetTask"
+	ProjectService_ListTasks_FullMethodName         = "/project.ProjectService/ListTasks"
+	ProjectService_CreateTask_FullMethodName        = "/project.ProjectService/CreateTask"
+	ProjectService_UpdateTask_FullMethodName        = "/project.ProjectService/UpdateTask"
+	ProjectService_DeleteTask_FullMethodName        = "/project.ProjectService/DeleteTask"
+	ProjectService_GetSprint_FullMethodName         = "/project.ProjectService/GetSprint"
+	ProjectService_ListSprints_FullMethodName       = "/project.ProjectService/ListSprints"
+	ProjectService_CreateSprint_FullMethodName      = "/project.ProjectService/CreateSprint"
+	ProjectService_UpdateSprint_FullMethodName      = "/project.ProjectService/UpdateSprint"
+	ProjectService_DeleteSprint_FullMethodName      = "/project.ProjectService/DeleteSprint"
+	ProjectService_CreateTaskComment_FullMethodName = "/project.ProjectService/CreateTaskComment"
+	ProjectService_GetTaskComment_FullMethodName    = "/project.ProjectService/GetTaskComment"
+	ProjectService_ListTaskComments_FullMethodName  = "/project.ProjectService/ListTaskComments"
+	ProjectService_UpdateTaskComment_FullMethodName = "/project.ProjectService/UpdateTaskComment"
+	ProjectService_DeleteTaskComment_FullMethodName = "/project.ProjectService/DeleteTaskComment"
 )
 
 // ProjectServiceClient is the client API for ProjectService service.
@@ -51,6 +56,11 @@ type ProjectServiceClient interface {
 	CreateSprint(ctx context.Context, in *CreateSprintRequest, opts ...grpc.CallOption) (*CreateSprintResponse, error)
 	UpdateSprint(ctx context.Context, in *UpdateSprintRequest, opts ...grpc.CallOption) (*UpdateSprintResponse, error)
 	DeleteSprint(ctx context.Context, in *DeleteSprintRequest, opts ...grpc.CallOption) (*DeleteSprintResponse, error)
+	CreateTaskComment(ctx context.Context, in *CreateTaskCommentRequest, opts ...grpc.CallOption) (*CreateTaskCommentResponse, error)
+	GetTaskComment(ctx context.Context, in *GetTaskCommentRequest, opts ...grpc.CallOption) (*GetTaskCommentResponse, error)
+	ListTaskComments(ctx context.Context, in *ListTaskCommentsRequest, opts ...grpc.CallOption) (*ListTaskCommentsResponse, error)
+	UpdateTaskComment(ctx context.Context, in *UpdateTaskCommentRequest, opts ...grpc.CallOption) (*UpdateTaskCommentResponse, error)
+	DeleteTaskComment(ctx context.Context, in *DeleteTaskCommentRequest, opts ...grpc.CallOption) (*DeleteTaskCommentResponse, error)
 }
 
 type projectServiceClient struct {
@@ -191,6 +201,56 @@ func (c *projectServiceClient) DeleteSprint(ctx context.Context, in *DeleteSprin
 	return out, nil
 }
 
+func (c *projectServiceClient) CreateTaskComment(ctx context.Context, in *CreateTaskCommentRequest, opts ...grpc.CallOption) (*CreateTaskCommentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateTaskCommentResponse)
+	err := c.cc.Invoke(ctx, ProjectService_CreateTaskComment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectServiceClient) GetTaskComment(ctx context.Context, in *GetTaskCommentRequest, opts ...grpc.CallOption) (*GetTaskCommentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetTaskCommentResponse)
+	err := c.cc.Invoke(ctx, ProjectService_GetTaskComment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectServiceClient) ListTaskComments(ctx context.Context, in *ListTaskCommentsRequest, opts ...grpc.CallOption) (*ListTaskCommentsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListTaskCommentsResponse)
+	err := c.cc.Invoke(ctx, ProjectService_ListTaskComments_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectServiceClient) UpdateTaskComment(ctx context.Context, in *UpdateTaskCommentRequest, opts ...grpc.CallOption) (*UpdateTaskCommentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateTaskCommentResponse)
+	err := c.cc.Invoke(ctx, ProjectService_UpdateTaskComment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectServiceClient) DeleteTaskComment(ctx context.Context, in *DeleteTaskCommentRequest, opts ...grpc.CallOption) (*DeleteTaskCommentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteTaskCommentResponse)
+	err := c.cc.Invoke(ctx, ProjectService_DeleteTaskComment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProjectServiceServer is the server API for ProjectService service.
 // All implementations must embed UnimplementedProjectServiceServer
 // for forward compatibility.
@@ -208,6 +268,11 @@ type ProjectServiceServer interface {
 	CreateSprint(context.Context, *CreateSprintRequest) (*CreateSprintResponse, error)
 	UpdateSprint(context.Context, *UpdateSprintRequest) (*UpdateSprintResponse, error)
 	DeleteSprint(context.Context, *DeleteSprintRequest) (*DeleteSprintResponse, error)
+	CreateTaskComment(context.Context, *CreateTaskCommentRequest) (*CreateTaskCommentResponse, error)
+	GetTaskComment(context.Context, *GetTaskCommentRequest) (*GetTaskCommentResponse, error)
+	ListTaskComments(context.Context, *ListTaskCommentsRequest) (*ListTaskCommentsResponse, error)
+	UpdateTaskComment(context.Context, *UpdateTaskCommentRequest) (*UpdateTaskCommentResponse, error)
+	DeleteTaskComment(context.Context, *DeleteTaskCommentRequest) (*DeleteTaskCommentResponse, error)
 	mustEmbedUnimplementedProjectServiceServer()
 }
 
@@ -256,6 +321,21 @@ func (UnimplementedProjectServiceServer) UpdateSprint(context.Context, *UpdateSp
 }
 func (UnimplementedProjectServiceServer) DeleteSprint(context.Context, *DeleteSprintRequest) (*DeleteSprintResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteSprint not implemented")
+}
+func (UnimplementedProjectServiceServer) CreateTaskComment(context.Context, *CreateTaskCommentRequest) (*CreateTaskCommentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTaskComment not implemented")
+}
+func (UnimplementedProjectServiceServer) GetTaskComment(context.Context, *GetTaskCommentRequest) (*GetTaskCommentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTaskComment not implemented")
+}
+func (UnimplementedProjectServiceServer) ListTaskComments(context.Context, *ListTaskCommentsRequest) (*ListTaskCommentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListTaskComments not implemented")
+}
+func (UnimplementedProjectServiceServer) UpdateTaskComment(context.Context, *UpdateTaskCommentRequest) (*UpdateTaskCommentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateTaskComment not implemented")
+}
+func (UnimplementedProjectServiceServer) DeleteTaskComment(context.Context, *DeleteTaskCommentRequest) (*DeleteTaskCommentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTaskComment not implemented")
 }
 func (UnimplementedProjectServiceServer) mustEmbedUnimplementedProjectServiceServer() {}
 func (UnimplementedProjectServiceServer) testEmbeddedByValue()                        {}
@@ -512,6 +592,96 @@ func _ProjectService_DeleteSprint_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProjectService_CreateTaskComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTaskCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).CreateTaskComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_CreateTaskComment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).CreateTaskComment(ctx, req.(*CreateTaskCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectService_GetTaskComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTaskCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).GetTaskComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_GetTaskComment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).GetTaskComment(ctx, req.(*GetTaskCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectService_ListTaskComments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListTaskCommentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).ListTaskComments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_ListTaskComments_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).ListTaskComments(ctx, req.(*ListTaskCommentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectService_UpdateTaskComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateTaskCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).UpdateTaskComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_UpdateTaskComment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).UpdateTaskComment(ctx, req.(*UpdateTaskCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectService_DeleteTaskComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteTaskCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).DeleteTaskComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_DeleteTaskComment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).DeleteTaskComment(ctx, req.(*DeleteTaskCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProjectService_ServiceDesc is the grpc.ServiceDesc for ProjectService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -570,6 +740,26 @@ var ProjectService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteSprint",
 			Handler:    _ProjectService_DeleteSprint_Handler,
+		},
+		{
+			MethodName: "CreateTaskComment",
+			Handler:    _ProjectService_CreateTaskComment_Handler,
+		},
+		{
+			MethodName: "GetTaskComment",
+			Handler:    _ProjectService_GetTaskComment_Handler,
+		},
+		{
+			MethodName: "ListTaskComments",
+			Handler:    _ProjectService_ListTaskComments_Handler,
+		},
+		{
+			MethodName: "UpdateTaskComment",
+			Handler:    _ProjectService_UpdateTaskComment_Handler,
+		},
+		{
+			MethodName: "DeleteTaskComment",
+			Handler:    _ProjectService_DeleteTaskComment_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

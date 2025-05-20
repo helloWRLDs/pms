@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
-	"pms.auth/internal/entity"
+	userdata "pms.auth/internal/data/user"
 	"pms.pkg/errs"
 	"pms.pkg/tools/jwtoken"
 	"pms.pkg/transport/grpc/dto"
@@ -49,7 +49,7 @@ func (l *Logic) LoginUser(ctx context.Context, creds *dto.UserCredentials) (payl
 
 	claims := claims.AccessTokenClaims{
 		Email:     existingUser.Email,
-		UserID:    existingUser.ID.String(),
+		UserID:    existingUser.ID,
 		SessionID: sessionID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
@@ -71,7 +71,7 @@ func (l *Logic) LoginUser(ctx context.Context, creds *dto.UserCredentials) (payl
 	return payload, nil
 }
 
-func (l *Logic) RegisterUser(ctx context.Context, newUser *dto.NewUser) (err error) {
+func (l *Logic) RegisterUser(ctx context.Context, newUser *dto.NewUser) (createdUser *dto.User, err error) {
 	log := l.log.With(
 		zap.String("func", "RegsterUser"),
 		zap.String("email", newUser.Email),
@@ -81,38 +81,38 @@ func (l *Logic) RegisterUser(ctx context.Context, newUser *dto.NewUser) (err err
 
 	tx, err := l.Repo.StartTx(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer func() {
 		log.Infow("err check", "isNil", err == nil, "err", err)
 		l.Repo.EndTx(tx, err)
 	}()
 
-	if user, err := l.Repo.User.GetByEmail(tx, newUser.Email); err == nil && user.ID != uuid.Nil {
+	if exists := l.Repo.User.Exists(tx, "email", newUser.Email); exists {
 		log.Errorf("user with email = %s already exists", newUser.Email)
-		return errs.ErrConflict{
+		return nil, errs.ErrConflict{
 			Reason: fmt.Sprintf("user with email = %s already exists", newUser.Email),
 		}
 	}
-	log.Infow("email is free")
 
 	if err := validators.ValidateEmail(newUser.Email); err != nil {
 		log.Warnw("invalid email", "err", err)
-		return err
+		return nil, err
 	}
-	if err := validators.ValidatePassword(newUser.Password); err != nil {
-		log.Warnw("invalid password", "err", err)
-		return err
-	}
+	// if err := validators.ValidatePassword(newUser.Password); err != nil {
+	// 	log.Warnw("invalid password", "err", err)
+	// 	return nil, err
+	// }
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.GetPassword()), bcrypt.DefaultCost)
 	if err != nil {
-		return errs.ErrInvalidInput{
+		return nil, errs.ErrInvalidInput{
 			Object: "password",
 			Reason: err.Error(),
 		}
 	}
-	log.Infow("generated password", "password", string(hashedPassword))
-	user := entity.User{
+	log.Debugw("generated password", "password", string(hashedPassword))
+	user := userdata.User{
+		ID:       uuid.NewString(),
 		Name:     newUser.GetName(),
 		Email:    newUser.GetEmail(),
 		Password: string(hashedPassword),
@@ -126,8 +126,14 @@ func (l *Logic) RegisterUser(ctx context.Context, newUser *dto.NewUser) (err err
 
 	if err := l.Repo.User.Create(tx, user); err != nil {
 		log.Errorw("failed to create user", "err", err)
-		return err
+		return nil, err
 	}
+
+	created, err := l.Repo.User.GetByID(tx, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
 	log.Info("created user in db")
-	return nil
+	return created.DTO(), nil
 }

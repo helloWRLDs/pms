@@ -1,8 +1,11 @@
 package router
 
 import (
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"go.uber.org/zap"
 	"pms.api-gateway/internal/config"
@@ -18,12 +21,14 @@ type Server struct {
 	Logic *logic.Logic
 
 	DashboardHub *ws.Hub
+	wshubs       map[string]*ws.Hub
 
 	log *zap.SugaredLogger
 }
 
 func New(conf config.Config, logic *logic.Logic, log *zap.SugaredLogger) *Server {
 	srv := Server{
+		wshubs:       make(map[string]*ws.Hub),
 		DashboardHub: ws.NewHub(),
 		Host:         conf.Host,
 		log:          log,
@@ -41,8 +46,12 @@ func New(conf config.Config, logic *logic.Logic, log *zap.SugaredLogger) *Server
 		}),
 	}
 
-	srv.Use(requestid.New())
 	srv.Use(cors.New())
+	srv.Use(requestid.New())
+	srv.Use(limiter.New(limiter.Config{
+		Max:        100,
+		Expiration: time.Minute,
+	}))
 
 	srv.Logic = logic
 	return &srv

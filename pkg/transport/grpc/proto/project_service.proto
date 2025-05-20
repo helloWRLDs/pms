@@ -4,7 +4,7 @@ package project;
 
 option go_package = "pkg/transport/grpc/services;pb";
 
-import "pkg/transport/grpc/proto/project.proto";
+import "pkg/transport/grpc/proto/models.proto";
 
 service ProjectService {
     rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse);
@@ -22,15 +22,24 @@ service ProjectService {
     rpc CreateSprint(CreateSprintRequest) returns (CreateSprintResponse);
     rpc UpdateSprint(UpdateSprintRequest) returns (UpdateSprintResponse);
     rpc DeleteSprint(DeleteSprintRequest) returns (DeleteSprintResponse);
+
+    rpc CreateTaskComment(CreateTaskCommentRequest) returns (CreateTaskCommentResponse);
+    rpc GetTaskComment(GetTaskCommentRequest) returns (GetTaskCommentResponse);
+    rpc ListTaskComments(ListTaskCommentsRequest) returns (ListTaskCommentsResponse);
+    rpc UpdateTaskComment(UpdateTaskCommentRequest) returns (UpdateTaskCommentResponse);
+    rpc DeleteTaskComment(DeleteTaskCommentRequest) returns (DeleteTaskCommentResponse);
 }
 
+
+// PROJECT
+
 message CreateProjectRequest {
-    project.ProjectCreation creation = 1;
+    models.ProjectCreation creation = 1;
 }
 
 message CreateProjectResponse {
     bool success = 1;
-    project.Project created_project = 2;
+    models.Project created_project = 2;
 }
 
 message GetProjectRequest {
@@ -39,59 +48,57 @@ message GetProjectRequest {
 
 message GetProjectResponse {
     bool success = 1;
-    project.Project project = 2;
+    models.Project project = 2;
 }
 
 message ListProjectsRequest {
-    int32 page = 1;
-    int32 per_page = 2;
-    string company_id = 3;
+    models.ProjectFilter filter = 1;
 }
 
 message ListProjectsResponse {
     bool success = 1;
-    project.ProjectList projects = 2;
+    models.ProjectList projects = 2;
 }
+
+
+// TASKS 
 
 message GetTaskRequest {
     string id = 1;
+    string code = 2;
 }
 
 message GetTaskResponse {
     bool success = 1;
-    project.Task task = 2;
+    models.Task task = 2;
 }
 
 message ListTasksRequest {
-    int32 page = 1;
-    int32 per_page = 2;
-    string sprint_id = 3;
-    string project_id = 4;
-    string assignee_id = 5;
+    models.TaskFilter filter = 1;
 }
 
 message ListTasksResponse {
     bool success = 1;
-    project.TaskList tasks = 2;
+    models.TaskList tasks = 2;
 }
 
 message CreateTaskRequest {
-    project.TaskCreation creation = 1;
+    models.TaskCreation creation = 1;
 }
 
 message CreateTaskResponse {
     bool success = 1;
-    project.Task created_task = 2;
+    models.Task created_task = 2;
 }
 
 message UpdateTaskRequest {
     string id = 1;
-    project.Task updated_task = 2;
+    models.Task updated_task = 2;
 }
 
 message UpdateTaskResponse {
     bool success = 1;
-    project.Task updated_task = 2;
+    models.Task updated_task = 2;
 }
 
 message DeleteTaskRequest {
@@ -102,43 +109,44 @@ message DeleteTaskResponse {
     bool success = 1;
 }
 
+
+// SPRINTS
+
 message GetSprintRequest {
     string id = 1;
 }
 
 message GetSprintResponse {
     bool success = 1;
-    project.Sprint sprint = 2;
+    models.Sprint sprint = 2;
 }
 
 message ListSprintsRequest {
-    int32 page = 1;
-    int32 per_page = 2;
-    string project_id = 3;
+    models.SprintFilter filter = 1;
 }
 
 message ListSprintsResponse {
     bool success = 1;
-    project.SprintList sprints = 2;
+    models.SprintList sprints = 2;
 }
 
 message CreateSprintRequest {
-    project.SprintCreation creation = 1;
+    models.SprintCreation creation = 1;
 }
 
 message CreateSprintResponse {
     bool success = 1;
-    project.Sprint created_sprint = 2;
+    models.Sprint created_sprint = 2;
 }
 
 message UpdateSprintRequest {
     string id = 1;
-    project.Sprint updated_sprint = 2;
+    models.Sprint updated_sprint = 2;
 }
 
 message UpdateSprintResponse {
     bool success = 1;
-    project.Sprint updated_sprint = 2;
+    models.Sprint updated_sprint = 2;
 }
 
 message DeleteSprintRequest {
@@ -146,5 +154,53 @@ message DeleteSprintRequest {
 }
 
 message DeleteSprintResponse {
+    bool success = 1;
+}
+
+
+// COMMENTS
+
+message CreateTaskCommentRequest {
+    models.TaskCommentCreation creation = 1;
+}
+
+message CreateTaskCommentResponse {
+    bool success = 1;
+    models.TaskComment created_comment = 2;
+}
+
+message GetTaskCommentRequest {
+    string id = 1;
+}
+
+message GetTaskCommentResponse {
+    bool success = 1;
+    models.TaskComment comment = 2;
+}
+
+message ListTaskCommentsRequest {
+    models.TaskCommentFilter filter = 1;
+}
+
+message ListTaskCommentsResponse {
+    bool success = 1;
+    models.TaskCommentList list = 2; 
+}
+
+message UpdateTaskCommentRequest {
+    string id = 1;
+    models.TaskComment updated_comment = 2;
+}
+
+message UpdateTaskCommentResponse {
+    bool success=1;
+    models.TaskComment updated_comment = 2;
+}
+
+message DeleteTaskCommentRequest {
+    string id = 1;
+}
+
+message DeleteTaskCommentResponse {
     bool success = 1;
 }

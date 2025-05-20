@@ -2,11 +2,13 @@ import { useNavigate } from "react-router-dom";
 // import useAuth from "./useAuth";
 import { useEffect } from "react";
 import { useAuthStore } from "../store/authStore";
+import { Layout } from "../lib/layout/layout";
 
 export interface PageSettingsConfig {
   title: string;
   requireAuth?: boolean;
   showSidebar?: boolean;
+  layout?: Layout | null;
 }
 
 export const usePageSettings = ({
@@ -24,7 +26,7 @@ export const usePageSettings = ({
     if (requireAuth && !isLoggedIn) {
       navigate("/login");
     }
-  }, [title, requireAuth, isLoggedIn, navigate]);
+  }, [title, requireAuth, isAuthenticated, navigate]);
 
   return {
     showSidebar,

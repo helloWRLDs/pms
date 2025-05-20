@@ -7,7 +7,6 @@ import (
 	"pms.pkg/transport/grpc/dto"
 	pb "pms.pkg/transport/grpc/services"
 	"pms.pkg/type/list"
-	"pms.pkg/utils"
 )
 
 func (l *Logic) GetTask(ctx context.Context, taskID string) (*dto.Task, error) {
@@ -55,28 +54,48 @@ func (l *Logic) CreateTask(ctx context.Context, creation *dto.TaskCreation) (err
 	return nil
 }
 
-func (l *Logic) ListTasks(ctx context.Context, filter list.Filters) (result list.List[*dto.Task], err error) {
+func (l *Logic) UpdateTask(ctx context.Context, taskID string, task *dto.Task) (err error) {
+	log := l.log.With(
+		zap.String("func", "UpdateTask"),
+		zap.String("task_id", taskID),
+		zap.Any("updated_task", task),
+	)
+	log.Debug("UpdateTask called")
+
+	// session, err := l.GetSessionInfo(ctx)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// if !utils.ContainsInArray(session.Companies, task.ProjectId) {
+	// 	return errs.ErrNotFound{
+	// 		Object: "task",
+	// 		Value:  taskID,
+	// 	}
+	// }
+
+	res, err := l.projectClient.UpdateTask(ctx, &pb.UpdateTaskRequest{
+		Id:          taskID,
+		UpdatedTask: task,
+	})
+
+	if err != nil {
+		log.Errorw("failed to update task", "err", err)
+		return err
+	}
+	log.Debug("task updated", "res", res)
+
+	return nil
+}
+
+func (l *Logic) ListTasks(ctx context.Context, filter *dto.TaskFilter) (result list.List[*dto.Task], err error) {
 	log := l.log.With(
 		zap.String("func", "ListTasks"),
 	)
 	log.Debug("ListTasks called")
 
-	var (
-		isExist = func(key string) bool {
-			_, ok := filter.Fields[key]
-			return ok
-		}
-		projectID  = utils.If(isExist("project_id"), filter.Fields["project_id"], "")
-		sprintID   = utils.If(isExist("sprint_id"), filter.Fields["sprint_id"], "")
-		assigneeID = utils.If(isExist("assignee_id"), filter.Fields["assignee_id"], "")
-	)
-
 	res, err := l.projectClient.ListTasks(ctx, &pb.ListTasksRequest{
-		ProjectId:  projectID,
-		SprintId:   sprintID,
-		AssigneeId: assigneeID,
-		Page:       int32(filter.Page),
-		PerPage:    int32(filter.PerPage),
+		Filter: filter,
 	})
 	if err != nil {
 		log.Errorw("failed to list tasks", "err", err)

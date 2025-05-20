@@ -2,11 +2,14 @@ import { FC, useEffect } from "react";
 import LoginForm from "../components/forms/LoginForm";
 import { useNavigate } from "react-router-dom";
 import { usePageSettings } from "../hooks/usePageSettings";
-import { authAPI } from "../api/authAPI";
+import authAPI from "../api/auth";
 import { useAuthStore } from "../store/authStore";
 
 const LoginPage: FC = () => {
-  usePageSettings({ requireAuth: false, title: "Sign in" });
+  usePageSettings({
+    requireAuth: false,
+    title: "Sign in",
+  });
 
   // const { isAuthenticated, login } = useAuth();
   const { isAuthenticated, setAuth } = useAuthStore();

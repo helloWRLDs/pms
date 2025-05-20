@@ -7,11 +7,6 @@ import (
 	"pms.pkg/errs"
 )
 
-// var (
-// 	_ Reader[comp.Company] = &Repository{}
-// 	_ Writer[comp.Company] = &Repository{}
-// )
-
 type Repository struct {
 	tableName string
 	DB        *sqlx.DB
@@ -23,10 +18,10 @@ type Repository struct {
 
 func New(db *sqlx.DB, log *zap.SugaredLogger) *Repository {
 	return &Repository{
-		tableName: "Company",
+		tableName: "\"Company\"",
 		DB:        db,
-		gen:       sq.StatementBuilder.PlaceholderFormat(sq.Question),
-		errctx:    errs.RepositoryDetails{Object: "company", DBType: "SQLITE"},
+		gen:       sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
+		errctx:    errs.RepositoryDetails{Object: "company", DBType: "POSTGRES"},
 		log:       log.Named("companydata"),
 	}
 }

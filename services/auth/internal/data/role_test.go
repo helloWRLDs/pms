@@ -4,38 +4,38 @@ import (
 	"context"
 	"testing"
 
+	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
-	"pms.auth/internal/entity"
+	roledata "pms.auth/internal/data/role"
 	"pms.pkg/consts"
 	"pms.pkg/type/list"
 	"pms.pkg/utils"
 )
 
 func Test_CreateRole(t *testing.T) {
-	role := entity.Role{
+	role := roledata.Role{
 		Name: "admin",
-		Persmissions: consts.PermissionSet{
-			consts.ORG_READ_PERMISSION,
-			consts.ORG_WRITE_PERMISSION,
-			consts.USER_DELETE_PERMISSION,
-			consts.USER_READ_PERMISSION,
-			consts.USER_WRITE_PERMISSION,
+		Persmissions: pq.StringArray{
+			string(consts.ORG_READ_PERMISSION),
+			string(consts.ORG_WRITE_PERMISSION),
+			string(consts.USER_DELETE_PERMISSION),
+			string(consts.USER_READ_PERMISSION),
+			string(consts.USER_WRITE_PERMISSION),
 		},
-		CompanyID: utils.Ptr("8f557202-0853-4672-aafb-a0b6cae7067a"),
 	}
 	err := repo.Role.Create(context.Background(), role)
 	assert.NoError(t, err)
 }
 
 func Test_UpdateRole(t *testing.T) {
-	role := entity.Role{
+	role := roledata.Role{
 		Name: "admin-1",
-		Persmissions: consts.PermissionSet{
-			consts.ORG_READ_PERMISSION,
-			consts.ORG_WRITE_PERMISSION,
-			consts.USER_DELETE_PERMISSION,
-			consts.USER_READ_PERMISSION,
-			consts.USER_WRITE_PERMISSION,
+		Persmissions: pq.StringArray{
+			string(consts.ORG_READ_PERMISSION),
+			string(consts.ORG_WRITE_PERMISSION),
+			string(consts.USER_DELETE_PERMISSION),
+			string(consts.USER_READ_PERMISSION),
+			string(consts.USER_WRITE_PERMISSION),
 		},
 	}
 	err := repo.Role.Update(context.Background(), "admin", role)
@@ -57,14 +57,12 @@ func Test_Count(t *testing.T) {
 }
 
 func Test_ListRoles(t *testing.T) {
-	roles, err := repo.Role.List(context.Background(), list.Filters{
+	roles, err := repo.Role.List(context.Background(), roledata.RoleFilter{
 		Pagination: list.Pagination{
 			Page:    1,
 			PerPage: 10,
 		},
-		Fields: map[string]string{
-			"company_id": "8f557202-0853-4672-aafb-a0b6cae7067a",
-		},
+		CompanyID: "8f557202-0853-4672-aafb-a0b6cae7067a",
 	})
 	assert.NoError(t, err)
 	t.Log(utils.JSON(roles))

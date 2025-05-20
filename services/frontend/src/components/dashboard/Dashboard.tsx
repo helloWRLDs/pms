@@ -1,4 +1,10 @@
-import { FC, useState, useLayoutEffect, ComponentProps } from "react";
+import {
+  FC,
+  useState,
+  useLayoutEffect,
+  ComponentProps,
+  useEffect,
+} from "react";
 import {
   DragDropContext,
   Droppable,
@@ -12,13 +18,23 @@ import { toast } from "react-toastify";
 import { toastOpts } from "../../lib/utils/toast";
 import useWs from "../../hooks/useWs";
 import { getTaskStatuses } from "../../lib/task/status";
+import { useProjectStore } from "../../store/selectedProjectStore";
+import { useSprintStore } from "../../store/selectedSprintStore";
 
 type TaskMap = Record<string, Task[]>; // { status: [tasks] }
 
 const Dashboard: FC<ComponentProps<"table">> = (props) => {
   const [tasksByStatus, setTasksByStatus] = useState<TaskMap>({});
+  const { project } = useProjectStore();
+  const { sprint } = useSprintStore();
+  useEffect(() => {
+    console.log(`selected sprint: ${sprint?.id}`);
+    console.log(`selected project: ${project?.id}`);
+  }, [project, sprint]);
 
-  const { val, send } = useWs("ws://localhost:8080/ws/dashboard/123");
+  const { val, send } = useWs(
+    `ws://localhost:8080/ws/projects/${project?.id}/sprints/${sprint?.id}`
+  );
 
   useLayoutEffect(() => {
     if (val) {
@@ -68,11 +84,7 @@ const Dashboard: FC<ComponentProps<"table">> = (props) => {
 
     setTasksByStatus(newTasksByStatus);
 
-    send({
-      action: "update",
-      id: movedTask.id,
-      value: movedTask,
-    });
+    send(movedTask);
 
     toast.success(`Moved task "${movedTask.title}" to ${destStatus}`, {
       ...toastOpts,
@@ -83,7 +95,7 @@ const Dashboard: FC<ComponentProps<"table">> = (props) => {
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <table
-        className={`w-full table-fixed border-collapse bg-primary-500 text-neutral-100 ${props.className}`}
+        className={`w-full h-[100vh] table-fixed border-collapse bg-primary-500 text-neutral-100 ${props.className}`}
       >
         <thead>
           <tr className="bg-primary-400 text-neutral-100">

@@ -5,12 +5,12 @@ import (
 	"testing"
 
 	"go.uber.org/zap"
-	"pms.pkg/datastore/sqlite"
+	"pms.pkg/datastore/postgres"
 	"pms.pkg/logger"
 )
 
 const (
-	dsn = "../../data/project.db"
+	dsn = "postgres://postgres:postgres@127.0.0.1:5432/project?sslmode=disable"
 )
 
 var (
@@ -31,14 +31,13 @@ func setupLogger() {
 		logger.WithLevel("debug"),
 		logger.WithCaller(true),
 	).Init()
-
 	log = logger.Log
 }
 
 func setupDB() {
-	db, err := sqlite.Open(dsn)
+	db, err := postgres.Open(dsn)
 	if err != nil {
-		log.Fatal("failed to connect to db")
+		log.Fatalw("failed to connect to db", "err", err)
 	}
 	repo = New(db, logger.Log)
 }

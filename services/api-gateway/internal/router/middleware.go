@@ -4,12 +4,41 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"go.uber.org/zap"
 	"pms.pkg/errs"
 	"pms.pkg/tools/jwtoken"
 	"pms.pkg/type/claims"
+	"pms.pkg/utils"
 	ctxutils "pms.pkg/utils/ctx"
 )
+
+func (s *Server) CheckCompany() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		session, err := s.Logic.GetSessionInfo(c.UserContext())
+		if err != nil {
+			return err
+		}
+
+		project := c.Params("projectID", "")
+
+		if strings.Trim(project, " ") == "" {
+			return errs.ErrBadGateway{
+				Object: "project_id",
+			}
+		}
+
+		if utils.ContainsInArray(session.Projects, c.Params("projectID", "")) {
+			return errs.ErrUnauthorized{
+				Reason: "don't have access to project",
+			}
+		}
+		log.Info("project_id: ", project)
+		c.Locals("project_id", project)
+
+		return c.Next()
+	}
+}
 
 func (s *Server) Authorize() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -27,7 +56,7 @@ func (s *Server) Authorize() fiber.Handler {
 		}
 		token = token[7:]
 
-		log.Infow("jwt secrets", "ttl", s.Logic.Config.JWT.TTL, "secret", s.Logic.Config.JWT.Secret)
+		log.Debugw("jwt secrets", "ttl", s.Logic.Config.JWT.TTL, "secret", s.Logic.Config.JWT.Secret)
 		decodedRaw, err := jwtoken.DecodeToken(token, &claims.AccessTokenClaims{}, &s.Logic.Config.JWT)
 		if err != nil {
 			log.Errorw("failed decoding token", "err", err)
@@ -44,7 +73,7 @@ func (s *Server) Authorize() fiber.Handler {
 			}
 		}
 
-		log.Infof("claims: %#v", decoded)
+		log.Debugf("claims: %#v", decoded)
 		session, err := s.Logic.Sessions.Get(c.UserContext(), decoded.SessionID)
 		if err != nil {
 			log.Error("failed to get session from cache")
@@ -52,7 +81,7 @@ func (s *Server) Authorize() fiber.Handler {
 				Reason: "failed verifying session",
 			}
 		}
-		log.Infow("got session from cache", "session", session)
+		log.Debugw("got session from cache", "session", session)
 		ctx := ctxutils.Embed(c.UserContext(), session)
 		c.SetUserContext(ctx)
 		return c.Next()

@@ -18,10 +18,10 @@ type Repository struct {
 
 func New(db *sqlx.DB, log *zap.SugaredLogger) *Repository {
 	return &Repository{
-		tableName: "Task",
+		tableName: "\"Task\"",
 		DB:        db,
-		gen:       sq.StatementBuilder.PlaceholderFormat(sq.Question),
-		errctx:    errs.RepositoryDetails{Object: "task", DBType: "SQLITE"},
+		gen:       sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
+		errctx:    errs.RepositoryDetails{Object: "task", DBType: "POSTGRES"},
 		log:       log.Named("taskdata"),
 	}
 }

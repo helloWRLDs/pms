@@ -15,8 +15,7 @@ grpc.init: path
 # Generate gRPC code from .proto files
 genproto:
 	@echo "Generating protobuf files..."
-	protoc  --go_out=. --go-grpc_out=. .\pkg\transport\grpc\proto\${service}.proto
-	protoc --go_out=. --go-grpc_out=. .\pkg\transport\grpc\proto\${service}_service.proto
+	protoc --go_out=. --go-grpc_out=. .\pkg\transport\grpc\proto\${name}.proto
 
 protoc:
 	@echo "Generating protobuf files..."

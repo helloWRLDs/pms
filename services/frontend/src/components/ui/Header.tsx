@@ -1,7 +1,7 @@
 import { ComponentProps, FC, useEffect, useState } from "react";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
-import { authAPI } from "../../api/authAPI";
+import authAPI from "../../api/auth";
 import { User } from "../../lib/user/user";
 import { useAuthStore } from "../../store/authStore";
 

@@ -18,15 +18,16 @@ export type ListFilters = Pagination & {
   query?: string;
 };
 
-export const buildQuery = (baseURL: string, pagination?: {}): string => {
+export const buildQuery = (baseURL: string, query: {}): string => {
   const params = new URLSearchParams();
-  if (pagination) {
-    Object.entries(pagination).forEach(([k, v]) => {
+  if (query) {
+    Object.entries(query).forEach(([k, v]) => {
       if (v !== undefined && v !== null) {
         params.append(k, `${v}`);
       }
     });
   }
   const q = params.toString();
+  console.log(`${baseURL}?${q}`);
   return q ? `${baseURL}?${q}` : baseURL;
 };

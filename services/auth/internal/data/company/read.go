@@ -2,19 +2,19 @@ package companydata
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	sq "github.com/Masterminds/squirrel"
 	"go.uber.org/zap"
-	"pms.auth/internal/entity"
 	"pms.pkg/errs"
 	"pms.pkg/tools/transaction"
+	"pms.pkg/transport/grpc/dto"
 	"pms.pkg/type/list"
+	"pms.pkg/utils"
 )
 
 // p - Participant
-func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.List[entity.Company], err error) {
+func (r *Repository) List(ctx context.Context, filter *dto.CompanyFilter) (res list.List[Company], err error) {
 	log := r.log.With(
 		zap.String("func", "ListCompanies"),
 		zap.Any("filter", filter),
@@ -30,43 +30,53 @@ func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.Li
 
 	builder := r.gen.
 		Select("c.*").
-		From("Company c").
-		LeftJoin("Participant p ON c.id = p.company_id")
+		From("\"Company\" c")
 
-	if filter.Date.From != "" {
-		builder = builder.Where(sq.GtOrEq{"c.created_at": filter.Date.From})
-	}
-	if filter.Date.To != "" {
-		builder = builder.Where(sq.LtOrEq{"c.created_at": filter.Date.To})
+	if filter.UserId != "" || filter.Role != "" {
+		builder = builder.LeftJoin("\"Participant\" p ON c.id = p.company_id")
+		if filter.UserId != "" {
+			builder = builder.Where(sq.Eq{"p.user_id": filter.UserId})
+		}
+		if filter.Role != "" {
+			builder = builder.Where(sq.Eq{"p.role": filter.Role})
+		}
 	}
 
-	if filter.Order.By != "" {
-		builder = builder.OrderBy(filter.Order.String())
-	} else {
-		builder = builder.OrderBy("c.created_at DESC")
+	if filter.DateFrom != "" {
+		builder = builder.Where(sq.GtOrEq{"c.created_at": filter.DateFrom})
 	}
-	if filter.Page <= 0 {
-		filter.Page = 1
+	if filter.DateTo != "" {
+		builder = builder.Where(sq.LtOrEq{"c.created_at": filter.DateTo})
 	}
-	if filter.PerPage <= 0 {
-		filter.PerPage = 10
+
+	if filter.CodeName != "" {
+		builder = builder.Where(sq.Eq{"c.codename": filter.CodeName})
 	}
-	for k, v := range filter.Fields {
-		builder = builder.Where(sq.Eq{k: v})
+	if filter.CompanyName != "" {
+		builder = builder.Where(sq.Eq{"c.name": filter.CompanyName})
 	}
-	for k, v := range filter.InFields {
-		builder = builder.Where(fmt.Sprintf("c.%s IN (%v)", k, v))
+	if filter.CompanyId != "" {
+		builder = builder.Where(sq.Eq{"c.id": filter.CompanyId})
 	}
 
 	{
+		filter.Page = utils.If(filter.Page <= 0, 1, filter.Page)
+		filter.PerPage = utils.If(filter.PerPage <= 0, 10, filter.PerPage)
+
 		countQuery, countArgs, _ := builder.ToSql()
 		if err := r.DB.QueryRowx(strings.ReplaceAll(countQuery, "SELECT c.*", "SELECT COUNT(*)"), countArgs...).Scan(&res.TotalItems); err != nil {
 			log.Errorw("failed to count companies", "err", err)
-			return list.List[entity.Company]{}, err
+			return list.List[Company]{}, err
 		}
-		res.Page = filter.Page
-		res.PerPage = filter.PerPage
-		res.TotalPages = (res.TotalItems + filter.PerPage - 1) / filter.PerPage
+		res.Page = int(filter.Page)
+		res.PerPage = int(filter.PerPage)
+		res.TotalPages = int((int32(res.TotalItems) + filter.PerPage - 1) / filter.PerPage)
+	}
+
+	if filter.OrderBy != "" {
+		builder = builder.OrderBy(filter.OrderBy + " " + filter.OrderDirection)
+	} else {
+		builder = builder.OrderBy("c.created_at DESC")
 	}
 
 	builder = builder.Limit(uint64(filter.PerPage)).Offset(uint64((filter.Page - 1) * filter.PerPage))
@@ -77,15 +87,15 @@ func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.Li
 	rows, err := r.DB.Queryx(query, args...)
 	if err != nil {
 		log.Errorw("failed to fetch companies", "err", err)
-		return list.List[entity.Company]{}, err
+		return list.List[Company]{}, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var company entity.Company
+		var company Company
 		if err := rows.StructScan(&company); err != nil {
 			log.Errorw("failed to scan company", "err", err)
-			return list.List[entity.Company]{}, err
+			return list.List[Company]{}, err
 		}
 		res.Items = append(res.Items, company)
 	}
@@ -93,38 +103,39 @@ func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.Li
 	return res, nil
 }
 
-func (r *Repository) Count(ctx context.Context, filter list.Filters) (count int64) {
+func (r *Repository) Count(ctx context.Context, filter *dto.CompanyFilter) (count int64) {
 	log := r.log.With(zap.String("func", "Count"))
 	log.Debug("Count called")
 
 	builder := r.gen.
 		Select("COUNT(*)").
-		From("Company c").
-		LeftJoin("Participant p ON c.id = p.company_id")
+		From("\"Company\" c")
 
-	if filter.Date.From != "" {
-		builder = builder.Where(sq.GtOrEq{"c.created_at": filter.Date.From})
-	}
-	if filter.Date.To != "" {
-		builder = builder.Where(sq.LtOrEq{"c.created_at": filter.Date.To})
+	if filter.UserId != "" || filter.Role != "" {
+		builder = builder.LeftJoin("\"Participant\" p ON c.id = p.company_id")
+		if filter.UserId != "" {
+			builder = builder.Where(sq.Eq{"p.user_id": filter.UserId})
+		}
+		if filter.Role != "" {
+			builder = builder.Where(sq.Eq{"p.role": filter.Role})
+		}
 	}
 
-	if filter.Order.By != "" {
-		builder = builder.OrderBy(filter.Order.String())
-	} else {
-		builder = builder.OrderBy("c.created_at DESC")
+	if filter.DateFrom != "" {
+		builder = builder.Where(sq.GtOrEq{"c.created_at": filter.DateFrom})
 	}
-	if filter.Page <= 0 {
-		filter.Page = 1
+	if filter.DateTo != "" {
+		builder = builder.Where(sq.LtOrEq{"c.created_at": filter.DateTo})
 	}
-	if filter.PerPage <= 0 {
-		filter.PerPage = 10
+
+	if filter.CodeName != "" {
+		builder = builder.Where(sq.Eq{"c.codename": filter.CodeName})
 	}
-	for k, v := range filter.Fields {
-		builder = builder.Where(sq.Eq{k: v})
+	if filter.CompanyName != "" {
+		builder = builder.Where(sq.Eq{"c.name": filter.CompanyName})
 	}
-	for k, v := range filter.InFields {
-		builder = builder.Where(fmt.Sprintf("c.%s IN (%v)", k, v))
+	if filter.CompanyId != "" {
+		builder = builder.Where(sq.Eq{"c.id": filter.CompanyId})
 	}
 
 	q, a, _ := builder.ToSql()
@@ -133,18 +144,18 @@ func (r *Repository) Count(ctx context.Context, filter list.Filters) (count int6
 	return count
 }
 
-func (r *Repository) Exists(ctx context.Context, id string) (exists bool) {
+func (r *Repository) Exists(ctx context.Context, field, value string) (exists bool) {
 	query, args, _ := r.gen.
 		Select("COUNT(*) > 0").
-		From("Company").
-		Where(sq.Eq{"id": id}).
+		From(r.tableName).
+		Where(sq.Eq{field: value}).
 		ToSql()
 
 	err := r.DB.QueryRow(query, args...).Scan(&exists)
 	return err == nil && exists
 }
 
-func (r *Repository) GetByID(ctx context.Context, companyID string) (company entity.Company, err error) {
+func (r *Repository) GetByID(ctx context.Context, companyID string) (company Company, err error) {
 	log := r.log.With(
 		zap.String("func", "GetByID"),
 		zap.String("id", companyID),
@@ -169,7 +180,7 @@ func (r *Repository) GetByID(ctx context.Context, companyID string) (company ent
 
 	query, args, _ := r.gen.
 		Select("*").
-		From("Company").
+		From(r.tableName).
 		Where(sq.Eq{"id": companyID}).
 		ToSql()
 

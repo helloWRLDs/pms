@@ -6,11 +6,13 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
-	"pms.pkg/datastore/sqlite"
+	"pms.pkg/datastore/postgres"
 	"pms.pkg/logger"
 	"pms.project/internal/config"
 	"pms.project/internal/data"
 )
+
+const dsn = "postgres://postgres:postgres@127.0.0.1:5432/project?sslmode=disable"
 
 var (
 	log   *zap.SugaredLogger
@@ -40,7 +42,7 @@ func setupLogger() {
 
 func setupLogic() {
 	var err error
-	db, err = sqlite.Open("../../data/project.db")
+	db, err = postgres.Open(dsn)
 	if err != nil {
 		print("failed to connect to db", "err", err)
 	}

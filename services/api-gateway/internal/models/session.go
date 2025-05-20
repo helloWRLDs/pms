@@ -17,6 +17,8 @@ type Session struct {
 	RefreshToken      string    `json:"refresh_token"`
 	Expires           time.Time `json:"exp"`
 	SelectedCompanyID string    `json:"selected_company_id"`
+	Companies         []string  `json:"companies"`
+	Projects          []string  `json:"projects"`
 }
 
 func (s Session) GetDB() int {

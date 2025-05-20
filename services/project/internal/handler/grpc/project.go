@@ -6,7 +6,6 @@ import (
 	"pms.pkg/errs"
 	"pms.pkg/transport/grpc/dto"
 	pb "pms.pkg/transport/grpc/services"
-	"pms.pkg/type/list"
 )
 
 func (s *ServerGRPC) CreateProject(ctx context.Context, req *pb.CreateProjectRequest) (res *pb.CreateProjectResponse, err error) {
@@ -51,15 +50,7 @@ func (s *ServerGRPC) ListProjects(ctx context.Context, req *pb.ListProjectsReque
 	res = new(pb.ListProjectsResponse)
 	res.Success = false
 
-	list, err := s.logic.ListProjects(ctx, list.Filters{
-		Pagination: list.Pagination{
-			Page:    int(req.Page),
-			PerPage: int(req.PerPage),
-		},
-		Fields: map[string]string{
-			"p.company_id": req.CompanyId,
-		},
-	})
+	list, err := s.logic.ListProjects(ctx, req.Filter)
 	res.Success = true
 	res.Projects = &dto.ProjectList{
 		Items:      list.Items,

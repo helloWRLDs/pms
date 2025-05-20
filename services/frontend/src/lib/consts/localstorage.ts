@@ -5,6 +5,7 @@ export const LocalStorageKeysMap = {
   TEST: "test",
   PROJECT: "project",
   COMPANY: "company",
+  SPRINT: "sprint",
 } as const;
 
 export type LocaStorageKey = ValueOf<typeof LocalStorageKeysMap>;

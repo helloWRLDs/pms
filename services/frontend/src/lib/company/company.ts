@@ -1,5 +1,5 @@
 import { Project } from "../project/project";
-import { List } from "../utils";
+import { ListItems, Pagination } from "../utils/list";
 
 export type Company = {
   id: string;
@@ -12,5 +12,14 @@ export type Company = {
   updated_at: {
     seconds: number;
   };
-  projects?: List<Project>;
+  projects?: ListItems<Project>;
+};
+
+export type CompanyCreation = Pick<Company, "name" | "codename">;
+
+export type CompanyFilters = Pagination & {
+  user_id?: string;
+  company_id?: string;
+  company_codename?: string;
+  company_name?: string;
 };

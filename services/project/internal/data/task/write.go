@@ -4,14 +4,14 @@ import (
 	"context"
 
 	"github.com/Masterminds/squirrel"
+	sq "github.com/Masterminds/squirrel"
 	"go.uber.org/zap"
 	"pms.pkg/errs"
 	"pms.pkg/tools/transaction"
 	"pms.pkg/utils"
-	"pms.project/internal/data/models"
 )
 
-func (r *Repository) Create(ctx context.Context, new models.Task) (err error) {
+func (r *Repository) Create(ctx context.Context, new Task) (err error) {
 	log := r.log.With(
 		zap.String("func", "Create"),
 		zap.Any("new_task", new),
@@ -60,6 +60,7 @@ func (r *Repository) Delete(ctx context.Context, id string) (err error) {
 	defer func() {
 		err = r.errctx.MapSQL(err,
 			errs.WithOperation("delete"),
+			errs.WithField("id", id),
 		)
 	}()
 
@@ -77,7 +78,7 @@ func (r *Repository) Delete(ctx context.Context, id string) (err error) {
 
 	q, a, _ := r.gen.
 		Delete(r.tableName).
-		Where(squirrel.Eq{"id": id}).ToSql()
+		Where(sq.Eq{"id": id}).ToSql()
 
 	if _, err = tx.ExecContext(ctx, q, a...); err != nil {
 		log.Errorw("failed to delete task", "err", err)
@@ -87,7 +88,7 @@ func (r *Repository) Delete(ctx context.Context, id string) (err error) {
 
 }
 
-func (r *Repository) Update(ctx context.Context, id string, updated models.Task) (err error) {
+func (r *Repository) Update(ctx context.Context, id string, updated Task) (err error) {
 	log := r.log.With(
 		zap.String("func", "Update"),
 		zap.Any("updated_task", updated),
@@ -121,6 +122,7 @@ func (r *Repository) Update(ctx context.Context, id string, updated models.Task)
 	for i, col := range cols {
 		builder = builder.Set(col, args[i])
 	}
+	builder = builder.Where(squirrel.Eq{"id": id})
 
 	q, a, _ := builder.ToSql()
 

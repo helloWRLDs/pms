@@ -7,6 +7,7 @@ import (
 	projectdata "pms.project/internal/data/project"
 	sprintdata "pms.project/internal/data/sprint"
 	taskdata "pms.project/internal/data/task"
+	taskcommentdata "pms.project/internal/data/taskcomment"
 )
 
 type Repository struct {
@@ -16,6 +17,7 @@ type Repository struct {
 	Sprint         *sprintdata.Repository
 	Task           *taskdata.Repository
 	TaskAssignment *assignmentdata.Repository
+	TaskComment    *taskcommentdata.Repository
 }
 
 func New(db *sqlx.DB, log *zap.SugaredLogger) *Repository {
@@ -25,5 +27,6 @@ func New(db *sqlx.DB, log *zap.SugaredLogger) *Repository {
 		Task:           taskdata.New(db, log),
 		Sprint:         sprintdata.New(db, log),
 		TaskAssignment: assignmentdata.New(db, log),
+		TaskComment:    taskcommentdata.New(db, log),
 	}
 }

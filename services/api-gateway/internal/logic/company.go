@@ -6,14 +6,13 @@ import (
 	"go.uber.org/zap"
 	"pms.pkg/transport/grpc/dto"
 	pb "pms.pkg/transport/grpc/services"
-	"pms.pkg/type/list"
 )
 
-func (l *Logic) ListCompanies(ctx context.Context, filter list.Filters) (*dto.CompanyList, error) {
+func (l *Logic) ListCompanies(ctx context.Context, filter *dto.CompanyFilter) (*dto.CompanyList, error) {
 	log := l.log.With(
 		zap.String("func", "ListCompanies"),
 	)
-	log.Debug("ListCompanies called")
+	log.Info("ListCompanies called")
 
 	session, err := l.GetSessionInfo(ctx)
 	if err != nil {
@@ -21,16 +20,28 @@ func (l *Logic) ListCompanies(ctx context.Context, filter list.Filters) (*dto.Co
 		return nil, err
 	}
 	log.Infow("retrieved session", "session", session)
-	res, err := l.authClient.ListCompanies(ctx, &pb.ListCompaniesRequest{
-		UserId:  session.UserID,
-		Page:    int32(filter.Page),
-		PerPage: int32(filter.PerPage),
+	companyRes, err := l.authClient.ListCompanies(ctx, &pb.ListCompaniesRequest{
+		Filter: filter,
 	})
 	if err != nil {
 		return nil, err
 	}
+	for i, comp := range companyRes.Companies.Items {
+		projectRes, err := l.projectClient.ListProjects(ctx, &pb.ListProjectsRequest{
+			Filter: &dto.ProjectFilter{
+				Page:      1,
+				PerPage:   100,
+				CompanyId: comp.Id,
+			},
+		})
+		if err != nil {
+			log.Errorw("failed to list projects", "err", err)
+		}
+		log.Infow("retrieved projects", "projects", projectRes.Projects)
+		companyRes.Companies.Items[i].Projects = projectRes.Projects
+	}
 
-	return res.Companies, nil
+	return companyRes.Companies, nil
 }
 
 func (l *Logic) GetCompany(ctx context.Context, companyID string) (*dto.Company, error) {
@@ -56,9 +67,11 @@ func (l *Logic) GetCompany(ctx context.Context, companyID string) (*dto.Company,
 	company = companyRes.Company
 
 	projectsRes, err := l.projectClient.ListProjects(ctx, &pb.ListProjectsRequest{
-		Page:      1,
-		PerPage:   10,
-		CompanyId: companyID,
+		Filter: &dto.ProjectFilter{
+			Page:      1,
+			PerPage:   10,
+			CompanyId: companyID,
+		},
 	})
 	if err != nil {
 		return nil, err

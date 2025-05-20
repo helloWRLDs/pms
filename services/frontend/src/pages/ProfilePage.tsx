@@ -3,7 +3,7 @@ import { FC, useEffect, useState } from "react";
 import { usePageSettings } from "../hooks/usePageSettings";
 import { User, UserOptional } from "../lib/user/user";
 import { useAuthStore } from "../store/authStore";
-import { authAPI } from "../api/authAPI";
+import authAPI from "../api/auth";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
