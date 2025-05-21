@@ -1,9 +1,9 @@
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import RegisterForm from "../components/forms/RegisterForm";
-import authAPI from "../api/auth";
 import { useNavigate } from "react-router-dom";
-import { errorToast } from "../utils/toast";
+import { errorToast } from "../lib/utils/toast";
 import { usePageSettings } from "../hooks/usePageSettings";
+import authAPI from "../api/auth";
 
 const RegisterPage: FC = () => {
   usePageSettings({ title: "Sign up", requireAuth: false });
@@ -16,7 +16,7 @@ const RegisterPage: FC = () => {
     name: string
   ) => {
     try {
-      await authAPI().register({
+      await authAPI.register({
         email: email,
         password: password,
         name: name,

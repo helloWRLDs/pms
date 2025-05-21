@@ -90,7 +90,7 @@ func (l *Logic) CheckAuthHealth(ctx context.Context) error {
 	l.authClient = newClient
 	l.mu.Unlock()
 
-	log.Info("auth conn re-established")
+	log.Debug("auth conn re-established")
 	return nil
 }
 
@@ -107,12 +107,12 @@ func (l *Logic) CheckNotifierHealth(ctx context.Context) error {
 			log.Debug("notifier conn is ok")
 			return nil
 		}
-		log.Debug("notifier conn has been lost. Reconnecting...")
+		// log.Debug("notifier conn has been lost. Reconnecting...")
 	}
 
 	newClient, err := notifierclient.New(l.Config.NotificationMQ, l.log)
 	if err != nil {
-		log.Errorw("failed to establish notifier conn", "err", err)
+		// log.Errorw("failed to establish notifier conn", "err", err)
 		return err
 	}
 

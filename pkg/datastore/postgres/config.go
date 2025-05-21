@@ -2,23 +2,17 @@ package postgres
 
 import (
 	"fmt"
-	"strings"
 )
 
 type Config struct {
-	Host     string
-	Port     string
-	User     string
-	Password string
-	Name     string
-	SSL      string
+	Host     string `env:"HOST"`
+	Port     string `env:"PORT"`
+	User     string `env:"USER"`
+	Password string `env:"PASSWORD"`
+	Name     string `env:"NAME"`
+	SSL      string `env:"SSL_MODE"`
 }
 
 func (c Config) DSN() string {
-	dsn := []string{
-		fmt.Sprintf("user=%s", c.User),
-		fmt.Sprintf("password=%s", c.Password),
-		fmt.Sprintf("dbname=%s", c.Name),
-	}
-	return strings.Join(dsn, " ")
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", c.User, c.Password, c.Host, c.Port, c.Name, c.SSL)
 }

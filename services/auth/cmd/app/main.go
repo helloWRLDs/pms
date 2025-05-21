@@ -11,7 +11,7 @@ import (
 	"pms.auth/internal/data"
 	grpchandler "pms.auth/internal/handlers/grpc"
 	"pms.auth/internal/logic"
-	"pms.pkg/datastore/sqlite"
+	"pms.pkg/datastore/postgres"
 	"pms.pkg/logger"
 	pb "pms.pkg/transport/grpc/services"
 	"pms.pkg/utils"
@@ -35,7 +35,8 @@ func main() {
 	log := logger.Log.With(
 		zap.String("func", "main"),
 	)
-	db, err := sqlite.Open(conf.DB.Dsn)
+	log.Debugw("check dsn", "dsn", conf.DB.DSN())
+	db, err := postgres.Open(conf.DB.DSN())
 	if err != nil {
 		log.Errorw("failed to open db conn", "err", err)
 		os.Exit(1)

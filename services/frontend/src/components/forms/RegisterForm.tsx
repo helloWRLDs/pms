@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { errorToast } from "../../utils/toast";
+import { errorToast } from "../../lib/utils/toast";
 
 interface Props {
   onRegister: (email: string, password: string, name: string) => Promise<void>;

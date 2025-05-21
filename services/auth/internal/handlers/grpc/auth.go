@@ -37,15 +37,13 @@ func (s *ServerGRPC) RegisterUser(ctx context.Context, req *pb.RegisterUserReque
 		err = errs.WrapGRPC(err)
 	}()
 	res = new(pb.RegisterUserResponse)
-	if err := s.logic.RegisterUser(ctx, req.NewUser); err != nil {
+	created, err := s.logic.RegisterUser(ctx, req.NewUser)
+	if err != nil {
 		log.Errorw("failed to register user", "err", err)
 		return res, err
 	}
-	created, err := s.logic.Repo.User.GetByEmail(ctx, req.NewUser.Email)
-	if err != nil {
-		return nil, err
-	}
+
 	res.Success = true
-	res.User = created.DTO()
+	res.User = created
 	return res, nil
 }

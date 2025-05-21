@@ -3,10 +3,10 @@ package roledata
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	sq "github.com/Masterminds/squirrel"
 	"go.uber.org/zap"
-	"pms.auth/internal/entity"
 	"pms.pkg/errs"
 	"pms.pkg/tools/transaction"
 	"pms.pkg/type/list"
@@ -56,7 +56,7 @@ func (r *Repository) Count(ctx context.Context, filter list.Filters) (count int6
 	return count
 }
 
-func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.List[entity.Role], err error) {
+func (r *Repository) List(ctx context.Context, filter RoleFilter) (res list.List[Role], err error) {
 	log := r.log.With(
 		zap.String("func", "List"),
 		zap.Any("filters", filter),
@@ -70,28 +70,39 @@ func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.Li
 		)
 	}()
 
-	tx := transaction.Retrieve(ctx)
-	if tx == nil {
-		ctx, err := transaction.Start(ctx, r.DB)
-		if err != nil {
-			return list.List[entity.Role]{}, err
-		}
-		tx = transaction.Retrieve(ctx)
-		defer func() {
-			transaction.End(ctx, err)
-		}()
-	}
-
 	builder := r.gen.
 		Select("r.*").
-		From("Role r").
-		LeftJoin("Company c ON c.id = r.company_id")
+		From("\"Role\" r")
+
+	if filter.CompanyName != "" {
+		builder = builder.LeftJoin("\"Company\" c ON c.id = r.company_id")
+
+		builder = builder.Where(sq.Eq{"c.name": filter.CompanyName})
+	}
 
 	if filter.Date.From != "" {
 		builder = builder.Where(sq.GtOrEq{"c.created_at": filter.Date.From})
 	}
 	if filter.Date.To != "" {
 		builder = builder.Where(sq.LtOrEq{"c.created_at": filter.Date.To})
+	}
+
+	if filter.CompanyID != "" {
+		builder = builder.Where(sq.Eq{"c.id": filter.CompanyID})
+	}
+	if filter.Name != "" {
+		builder = builder.Where(sq.Eq{"r.name": filter.Name})
+	}
+
+	{ // build pagination info
+		countQuery, countArgs, _ := builder.ToSql()
+		if err := r.DB.QueryRowx(strings.ReplaceAll(countQuery, "SELECT r.*", "SELECT COUNT(*)"), countArgs...).Scan(&res.TotalItems); err != nil {
+			log.Errorw("failed to count roles", "err", err)
+			return list.List[Role]{}, err
+		}
+		res.Page = filter.Page
+		res.PerPage = filter.PerPage
+		res.TotalPages = (res.TotalItems + filter.PerPage - 1) / filter.PerPage
 	}
 
 	if filter.Order.By != "" {
@@ -106,34 +117,23 @@ func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.Li
 	if filter.PerPage <= 0 {
 		filter.PerPage = 10
 	}
-	for k, v := range filter.Fields {
-		builder = builder.Where(sq.Eq{k: v})
-	}
-	for k, v := range filter.InFields {
-		builder = builder.Where(fmt.Sprintf("c.%s IN (%v)", k, v))
-	}
-	res.TotalItems = int(r.Count(ctx, filter))
-	res.Page = filter.Page
-	res.PerPage = filter.PerPage
-	res.TotalPages = (res.TotalItems + filter.PerPage - 1) / filter.PerPage
-
 	builder = builder.Limit(uint64(filter.PerPage)).Offset(uint64((filter.Page - 1) * filter.PerPage))
 
 	query, args, _ := builder.ToSql()
 	log.Debugw("query built", "query", query, "args", args)
 
-	rows, err := tx.Queryx(query, args...)
+	rows, err := r.DB.Queryx(query, args...)
 	if err != nil {
 		log.Errorw("failed to fetch roles", "err", err)
-		return list.List[entity.Role]{}, err
+		return list.List[Role]{}, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var company entity.Role
+		var company Role
 		if err := rows.StructScan(&company); err != nil {
 			log.Errorw("failed to scan role", "err", err)
-			return list.List[entity.Role]{}, err
+			return list.List[Role]{}, err
 		}
 		res.Items = append(res.Items, company)
 	}
@@ -141,7 +141,7 @@ func (r *Repository) List(ctx context.Context, filter list.Filters) (res list.Li
 	return res, nil
 }
 
-func (r *Repository) GetByName(ctx context.Context, name string) (role entity.Role, err error) {
+func (r *Repository) GetByName(ctx context.Context, name string) (role Role, err error) {
 	log := r.log.With(
 		zap.String("func", "GetByName"),
 		zap.String("name", name),
@@ -160,7 +160,7 @@ func (r *Repository) GetByName(ctx context.Context, name string) (role entity.Ro
 	if tx == nil {
 		ctx, err := transaction.Start(ctx, r.DB)
 		if err != nil {
-			return entity.Role{}, err
+			return Role{}, err
 		}
 		tx = transaction.Retrieve(ctx)
 		defer func() {
@@ -171,7 +171,7 @@ func (r *Repository) GetByName(ctx context.Context, name string) (role entity.Ro
 	q, a, _ := r.gen.Select("*").From("Role").Where(sq.Eq{"name": name}).ToSql()
 	if err = tx.QueryRowx(q, a...).StructScan(&role); err != nil {
 		log.Errorw("failed to get role", "err", err)
-		return entity.Role{}, err
+		return Role{}, err
 	}
 	return role, nil
 }

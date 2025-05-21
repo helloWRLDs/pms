@@ -6,8 +6,6 @@ import (
 	"pms.pkg/errs"
 	"pms.pkg/transport/grpc/dto"
 	pb "pms.pkg/transport/grpc/services"
-	"pms.pkg/type/list"
-	"pms.pkg/utils"
 )
 
 func (s *ServerGRPC) CreateTask(ctx context.Context, req *pb.CreateTaskRequest) (res *pb.CreateTaskResponse, err error) {
@@ -60,19 +58,7 @@ func (s *ServerGRPC) ListTasks(ctx context.Context, req *pb.ListTasksRequest) (r
 	res = new(pb.ListTasksResponse)
 	res.Success = false
 
-	filter := list.Filters{
-		Pagination: list.Pagination{
-			Page:    int(req.GetPage()),
-			PerPage: int(req.GetPerPage()),
-		},
-		Fields: map[string]string{
-			"t.project_id": utils.If(req.GetProjectId() != "", req.GetProjectId(), ""),
-			"t.sprint_id":  utils.If(req.GetSprintId() != "", req.GetSprintId(), ""),
-			"a.user_id":    utils.If(req.GetAssigneeId() != "", req.GetAssigneeId(), ""),
-		},
-	}
-
-	tasks, err := s.logic.ListTasks(ctx, filter)
+	tasks, err := s.logic.ListTasks(ctx, req.Filter)
 	if err != nil {
 		return res, err
 	}
@@ -86,5 +72,21 @@ func (s *ServerGRPC) ListTasks(ctx context.Context, req *pb.ListTasksRequest) (r
 	}
 	res.Success = true
 
+	return res, nil
+}
+
+func (s *ServerGRPC) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest) (res *pb.UpdateTaskResponse, err error) {
+	defer func() {
+		err = errs.WrapGRPC(err)
+	}()
+
+	res = new(pb.UpdateTaskResponse)
+	res.Success = false
+
+	if err = s.logic.UpdateTask(ctx, req.Id, req.UpdatedTask); err != nil {
+		return res, err
+	}
+
+	res.Success = true
 	return res, nil
 }

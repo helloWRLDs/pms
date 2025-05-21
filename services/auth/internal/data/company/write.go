@@ -5,13 +5,12 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"go.uber.org/zap"
-	"pms.auth/internal/entity"
 	"pms.pkg/errs"
 	"pms.pkg/tools/transaction"
 	"pms.pkg/utils"
 )
 
-func (r *Repository) Create(ctx context.Context, newCompany entity.Company) (err error) {
+func (r *Repository) Create(ctx context.Context, newCompany Company) (err error) {
 	log := r.log.With(
 		zap.String("func", "CreateCompany"),
 		zap.String("name", newCompany.Name),
@@ -36,7 +35,7 @@ func (r *Repository) Create(ctx context.Context, newCompany entity.Company) (err
 	}
 
 	query, args, _ := r.gen.
-		Insert("Company").
+		Insert(r.tableName).
 		Columns(utils.GetColumns(newCompany)...).
 		Values(utils.GetArguments(newCompany)...).
 		ToSql()
@@ -84,17 +83,17 @@ func (r *Repository) DeleteCompany(ctx context.Context, companyID string) (err e
 	return err
 }
 
-func (r *Repository) UpdateCompany(ctx context.Context, companyID string, c entity.Company) (err error) {
+func (r *Repository) UpdateCompany(ctx context.Context, companyID string, c Company) (err error) {
 	log := r.log.With(
 		zap.String("func", "UpdateCompany"),
-		zap.String("company_id", c.ID.String()),
+		zap.String("company_id", c.ID),
 	)
 	log.Debug("UpdateCompany called")
 
 	defer func() {
 		err = r.errctx.MapSQL(err,
 			errs.WithOperation("update"),
-			errs.WithField("company_id", c.ID.String()),
+			errs.WithField("company_id", c.ID),
 		)
 	}()
 
@@ -153,7 +152,7 @@ func (r *Repository) AddParticipant(ctx context.Context, userID, comapanyID stri
 	}
 
 	q, a, _ := r.gen.
-		Insert("Participant").
+		Insert("\"Participant\"").
 		Columns("user_id, company_id, role").
 		Values(userID, comapanyID, "admin").ToSql()
 

@@ -12,6 +12,7 @@ import (
 	"pms.pkg/datastore/mq"
 	"pms.pkg/datastore/redis"
 	"pms.pkg/tools/scheduler"
+	"pms.pkg/transport/ws"
 )
 
 type Logic struct {
@@ -22,8 +23,11 @@ type Logic struct {
 
 	notificationMQ *mq.Publisher
 
-	Sessions *redis.Client[models.Session]
-	Tasks    map[string]*scheduler.Task
+	TaskQueue *redis.Client[models.TaskQueueElement]
+	Sessions  *redis.Client[models.Session]
+	Tasks     map[string]*scheduler.Task
+
+	ws.Hub
 
 	stopTicker chan struct{}
 	log        *zap.SugaredLogger
@@ -43,6 +47,12 @@ func (l *Logic) AuthClient() *authclient.AuthClient {
 	return l.authClient
 }
 
+func (l *Logic) ProjectClient() *projectclient.ProjectClient {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.projectClient
+}
+
 func New(config config.Config, log *zap.SugaredLogger) *Logic {
 	l := &Logic{
 		Config:     config,
@@ -50,6 +60,7 @@ func New(config config.Config, log *zap.SugaredLogger) *Logic {
 		stopTicker: make(chan struct{}),
 		Tasks:      make(map[string]*scheduler.Task),
 		Sessions:   redis.New(&config.Redis, models.Session{}),
+		TaskQueue:  redis.New(&config.Redis, models.TaskQueueElement{}),
 	}
 	l.InitTasks()
 	for _, task := range l.Tasks {

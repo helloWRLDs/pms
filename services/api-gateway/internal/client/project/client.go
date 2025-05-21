@@ -22,8 +22,7 @@ type ProjectClient struct {
 }
 
 func New(conf Config, logger *zap.SugaredLogger) (*ProjectClient, error) {
-	log := logger.With(
-		zap.String("func", "projectclient.New"),
+	log := logger.Named("projectclient.New").With(
 		zap.String("host", conf.Host),
 	)
 	log.Debug("New called")

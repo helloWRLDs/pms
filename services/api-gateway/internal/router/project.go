@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 	"pms.pkg/errs"
 	"pms.pkg/transport/grpc/dto"
-	"pms.pkg/type/list"
+	"pms.pkg/utils"
 )
 
 func (s *Server) ListProjects(c *fiber.Ctx) error {
@@ -16,16 +16,18 @@ func (s *Server) ListProjects(c *fiber.Ctx) error {
 		zap.String("func", "ListProjects"),
 		zap.String("ip", c.IP()),
 	)
-	log.Debug("ListProjects called")
+	log.Info("ListProjects called")
 
-	company_id := c.Get("company_id", "")
-	if strings.Trim(company_id, " ") == "" {
-		return errs.ErrBadGateway{
-			Object: "company_id",
-		}
+	filter := &dto.ProjectFilter{
+		Page:      utils.If(c.Query("page", "") != "", int32(c.QueryInt("page", 1)), 1),
+		PerPage:   utils.If(c.Query("per_page", "") != "", int32(c.QueryInt("per_page", 10)), 10),
+		CompanyId: c.Query("company_id", ""),
+		Title:     c.Query("title", ""),
+		Status:    c.Query("status", ""),
 	}
+	log.Debugw("filter", "filter", filter)
 
-	projects, err := s.Logic.ListProjects(c.UserContext(), company_id, list.Filters{Pagination: list.Pagination{Page: 1, PerPage: 10}})
+	projects, err := s.Logic.ListProjects(c.UserContext(), filter)
 	if err != nil {
 		return err
 	}
@@ -40,7 +42,7 @@ func (s *Server) GetProject(c *fiber.Ctx) error {
 	)
 	log.Debug("GetProject called")
 
-	projectID := c.Params("id", "")
+	projectID := c.Params("projectID", "")
 	if strings.Trim(projectID, " ") == "" {
 		return errs.ErrBadGateway{
 			Object: "project_id",

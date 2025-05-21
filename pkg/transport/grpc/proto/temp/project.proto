@@ -1,0 +1,183 @@
+syntax = "proto3";
+
+package project;
+
+option go_package = "pkg/transport/grpc/dto";
+
+import "google/protobuf/timestamp.proto";
+import "pkg/transport/grpc/proto/models.proto";
+
+message Task {
+    string id = 1;
+    string title = 2;
+    string body = 3;
+    string status = 4;
+    string sprint_id = 5;
+    string project_id = 6;
+    int32 priority = 7;
+    google.protobuf.Timestamp created_at = 8;
+    google.protobuf.Timestamp updated_at = 9;
+    string assignee_id = 10;
+    google.protobuf.Timestamp due_date = 11;
+}
+
+message Project {
+    string id = 1;
+    string title = 2;
+    string description = 3; 
+    string status = 4;
+    string company_id = 5;
+    google.protobuf.Timestamp created_at = 6;
+    google.protobuf.Timestamp updated_at = 7;
+    int32 total_tasks = 8;
+    repeated Sprint sprints = 9;
+    string code_name = 10;
+    int32 done_tasks = 12;
+}
+
+message Sprint {
+    string id = 1;
+    string title = 2;
+    string description = 3;
+    string status = 4;
+    string project_id = 5;
+    google.protobuf.Timestamp created_at = 6;
+    google.protobuf.Timestamp updated_at = 7;
+    repeated Task tasks = 8;
+    google.protobuf.Timestamp start_date = 9;
+    google.protobuf.Timestamp end_date = 10;
+}
+
+message TaskComment {
+    string id = 1;
+    string body = 2;
+    string task_id = 3;
+    models.User user = 4;
+    google.protobuf.Timestamp created_at = 5;
+}
+
+// FILTERS
+
+message SprintFilter {
+    int32 page = 1;
+    int32 per_page = 2;
+    string project_id = 3;
+    string title = 4;
+    string description = 5;
+    string project_name = 6;
+    string date_from = 7;
+    string date_to = 8;
+    string order_by = 9;
+    string order_direction = 10;
+}
+
+message ProjectFilter {
+    int32 page = 1;
+    int32 per_page = 2;
+    string company_id = 3;
+    string title = 4;
+    string description = 5;
+    string status = 6;
+    string date_from = 7;
+    string date_to = 8;
+    string order_by = 9;
+    string order_direction = 10;
+}
+
+message TaskFilter {
+    int32 page = 1;
+    int32 per_page = 2;
+    string sprint_id = 3;
+    string project_id = 4;
+    string assignee_id = 5;
+    string title = 6;
+    string body = 7;
+    string status = 8;
+    int32 priority = 9;
+    string sprint_name = 10;
+    string project_name = 11;
+    string date_from = 12;
+    string date_to = 13;
+    string order_by = 14;
+    string order_direction = 15;
+}
+
+message TaskCommentFilter {
+    int32 page = 1;
+    int32 per_page = 2;
+    string task_id = 3;
+    string user_id = 4;
+    string date_from = 5;
+    string date_to = 6;
+    string order_by = 7;
+    string order_direction = 8;
+}
+
+// LISTS
+
+message SprintList {
+    int32 page = 1;
+    int32 per_page = 2;
+    int32 total_pages = 3;
+    int32 total_items = 4;
+    repeated Sprint items = 5;
+}
+
+message ProjectList {
+    int32 page = 1;
+    int32 per_page = 2;
+    int32 total_pages = 3;
+    int32 total_items = 4;
+    repeated Project items = 5;
+}
+
+message TaskList {
+    int32 page = 1;
+    int32 per_page = 2;
+    int32 total_pages = 3;
+    int32 total_items = 4;
+    repeated Task items = 5;
+}
+
+message TaskCommentList {
+    int32 page = 1;
+    int32 per_page = 2;
+    int32 total_pages = 3;
+    int32 total_items = 4;
+    repeated TaskComment items = 5;
+}
+
+
+// CREATION
+
+message TaskCreation {
+    string title = 1;
+    string body = 2;
+    string status = 3;
+    string sprint_id = 4;
+    string project_id = 5;
+    int32 priority = 6;
+    string assignee_id = 7;
+    google.protobuf.Timestamp due_date = 8;
+}
+
+message SprintCreation {
+    string title = 1;
+    string description = 2;
+    string project_id = 3;
+    google.protobuf.Timestamp start_date = 4;
+    google.protobuf.Timestamp end_date = 5;
+}
+
+message ProjectCreation {
+    string title = 1;
+    string description = 2;
+    string company_id = 3; 
+    string code_name = 4;
+}
+
+message TaskCommentCreation {
+    string body = 1;
+    string task_id = 2;
+    string user_id = 3;
+}

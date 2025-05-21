@@ -1,24 +1,41 @@
 -- +goose Up
 -- +goose StatementBegin
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE IF NOT EXISTS "Project" (
-    "id" VARCHAR PRIMARY KEY,
-    "title" TEXT,
-    "status" VARCHAR,
+    "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    "title" VARCHAR(255),
+    "status" VARCHAR(60),
     "description" TEXT,
+    "codename" VARCHAR(255),
+    "code_prefix" VARCHAR(60),
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "company_id" VARCHAR,
+    "company_id" UUID DEFAULT NULL,
     "progress" INT
 );
 
+CREATE TABLE IF NOT EXISTS "Sprint" (
+    "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    "title" VARCHAR(255) NOT NULL,
+    "description" TEXT,
+    "start_date" DATE,
+    "end_date" DATE,
+    "project_id" UUID DEFAULT NULL,
+    "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY ("project_id") REFERENCES "Project"("id")
+);
+
 CREATE TABLE IF NOT EXISTS "Task" (
-    "id" VARCHAR PRIMARY KEY,
-    "title" TEXT,
+    "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    "title" VARCHAR(255),
     "body" TEXT,
-    "project_id" VARCHAR DEFAULT NULL,
-    "sprint_id" VARCHAR DEFAULT NULL,
+    "code" VARCHAR(40),
+    "project_id" UUID DEFAULT NULL,
+    "sprint_id" UUID DEFAULT NULL,
     "status" TEXT,
-    "priority" INTEGER,
+    "priority" INTEGER DEFAULT 1,
     "due_date" DATE,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -27,36 +44,24 @@ CREATE TABLE IF NOT EXISTS "Task" (
 );
 
 CREATE TABLE IF NOT EXISTS "SubTask" (
-    "parent_id" VARCHAR,
-    "child_id" VARCHAR,
+    "parent_id" UUID,
+    "child_id" UUID,
     PRIMARY KEY("parent_id", "child_id"),
     FOREIGN KEY ("parent_id") REFERENCES "Task"("id"),
     FOREIGN KEY ("child_id") REFERENCES "Task"("id")
 );
 
-CREATE TABLE IF NOT EXISTS "Sprint" (
-    "id" VARCHAR PRIMARY KEY,
-    "title" TEXT NOT NULL,
-    "description" TEXT,
-    "start_date" DATE,
-    "end_date" DATE,
-    "project_id" VARCHAR,
-    "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY ("project_id") REFERENCES "Project"("id")
-);
-
 CREATE TABLE IF NOT EXISTS "TaskAssignment" (
-    "user_id" VARCHAR,
-    "task_id" VARCHAR,
+    "user_id" UUID,
+    "task_id" UUID,
     PRIMARY KEY("user_id", "task_id"),
     FOREIGN KEY ("task_id") REFERENCES "Task"("id")
 );
 
 CREATE TABLE IF NOT EXISTS "TaskComment" (
-    "id" VARCHAR PRIMARY KEY,
-    "task_id" VARCHAR NOT NULL,
-    "user_id" VARCHAR,
+    "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    "task_id" UUID NOT NULL,
+    "user_id" UUID NOT NULL,
     "body" TEXT,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY ("task_id") REFERENCES "Task"("id")

@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 	"pms.auth/internal/config"
 	"pms.auth/internal/data"
-	"pms.pkg/datastore/sqlite"
+	"pms.pkg/datastore/postgres"
 	"pms.pkg/logger"
 )
 
@@ -29,7 +29,7 @@ func setupLogger() {
 
 func setup() {
 	var err error
-	db, err = sqlite.Open("../../data/users.db")
+	db, err = postgres.Open("postgres://postgres:postgres@127.0.0.1:5432/auth?sslmode=disable")
 	if err != nil {
 		print("failed to connect to db", "err", err)
 	}

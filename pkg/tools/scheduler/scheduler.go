@@ -40,7 +40,7 @@ func Run(ctx context.Context, task *Task) {
 							return
 						}
 					} else {
-						log.Errorw("task failed", "error", err)
+						log.Debugw("task failed", "error", err)
 					}
 
 					if task.MaxAttempts > 0 {

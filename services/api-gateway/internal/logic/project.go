@@ -10,22 +10,15 @@ import (
 	"pms.pkg/utils"
 )
 
-func (l *Logic) ListProjects(ctx context.Context, company_id string, filter list.Filters) (result list.List[*dto.Project], err error) {
+func (l *Logic) ListProjects(ctx context.Context, filter *dto.ProjectFilter) (result list.List[*dto.Project], err error) {
 	log := l.log.With(
 		zap.String("func", "ListProjects"),
 		zap.String("filter", filter.String()),
 	)
 	log.Debug("ListProjects called")
 
-	// currentSession, err := l.GetSessionInfo(ctx)
-	// if err != nil {
-	// 	return list.List[*dto.Project]{}, err
-	// }
-
 	res, err := l.projectClient.ListProjects(ctx, &pb.ListProjectsRequest{
-		Page:      int32(filter.Page),
-		PerPage:   int32(filter.PerPage),
-		CompanyId: company_id,
+		Filter: filter,
 	})
 	if err != nil {
 		log.Errorw("failed to list projects", "err", err)

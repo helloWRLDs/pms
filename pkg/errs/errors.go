@@ -5,6 +5,16 @@ import (
 	"strings"
 )
 
+type ErrAlreadyExist struct {
+	Object string
+	Field  string
+	Value  string
+}
+
+func (e ErrAlreadyExist) Error() string {
+	return fmt.Sprintf("%s with %s = %s already exists", e.Object, e.Field, e.Value)
+}
+
 type ErrUnavalaiable struct {
 	Object string
 }

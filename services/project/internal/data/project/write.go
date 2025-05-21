@@ -8,10 +8,9 @@ import (
 	"pms.pkg/errs"
 	"pms.pkg/tools/transaction"
 	"pms.pkg/utils"
-	"pms.project/internal/data/models"
 )
 
-func (r *Repository) Update(ctx context.Context, id string, updated models.Project) (err error) {
+func (r *Repository) Update(ctx context.Context, id string, updated Project) (err error) {
 	log := r.log.With(
 		zap.String("func", "Update"),
 		zap.String("id", id),
@@ -43,7 +42,8 @@ func (r *Repository) Update(ctx context.Context, id string, updated models.Proje
 	args := utils.GetArguments(updated)
 
 	builder := r.gen.
-		Update(r.tableName)
+		Update(r.tableName).
+		Where(sq.Eq{"id": id})
 
 	for i, col := range cols {
 		builder = builder.Set(col, args[i])
@@ -58,7 +58,7 @@ func (r *Repository) Update(ctx context.Context, id string, updated models.Proje
 	return nil
 }
 
-func (r *Repository) Create(ctx context.Context, project models.Project) (err error) {
+func (r *Repository) Create(ctx context.Context, project Project) (err error) {
 	log := r.log.With(
 		zap.String("func", "Create"),
 		zap.Any("new_project", project),

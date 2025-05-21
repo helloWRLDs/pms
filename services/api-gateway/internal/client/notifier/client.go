@@ -20,7 +20,7 @@ func New(conf mq.Config, logger *zap.SugaredLogger) (*mq.Publisher, error) {
 		Queue:  notifiermq.Queue,
 	})
 	if err != nil {
-		log.Errorw("failed to create notifier pub", "err", err)
+		log.Debugw("failed to create notifier pub", "err", err)
 		return nil, err
 	}
 	log.Debug("notification pub created")

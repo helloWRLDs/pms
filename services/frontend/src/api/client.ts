@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
 import { toast } from "react-toastify";
-import { toastOpts } from "../utils/toast";
+import { toastOpts } from "../lib/utils/toast";
 import { ErrorResponse } from "../lib/errors";
 // import useAuth from "../hooks/useAuth";
 

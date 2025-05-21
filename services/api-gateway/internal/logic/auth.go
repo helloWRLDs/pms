@@ -33,21 +33,41 @@ func (l *Logic) LoginUser(ctx context.Context, creds *dto.UserCredentials) (*dto
 	req := pb.LoginUserRequest{
 		Credentials: creds,
 	}
-	res, err := l.authClient.LoginUser(ctx, &req)
+	loginRes, err := l.authClient.LoginUser(ctx, &req)
 	if err != nil {
 		log.Errorw("failed to login user", "err", err)
 		return nil, err
 	}
+	compRes, err := l.authClient.ListCompanies(ctx, &pb.ListCompaniesRequest{
+		Filter: &dto.CompanyFilter{
+			Page:    1,
+			PerPage: 1000,
+			UserId:  loginRes.Payload.User.Id,
+		},
+	})
+	if err != nil {
+		log.Errorw("failed to list companies", "err", err)
+	}
 	session := models.Session{
-		ID:           res.Payload.SessionId,
-		UserID:       res.Payload.User.Id,
-		AccessToken:  res.Payload.AccessToken,
-		RefreshToken: res.Payload.RefreshToken,
-		Expires:      time.Unix(res.Payload.Exp, 0),
+		ID:           loginRes.Payload.SessionId,
+		UserID:       loginRes.Payload.User.Id,
+		AccessToken:  loginRes.Payload.AccessToken,
+		RefreshToken: loginRes.Payload.RefreshToken,
+		Expires:      time.Unix(loginRes.Payload.Exp, 0),
+		Companies: func() (compList []string) {
+			compList = make([]string, 0)
+			if compRes == nil {
+				return
+			}
+			for _, comp := range compRes.Companies.Items {
+				compList = append(compList, comp.Id)
+			}
+			return
+		}(),
 	}
 	if err := l.Sessions.Set(ctx, session.ID, session, 24); err != nil {
 		log.Errorw("failed to setup session", "err", err)
 		return nil, err
 	}
-	return res.Payload, nil
+	return loginRes.Payload, nil
 }

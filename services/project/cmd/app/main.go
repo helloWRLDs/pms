@@ -7,7 +7,7 @@ import (
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"pms.pkg/datastore/sqlite"
+	"pms.pkg/datastore/postgres"
 	"pms.pkg/logger"
 	pb "pms.pkg/transport/grpc/services"
 	"pms.pkg/utils"
@@ -36,8 +36,9 @@ func main() {
 		zap.String("func", "main"),
 	)
 	log.Debug("main called")
+	log.Infof("db conf: %s", conf.DB.DSN())
 
-	db, err := sqlite.Open(conf.DB.Dsn)
+	db, err := postgres.Open(conf.DB.DSN())
 	if err != nil {
 		log.Errorw("failed to open db conn", "err", err)
 		os.Exit(1)

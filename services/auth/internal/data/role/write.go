@@ -5,18 +5,17 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"go.uber.org/zap"
-	"pms.auth/internal/entity"
 	"pms.pkg/errs"
 	"pms.pkg/tools/transaction"
 	"pms.pkg/utils"
 )
 
-func (r *Repository) Create(ctx context.Context, newRole entity.Role) (err error) {
+func (r *Repository) Create(ctx context.Context, newRole Role) (err error) {
 	log := r.log.With(
-		zap.String("func", "ListCompanies"),
-		zap.Any("user_id", newRole),
+		zap.String("func", "Create"),
+		zap.Any("role", newRole),
 	)
-	log.Debug("ListCompanies called")
+	log.Debug("Create called")
 
 	defer func() {
 		err = r.errctx.MapSQL(err,
@@ -38,7 +37,7 @@ func (r *Repository) Create(ctx context.Context, newRole entity.Role) (err error
 	}
 
 	q, a, _ := r.gen.
-		Insert("Role").
+		Insert(r.tableName).
 		Columns(utils.GetColumns(newRole)...).
 		Values(utils.GetArguments(newRole)...).
 		ToSql()
@@ -51,7 +50,7 @@ func (r *Repository) Create(ctx context.Context, newRole entity.Role) (err error
 	return nil
 }
 
-func (r *Repository) Update(ctx context.Context, name string, updated entity.Role) (err error) {
+func (r *Repository) Update(ctx context.Context, name string, updated Role) (err error) {
 	log := r.log.With(
 		zap.String("func", "UpdateRole"),
 		zap.String("name", name),

@@ -24,7 +24,7 @@ func WrapGRPC(err error) error {
 		resultErr = status.Error(codes.PermissionDenied, msg)
 	case ErrNotFound:
 		resultErr = status.Error(codes.NotFound, msg)
-	case ErrConflict:
+	case ErrConflict, ErrAlreadyExist:
 		resultErr = status.Error(codes.AlreadyExists, msg)
 	case ErrTooManyRequests:
 		resultErr = status.Error(codes.ResourceExhausted, msg)

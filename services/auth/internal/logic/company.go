@@ -5,44 +5,119 @@ import (
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	companydata "pms.auth/internal/data/company"
+	participantdata "pms.auth/internal/data/participant"
 	"pms.pkg/errs"
 	"pms.pkg/transport/grpc/dto"
 	"pms.pkg/type/list"
 )
 
-func (l *Logic) ListCompanies(ctx context.Context, userID string, filter list.Filters) (list.List[*dto.Company], error) {
+func (l *Logic) UpdateCompany(ctx context.Context, companyID string, updatedCompany *dto.Company) (err error) {
 	log := l.log.With(
-		zap.String("func", "ListCompanies"),
-		zap.String("user_id", userID),
-		zap.Any("filter", filter),
+		zap.String("func", "UpdateCompany"),
+		zap.Any("updated_company", updatedCompany),
 	)
-	log.Info("ListCompanies called")
+	log.Debug("UpdateCompany called")
 
-	user, err := l.Repo.User.GetByID(ctx, userID)
-	if err != nil {
-		log.Errorw("failed to get user", "err", err)
-		return list.List[*dto.Company]{}, err
+	if exist := l.Repo.Company.Exists(ctx, "id", companyID); !exist {
+		log.Error("company not found")
+		return errs.ErrNotFound{
+			Object: "company",
+			Field:  "id",
+			Value:  updatedCompany.Id,
+		}
 	}
-	if user.ID == uuid.Nil {
-		log.Error("failed to get user")
-		return list.List[*dto.Company]{}, errs.ErrNotFound{
+
+	tx, err := l.Repo.StartTx(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		log.Infow("err check", "isNil", err == nil, "err", err)
+		l.Repo.EndTx(tx, err)
+	}()
+
+	company := companydata.Company{
+		ID:       companyID,
+		Name:     updatedCompany.Name,
+		Codename: updatedCompany.Codename,
+	}
+	if err := l.Repo.Company.UpdateCompany(tx, companyID, company); err != nil {
+		log.Errorw("failed to update company", "err", err)
+		return err
+	}
+	return nil
+}
+
+func (l *Logic) CreateCompany(ctx context.Context, userID string, newCompany *dto.NewCompany) (created *dto.Company, err error) {
+	log := l.log.With(
+		zap.String("func", "CreateCompany"),
+		zap.Any("new_company", newCompany),
+	)
+	log.Debug("CreateCompany called")
+
+	if exist := l.Repo.User.Exists(ctx, "id", userID); !exist {
+		log.Error("user not found")
+		return nil, errs.ErrNotFound{
 			Object: "user",
 			Field:  "id",
 			Value:  userID,
 		}
 	}
-	log.Infow("user found", "user", user)
 
-	comps, err := l.Repo.Company.List(ctx, list.Filters{
-		Pagination: list.Pagination{
-			Page:    filter.Page,
-			PerPage: filter.PerPage,
-		},
-		Fields: map[string]string{
-			"p.user_id": userID,
-		},
-	})
+	company := companydata.Company{
+		ID:       uuid.NewString(),
+		Name:     newCompany.Name,
+		Codename: newCompany.Codename,
+	}
+
+	participant := participantdata.Participant{
+		ID:        uuid.NewString(),
+		UserID:    userID,
+		CompanyID: company.ID,
+		Role:      "admin",
+	}
+
+	tx, err := l.Repo.StartTx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		log.Infow("err check", "isNil", err == nil, "err", err)
+		l.Repo.EndTx(tx, err)
+	}()
+
+	if err := l.Repo.Company.Create(tx, company); err != nil {
+		log.Errorw("failed to create company", "err", err)
+		return nil, err
+	}
+
+	if err := l.Repo.Participant.Create(tx, participant); err != nil {
+		log.Errorw("failed to create company", "err", err)
+		return nil, err
+	}
+	log.Infow("company created", "admin_id", userID)
+
+	created = new(dto.Company)
+	created.Id = company.ID
+	created.Name = company.Name
+
+	// created, err = l.GetCompany(ctx, company.ID)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	return created, nil
+}
+
+func (l *Logic) ListCompanies(ctx context.Context, filter *dto.CompanyFilter) (list.List[*dto.Company], error) {
+	log := l.log.With(
+		zap.String("func", "ListCompanies"),
+		zap.Any("filter", filter),
+	)
+	log.Info("ListCompanies called")
+
+	comps, err := l.Repo.Company.List(ctx, filter)
 	if err != nil {
 		log.Errorw("failed to list companies", "err", err)
 		return list.List[*dto.Company]{}, err
@@ -57,22 +132,13 @@ func (l *Logic) ListCompanies(ctx context.Context, userID string, filter list.Fi
 		},
 	}
 	for _, comp := range comps.Items {
-		result.Items = append(result.Items, &dto.Company{
-			Id:       comp.ID.String(),
-			Name:     comp.Name,
-			Codename: comp.Codename,
-			PeopleCount: l.Repo.User.Count(ctx, list.Filters{
-				Fields: map[string]string{
-					"p.company_id": comp.ID.String(),
-				},
-				Pagination: list.Pagination{
-					Page:    1,
-					PerPage: 100000,
-				},
-			}),
-			CreatedAt: timestamppb.New(comp.CreatedAt.Time),
-			UpdatedAt: timestamppb.New(comp.UpdatedAt.Time),
-		})
+		result.Items = append(result.Items, func() (c *dto.Company) {
+			c = comp.DTO()
+			c.PeopleCount = l.Repo.Company.Count(ctx, &dto.CompanyFilter{
+				CompanyId: comp.ID,
+			})
+			return
+		}())
 	}
 
 	return result, nil
@@ -92,18 +158,12 @@ func (l *Logic) GetCompany(ctx context.Context, id string) (*dto.Company, error)
 		return nil, err
 	}
 
-	company.Id = comp.ID.String()
+	company.Id = comp.ID
 	company.Name = comp.Name
 	company.Codename = comp.Codename
 
-	company.PeopleCount = l.Repo.User.Count(ctx, list.Filters{
-		Fields: map[string]string{
-			"p.company_id": id,
-		},
-		Pagination: list.Pagination{
-			Page:    1,
-			PerPage: 10000,
-		},
+	company.PeopleCount = l.Repo.Company.Count(ctx, &dto.CompanyFilter{
+		CompanyId: id,
 	})
 
 	return company, nil

@@ -5,13 +5,12 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"go.uber.org/zap"
-	"pms.auth/internal/entity"
 	"pms.pkg/errs"
 	"pms.pkg/tools/transaction"
 	"pms.pkg/utils"
 )
 
-func (r *Repository) Update(ctx context.Context, id string, user entity.User) (err error) {
+func (r *Repository) Update(ctx context.Context, id string, user User) (err error) {
 	log := r.log.With(
 		zap.String("func", "Update"),
 		zap.Any("updated_user", user),
@@ -58,7 +57,7 @@ func (r *Repository) Update(ctx context.Context, id string, user entity.User) (e
 	return nil
 }
 
-func (r *Repository) Create(ctx context.Context, user entity.User) (err error) {
+func (r *Repository) Create(ctx context.Context, user User) (err error) {
 	log := r.log.With(
 		zap.String("func", "Create"),
 		zap.Any("new_user", user),
@@ -68,7 +67,7 @@ func (r *Repository) Create(ctx context.Context, user entity.User) (err error) {
 	defer func() {
 		err = r.errctx.MapSQL(err,
 			errs.WithOperation("create"),
-			errs.WithObject("role"),
+			errs.WithObject("user"),
 		)
 	}()
 
@@ -89,6 +88,8 @@ func (r *Repository) Create(ctx context.Context, user entity.User) (err error) {
 		Columns(utils.GetColumns(user)...).
 		Values(utils.GetArguments(user)...).
 		ToSql()
+
+	log.Debugw("check query", "q", q, "args", a)
 
 	if _, err = tx.Exec(q, a...); err != nil {
 		log.Errorw("failed to create user", "err", err)

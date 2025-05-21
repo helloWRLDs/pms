@@ -9,10 +9,32 @@ import (
 	"pms.pkg/consts"
 	"pms.pkg/transport/grpc/dto"
 	"pms.pkg/type/list"
-	"pms.pkg/type/timestamp"
 	"pms.pkg/utils"
-	"pms.project/internal/data/models"
+	taskdata "pms.project/internal/data/task"
 )
+
+func (l *Logic) UpdateTask(ctx context.Context, id string, task *dto.Task) (err error) {
+	log := l.log.Named("UpdateTask").With(
+		zap.String("id", id),
+		zap.Any("task", task),
+	)
+	log.Info("UpdateTask called")
+
+	tx, err := l.Repo.StartTx(ctx)
+	if err != nil {
+		log.Errorw("failed to start tx", "err", err)
+		return err
+	}
+	defer func() {
+		l.Repo.EndTx(tx, err)
+	}()
+
+	if err := l.Repo.Task.Update(tx, id, *taskdata.Entity(task)); err != nil {
+		log.Errorw("failed to update task", "err", err)
+		return err
+	}
+	return nil
+}
 
 func (l *Logic) CreateTask(ctx context.Context, creation *dto.TaskCreation) (id string, err error) {
 	log := l.log.With(
@@ -31,16 +53,17 @@ func (l *Logic) CreateTask(ctx context.Context, creation *dto.TaskCreation) (id 
 		l.Repo.EndTx(tx, err)
 	}()
 
-	newTask := models.Task{
+	newTask := taskdata.Task{
 		ID:        uuid.NewString(),
 		Title:     creation.GetTitle(),
 		Body:      creation.GetBody(),
 		Status:    consts.TaskStatus(creation.GetStatus()),
-		Priority:  consts.TaskPriority(creation.GetPriority()),
+		Priority:  utils.Ptr(int(creation.GetPriority())),
 		ProjectID: creation.GetProjectId(),
 		SprintID:  utils.Ptr(creation.GetSprintId()),
-		DueDate:   timestamp.NewTimestamp(creation.GetDueDate().AsTime()),
-		Created:   timestamp.NewTimestamp(time.Now()),
+		DueDate:   utils.Ptr(creation.GetDueDate().AsTime()),
+		Created:   time.Now(),
+		Code:      l.Repo.Project.GetCode(ctx, creation.ProjectId),
 	}
 
 	if err = l.Repo.Task.Create(tx, newTask); err != nil {
@@ -80,7 +103,7 @@ func (l *Logic) GetTask(ctx context.Context, id string) (task *dto.Task, err err
 	return
 }
 
-func (l *Logic) ListTasks(ctx context.Context, filter list.Filters) (result list.List[*dto.Task], err error) {
+func (l *Logic) ListTasks(ctx context.Context, filter *dto.TaskFilter) (result list.List[*dto.Task], err error) {
 	log := l.log.With(
 		zap.String("func", "ListTasks"),
 		zap.Any("filter", filter.String()),
@@ -92,6 +115,7 @@ func (l *Logic) ListTasks(ctx context.Context, filter list.Filters) (result list
 		log.Errorw("failed to list tasks", "err", err)
 		return list.List[*dto.Task]{}, err
 	}
+
 	result = list.List[*dto.Task]{
 		Pagination: list.Pagination{
 			Page:       tasks.Page,
