@@ -15,6 +15,78 @@ import (
 	"pms.pkg/transport/ws"
 )
 
+func (s *Server) StreamDocument(c *websocket.Conn) {
+	log := s.log.Named("StreamDocument").With(
+		zap.String("ip", c.IP()),
+	)
+	log.Debug("StreamDocument called")
+
+	docID := c.Params("docID")
+	if strings.Trim(docID, " ") == "" {
+		return
+	}
+	_, err := s.Logic.GetDocument(context.Background(), docID)
+	if err != nil {
+		return
+	}
+
+	hubID := fmt.Sprintf("doc-%s", docID)
+	if _, exists := s.Logic.WsHubs[hubID]; !exists {
+		s.Logic.WsHubs[hubID] = ws.NewHub()
+		doc, err := s.Logic.GetDocument(context.Background(), docID)
+		if err != nil {
+			log.Errorw("failed to find doc", "err", err)
+			return
+		}
+		s.Logic.DocumentsCache.Set(context.Background(), hubID, models.DocumentBody{
+			RequireUpdate: false,
+			Document:      doc,
+		}, 24)
+	}
+
+	s.Logic.WsHubs[hubID].AddClient(c)
+	defer func() {
+		s.Logic.WsHubs[hubID].RemoveClient(c)
+		c.Close()
+	}()
+
+	docBody, _ := s.Logic.DocumentsCache.Get(context.Background(), hubID)
+
+	if raw, err := json.Marshal(docBody.Document); err != nil {
+		log.Errorw("failed marshaling doc body", "err", err)
+		return
+	} else {
+		s.Logic.WsHubs[hubID].Broadcast(raw)
+	}
+
+	var (
+		mt  int
+		msg []byte
+	)
+
+	for {
+		mt, msg, err = c.ReadMessage()
+		if err != nil {
+			log.Infow("read:", err)
+			break
+		}
+		log.Infof("recv: %s mt: %d", msg, mt)
+
+		if msg == nil {
+			continue
+		}
+		doc := new(dto.Document)
+		if err := json.Unmarshal(msg, doc); err != nil {
+			log.Errorw("failed to resolve response")
+		} else {
+			s.Logic.DocumentsCache.Set(context.Background(), hubID, models.DocumentBody{
+				Document:      doc,
+				RequireUpdate: true,
+			}, 24)
+		}
+	}
+}
+
 func (s *Server) StreamSprint(c *websocket.Conn) {
 	log := s.log.Named("StreamSprint").With(
 		zap.String("ip", c.IP()),
@@ -27,14 +99,14 @@ func (s *Server) StreamSprint(c *websocket.Conn) {
 	}
 	hubID := fmt.Sprintf("sprint-%s", sprintID)
 	defer func() {
-		s.wshubs[hubID].RemoveClient(c)
+		s.Logic.WsHubs[hubID].RemoveClient(c)
 		c.Close()
 	}()
 
-	if _, exists := s.wshubs[hubID]; !exists {
-		s.wshubs[hubID] = ws.NewHub()
+	if _, exists := s.Logic.WsHubs[hubID]; !exists {
+		s.Logic.WsHubs[hubID] = ws.NewHub()
 	}
-	s.wshubs[hubID].AddClient(c)
+	s.Logic.WsHubs[hubID].AddClient(c)
 
 	sendTasks := func(c *websocket.Conn) error {
 		tasks, err := s.Logic.ListTasks(context.Background(), &dto.TaskFilter{
@@ -79,13 +151,8 @@ func (s *Server) StreamSprint(c *websocket.Conn) {
 			}
 		}
 
-		if err := sendTasks(c); err != nil {
-			log.Errorw("failed to send tasks", "err", err)
-		}
-
-		// if err = c.WriteMessage(mt, msg); err != nil {
-		// 	log.Infow("write:", err)
-		// 	break
+		// if err := sendTasks(c); err != nil {
+		// 	log.Errorw("failed to send tasks", "err", err)
 		// }
 	}
 }

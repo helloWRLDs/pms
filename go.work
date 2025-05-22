@@ -6,5 +6,6 @@ use (
 	./services/auth
 	./services/project
 	./services/notifier
+	./services/analytics
 	./services/api-gateway
 )

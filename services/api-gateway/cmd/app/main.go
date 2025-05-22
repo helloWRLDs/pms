@@ -34,6 +34,7 @@ func init() {
 func main() {
 	log := logger.Log
 	logic := logic.New(conf, log)
+	log.Infof("check config: %#v", conf)
 
 	serv := router.New(conf, logic, log)
 	serv.SetupWS()

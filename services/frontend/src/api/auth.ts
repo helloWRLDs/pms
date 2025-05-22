@@ -1,5 +1,6 @@
 import { AuthData, Session } from "../lib/user/session";
-import { User, UserCredentials, UserNew } from "../lib/user/user";
+import { User, UserCredentials, UserFilter, UserNew } from "../lib/user/user";
+import { buildQuery, ListItems } from "../lib/utils/list";
 import { API } from "./api";
 
 class AuthAPI extends API {
@@ -45,6 +46,19 @@ class AuthAPI extends API {
     } catch (err) {
       console.log(err);
     }
+  }
+
+  async listUsers(filter: UserFilter): Promise<ListItems<User>> {
+    console.log(buildQuery(`${this.baseURL}/users`, filter));
+    try {
+      const res = await this.req.get(
+        buildQuery(`${this.baseURL}/users`, filter)
+      );
+      return res.data;
+    } catch (e) {
+      console.error("failed fetching users: ", e);
+    }
+    return {} as ListItems<User>;
   }
 
   async getUser(id: string): Promise<User> {

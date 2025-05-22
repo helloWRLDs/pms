@@ -1,52 +1,58 @@
 type TableProps = React.TableHTMLAttributes<HTMLTableElement> & {};
-const Table = (props: TableProps) => {
+const Table = ({ className, ...props }: TableProps) => {
   return (
-    <table className="w-full border-gray-500" {...props}>
+    <table className={`w-full border-gray-500 ${className}`} {...props}>
       {props.children}
     </table>
   );
 };
 
 type TableHeadProps = React.HTMLAttributes<HTMLTableSectionElement> & {};
-const TableHead = (props: TableHeadProps) => {
+const TableHead = ({ className, ...props }: TableHeadProps) => {
   return (
-    <thead className="bg-gray-100 text-left" {...props}>
+    <thead className={`bg-gray-100 text-left ${className}`} {...props}>
       {props.children}
     </thead>
   );
 };
 
 type TableHeadCellProps = React.HTMLAttributes<HTMLTableHeaderCellElement> & {};
-const TableHeadCell = (props: TableHeadCellProps) => {
+const TableHeadCell = ({ className, ...props }: TableHeadCellProps) => {
   return (
-    <th className="px-4 py-3 border-b font-semibold" {...props}>
+    <th className={`px-4 py-3 font-semibold ${className}`} {...props}>
       {props.children}
     </th>
   );
 };
 
 type TableBodyProps = React.HTMLAttributes<HTMLTableSectionElement> & {};
-const TableBody = (props: TableBodyProps) => {
+const TableBody = ({ className, ...props }: TableBodyProps) => {
   return (
-    <tbody className="bg-white divide-y divide-gray-200" {...props}>
+    <tbody
+      className={`bg-white divide-y divide-gray-200 ${className}`}
+      {...props}
+    >
       {props.children}
     </tbody>
   );
 };
 
 type TableRowProps = React.HTMLAttributes<HTMLTableRowElement> & {};
-const TableRow = (props: TableRowProps) => {
+const TableRow = ({ className, ...props }: TableRowProps) => {
   return (
-    <tr className="hover:bg-accent-50 transition duration-150" {...props}>
+    <tr
+      className={`hover:bg-accent-50 transition duration-150 ${className}`}
+      {...props}
+    >
       {props.children}
     </tr>
   );
 };
 
 type TableBodyCellProps = React.HTMLAttributes<HTMLTableCellElement> & {};
-const TableBodyCell = (props: TableBodyCellProps) => {
+const TableBodyCell = ({ className, ...props }: TableBodyCellProps) => {
   return (
-    <td className="px-4 py-2 whitespace-nowrap text-gray-800" {...props}>
+    <td className={`px-4 py-2 ${className}`} {...props}>
       {props.children}
     </td>
   );

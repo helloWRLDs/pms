@@ -46,12 +46,14 @@ const Dashboard: FC<ComponentProps<"table">> = (props) => {
         grouped[status] = [];
       });
 
-      tasks.forEach((task) => {
-        if (!grouped[task.status]) grouped[task.status] = [];
-        grouped[task.status].push(task);
-      });
+      if (tasks) {
+        tasks.forEach((task) => {
+          if (!grouped[task.status]) grouped[task.status] = [];
+          grouped[task.status].push(task);
+        });
 
-      setTasksByStatus(grouped);
+        setTasksByStatus(grouped);
+      }
     }
   }, [val]);
 

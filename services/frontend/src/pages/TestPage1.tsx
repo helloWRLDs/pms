@@ -2,12 +2,14 @@ import { useState, useRef, useEffect } from "react";
 import JoditEditor from "jodit-react";
 import HTMLReactParser from "html-react-parser";
 
+const initialContent = `<p>some text</p>`;
+
 const TestPage1 = () => {
   const editor = useRef(null);
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState(initialContent);
 
   useEffect(() => {
-    console.log(HTMLReactParser(content));
+    console.log(content);
   }, [content]);
 
   document.querySelector(`a[href="https://xdsoft.net/jodit/"]`)?.remove();
@@ -17,13 +19,10 @@ const TestPage1 = () => {
       <JoditEditor
         ref={editor}
         value={content}
-        config={{
-          toolbarAdaptive: true,
-        }}
         onChange={(newContent) => setContent(newContent)}
       />
 
-      <div>{content}</div>
+      <div>{HTMLReactParser(content)}</div>
     </div>
   );
 };

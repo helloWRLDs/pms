@@ -28,3 +28,17 @@ func (l *Logic) GetUserProfile(ctx context.Context, userID string) (*dto.User, e
 
 	return res.User, nil
 }
+
+func (l *Logic) ListUsers(ctx context.Context, filter *dto.UserFilter) (*dto.UserList, error) {
+	log := l.log.Named("ListUsers").With()
+	log.Debug("ListUsers called")
+
+	userRes, err := l.authClient.ListUsers(ctx, &pb.ListUsersRequest{
+		Filter: filter,
+	})
+	if err != nil {
+		return nil, err
+	}
+	userList := userRes.UserList
+	return userList, nil
+}

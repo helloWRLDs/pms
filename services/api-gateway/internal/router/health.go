@@ -36,6 +36,17 @@ func (r *Server) HealthcheckHandler(c *fiber.Ctx) error {
 			Status: "DOWN",
 		})
 	}
+	if analytics := r.Logic.AnalyticsClient(); analytics != nil {
+		res.Services = append(res.Services, ServiceState{
+			Name:   "analytics-serivce",
+			Status: analytics.State().String(),
+		})
+	} else {
+		res.Services = append(res.Services, ServiceState{
+			Name:   "analytics-serivce",
+			Status: "DOWN",
+		})
+	}
 
 	return c.Status(200).JSON(res)
 }

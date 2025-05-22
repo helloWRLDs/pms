@@ -13,6 +13,9 @@ import { usePageSettings } from "../hooks/usePageSettings";
 import { Layouts } from "../lib/layout/layout";
 import { useCacheLoader } from "../hooks/useCacheLoader";
 import { useCacheStore } from "../store/cacheStore";
+import authAPI from "../api/auth";
+import Paginator from "../components/ui/Paginator";
+import { BsFillPlusCircleFill } from "react-icons/bs";
 
 const CompanyOverviewPage = () => {
   usePageSettings({
@@ -33,8 +36,19 @@ const CompanyOverviewPage = () => {
     enabled: !!selectedCompany?.id,
   });
 
-  const { projects } = useCacheStore();
+  const { data: users } = useQuery({
+    queryKey: ["users", company?.id],
+    queryFn: () =>
+      authAPI.listUsers({
+        page: 1,
+        per_page: 10000,
+        company_id: company?.id ?? "",
+      }),
+    enabled: !!company?.id,
+  });
+
   useCacheLoader({ projectList: company?.projects });
+  useCacheLoader({ userList: users });
 
   useEffect(() => {
     if (!selectedCompany) {
@@ -43,7 +57,7 @@ const CompanyOverviewPage = () => {
   }, [selectedCompany]);
 
   return (
-    <div className="w-full px-5 py-10">
+    <div className="w-full h-[100lvh] px-5 py-10 bg-primary-600 text-neutral-100 ">
       <section>
         <Modal
           title="Create new project"
@@ -59,24 +73,15 @@ const CompanyOverviewPage = () => {
         </Modal>
       </section>
 
-      <section className="mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">
+      <section>
+        <div className="container mx-auto mb-6 flex items-center justify-between">
+          <h1 className="text-2xl font-bold">
             {capitalize(company?.name ?? "")} Company Dashboard
           </h1>
-          <button
-            onClick={() => {
-              setNewProjectModal(true);
-            }}
-            className="shadow-2xl group px-4 py-2 bg-secondary-100 text-white rounded-md hover:bg-accent-300 hover:text-secondary-100 cursor-pointer flex items-center"
-          >
-            <IoMdAdd className="mr-2 transition-transform duration-300 group-hover:rotate-90" />
-            New Project
-          </button>
         </div>
       </section>
       <section>
-        <ProjectCardWrapper>
+        <ProjectCardWrapper className="container mx-auto">
           {isCompanyLoading ? (
             <p>Loading...</p>
           ) : company?.projects?.total_items === 0 ? (
@@ -84,6 +89,7 @@ const CompanyOverviewPage = () => {
           ) : (
             company?.projects?.items?.map((project, i) => (
               <ProjectCardWrapper.Card
+                className="w-[30%] px-4 py-6 bg-secondary-200 hover:bg-secondary-100 text-neutral-200 cursor-pointer transition-all duration-300"
                 project={project}
                 key={i}
                 onClick={() => {
@@ -93,6 +99,21 @@ const CompanyOverviewPage = () => {
               />
             ))
           )}
+          <ProjectCardWrapper.Card className="w-[30%] p-0">
+            <div
+              onClick={() => {
+                setNewProjectModal(true);
+              }}
+              className="bg-secondary-200 rounded-md w-full h-full flex justify-center group cursor-pointer hover:bg-secondary-100 py-4 transition-all duration-300"
+            >
+              <button className="cursor-pointer ">
+                <BsFillPlusCircleFill
+                  size="30"
+                  className="mx-auto  text-neutral-300 group-hover:text-accent-300 cursor-pointer"
+                />
+              </button>
+            </div>
+          </ProjectCardWrapper.Card>
         </ProjectCardWrapper>
       </section>
     </div>

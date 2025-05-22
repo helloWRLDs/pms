@@ -1,4 +1,5 @@
 import { DeepPartial } from "../utils/generics";
+import { Pagination } from "../utils/list";
 
 export type User = {
   id: string;
@@ -15,3 +16,6 @@ export type User = {
 export type UserCredentials = Pick<User, "email" | "password">;
 export type UserNew = Pick<User, "email" | "password" | "name">;
 export type UserOptional = DeepPartial<User>;
+export type UserFilter = Pagination & {
+  company_id: string;
+};

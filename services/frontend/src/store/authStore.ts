@@ -21,10 +21,12 @@ export const useAuthStore = create<AuthStore>()(
           return false;
         }
         if (!auth.access_token) {
+          set({ auth: null });
           return false;
         }
         const decoded = jwtDecode(auth.access_token);
         if (!decoded.exp || decoded.exp > Date.now()) {
+          set({ auth: null });
           return false;
         }
         return true;

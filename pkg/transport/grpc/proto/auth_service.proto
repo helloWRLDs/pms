@@ -44,7 +44,7 @@ message ListUsersRequest {
 
 message ListUsersResponse {
     bool success = 1;
-    models.UserList companies = 2;
+    models.UserList userList = 2;
 }
 
 

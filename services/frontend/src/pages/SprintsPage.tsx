@@ -13,6 +13,8 @@ import { useSprintStore } from "../store/selectedSprintStore";
 import { useNavigate } from "react-router-dom";
 import { useCacheLoader } from "../hooks/useCacheLoader";
 import { useCacheStore } from "../store/cacheStore";
+import Input from "../components/ui/Input";
+import { BsFillPlusCircleFill } from "react-icons/bs";
 
 const SprintsPage = () => {
   usePageSettings({ title: "Sprints", requireAuth: true });
@@ -49,7 +51,7 @@ const SprintsPage = () => {
   }, [sprintList]);
 
   return (
-    <div>
+    <div className="w-full h-[100lvh] px-5 py-10 bg-primary-600 text-neutral-100">
       <section id="sprint-modals">
         <Modal
           title="Create Sprint"
@@ -67,73 +69,98 @@ const SprintsPage = () => {
         </Modal>
       </section>
 
-      <section id="sprint-options">
-        <button
-          className="px-4 py-2 bg-primary-400 text-accent-500 cursor-pointer rounded-md hover:bg-accent-500 hover:text-primary-500"
-          onClick={() => {
-            setNewSprintModal(true);
-          }}
-        >
-          Create Sprint
-        </button>
+      <section id="companies-header">
+        <div className="container mx-auto flex justify-between items-center mb-4">
+          <h2 className="font-bold text-2xl mb-4">Sprints</h2>
+          <div className="flex gap-4 items-baseline">
+            <Input>
+              <Input.Element
+                type="text"
+                label="Title"
+                value={filter.title}
+                onInput={(e) => {
+                  setFilter({ ...filter, title: e.currentTarget.value });
+                }}
+              />
+            </Input>
+          </div>
+        </div>
       </section>
 
       <section id="sprint-table">
-        {isSprintListLoading ? (
-          <p>Sprints loading...</p>
-        ) : !sprintList ||
-          !sprintList.items ||
-          sprintList.items.length === 0 ? (
-          <p>No sprints found</p>
-        ) : (
+        <div className="overflow-x-auto container mx-auto shadow-xl">
           <div>
-            <Table>
-              <Table.Head>
-                <Table.Row>
-                  <Table.HeadCell>№</Table.HeadCell>
-                  <Table.HeadCell>Title</Table.HeadCell>
-                  <Table.HeadCell>Description</Table.HeadCell>
-                  <Table.HeadCell>Period</Table.HeadCell>
-                  <Table.HeadCell>Created</Table.HeadCell>
-                  <Table.HeadCell>Tasks</Table.HeadCell>
-                </Table.Row>
-              </Table.Head>
-
-              <Table.Body>
-                {sprintList.items.map((sprint, i) => (
-                  <Table.Row
-                    key={i}
-                    onClick={() => {
-                      selectSprint(sprint);
-                      navigate("/agile-dashboard");
-                    }}
-                  >
-                    <Table.Cell>{i + 1}</Table.Cell>
-                    <Table.Cell>{sprint.title}</Table.Cell>
-                    <Table.Cell>{sprint.description}</Table.Cell>
-                    <Table.Cell>
-                      {formatTime(sprint.start_date.seconds)} -{" "}
-                      {formatTime(sprint.end_date.seconds)}
-                    </Table.Cell>
-                    <Table.Cell>
-                      {formatTime(sprint.created_at.seconds)}
-                    </Table.Cell>
-                    <Table.Cell>{sprint.tasks?.length ?? 0}</Table.Cell>
+            <div className="h-[75lvh] w-full">
+              <Table className="rounded-lg">
+                <Table.Head>
+                  <Table.Row className="text-neutral-100 bg-primary-400">
+                    <Table.HeadCell>№</Table.HeadCell>
+                    <Table.HeadCell>Title</Table.HeadCell>
+                    <Table.HeadCell>Description</Table.HeadCell>
+                    <Table.HeadCell>Period</Table.HeadCell>
+                    <Table.HeadCell>Created</Table.HeadCell>
+                    <Table.HeadCell>Tasks</Table.HeadCell>
                   </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-            <Paginator
-              page={sprintList.page}
-              per_page={sprintList.per_page}
-              total_items={sprintList.total_items}
-              total_pages={sprintList.total_pages}
-              onPageChange={(page) => {
-                setFilter({ ...filter, page: page });
-              }}
-            />
+                </Table.Head>
+
+                {isSprintListLoading ? (
+                  <p>Sprints loading...</p>
+                ) : !sprintList ||
+                  !sprintList.items ||
+                  sprintList.items.length === 0 ? (
+                  <Table.Body></Table.Body>
+                ) : (
+                  <Table.Body>
+                    {sprintList.items.map((sprint, i) => (
+                      <Table.Row
+                        key={i}
+                        onClick={() => {
+                          selectSprint(sprint);
+                          navigate("/agile-dashboard");
+                        }}
+                        className="cursor-pointer bg-secondary-200 text-neutral-100 hover:bg-secondary-100 py-10"
+                      >
+                        <Table.Cell>{i + 1}</Table.Cell>
+                        <Table.Cell>{sprint.title}</Table.Cell>
+                        <Table.Cell>{sprint.description}</Table.Cell>
+                        <Table.Cell>
+                          {formatTime(sprint.start_date.seconds)} -{" "}
+                          {formatTime(sprint.end_date.seconds)}
+                        </Table.Cell>
+                        <Table.Cell>
+                          {formatTime(sprint.created_at.seconds)}
+                        </Table.Cell>
+                        <Table.Cell>{sprint.tasks?.length ?? 0}</Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                )}
+              </Table>
+              <button
+                className="w-full cursor-pointer group hover:bg-secondary-100 py-4 group:transition-all duration-300"
+                onClick={() => {
+                  setNewSprintModal(true);
+                }}
+              >
+                <BsFillPlusCircleFill
+                  size="30"
+                  className="mx-auto text-neutral-300 group-hover:text-accent-300 "
+                />
+              </button>
+            </div>
+            {sprintList && sprintList.items && (
+              <Paginator
+                page={sprintList.page}
+                per_page={sprintList.per_page}
+                total_items={sprintList.total_items}
+                total_pages={sprintList.total_pages}
+                onPageChange={(page) => {
+                  setFilter({ ...filter, page: page });
+                }}
+              />
+            )}
           </div>
-        )}
+        </div>
       </section>
     </div>
   );

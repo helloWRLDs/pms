@@ -11,7 +11,6 @@ import (
 	"pms.api-gateway/internal/config"
 	"pms.api-gateway/internal/logic"
 	"pms.pkg/errs"
-	"pms.pkg/transport/ws"
 )
 
 type Server struct {
@@ -20,18 +19,17 @@ type Server struct {
 
 	Logic *logic.Logic
 
-	DashboardHub *ws.Hub
-	wshubs       map[string]*ws.Hub
+	// wshubs       map[string]*ws.Hub
 
 	log *zap.SugaredLogger
 }
 
 func New(conf config.Config, logic *logic.Logic, log *zap.SugaredLogger) *Server {
 	srv := Server{
-		wshubs:       make(map[string]*ws.Hub),
-		DashboardHub: ws.NewHub(),
-		Host:         conf.Host,
-		log:          log,
+		// wshubs:       make(map[string]*ws.Hub),
+		// DashboardHub: ws.NewHub(),
+		Host: conf.Host,
+		log:  log,
 		App: *fiber.New(fiber.Config{
 			AppName:           "API-GATEWAY",
 			EnablePrintRoutes: true,

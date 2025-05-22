@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 	"pms.pkg/errs"
+	"pms.pkg/transport/grpc/dto"
 )
 
 func (s *Server) GetUser(c *fiber.Ctx) error {
@@ -27,4 +28,23 @@ func (s *Server) GetUser(c *fiber.Ctx) error {
 		return err
 	}
 	return c.Status(200).JSON(user)
+}
+
+func (s *Server) ListUsers(c *fiber.Ctx) error {
+	log := s.log.Named("ListUsers").With(
+		zap.String("ip", c.IP()),
+	)
+	log.Debug("ListUsers called")
+
+	filter := &dto.UserFilter{
+		Page:      int32(c.QueryInt("page", 1)),
+		PerPage:   int32(c.QueryInt("per_page", 10)),
+		CompanyId: c.Query("company_id", ""),
+	}
+
+	userList, err := s.Logic.ListUsers(c.UserContext(), filter)
+	if err != nil {
+		return err
+	}
+	return c.Status(200).JSON(userList)
 }

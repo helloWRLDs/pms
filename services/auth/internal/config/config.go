@@ -7,9 +7,8 @@ import (
 )
 
 type Config struct {
-	Host string `env:"HOST"`
-	// DB   sqlite.Config  `envPrefix:"SQLITE_"`
-	DB  postgres.Config `envPrefix:"POSTGRES_"`
-	Log logger.Config   `envPrefix:"LOG_"`
-	JWT jwtoken.Config  `envPrefix:"JWT_"`
+	Host string          `env:"HOST"`
+	DB   postgres.Config `envPrefix:"POSTGRES_"`
+	Log  logger.Config   `envPrefix:"LOG_"`
+	JWT  jwtoken.Config  `envPrefix:"JWT_"`
 }
