@@ -28,6 +28,7 @@ import { IoAnalyticsOutline, IoDocumentOutline } from "react-icons/io5";
 import SprintsPage from "./SprintsPage";
 import DocumentsPage from "./DocumentsPage";
 import DocumentPage from "./DocumentPage";
+import { RiProfileLine } from "react-icons/ri";
 
 const Main = () => {
   const navigate = useNavigate();
@@ -87,6 +88,12 @@ const Main = () => {
         label: "Agile Dashboard",
         icon: MdOutlineDashboard,
         onClick: () => navigate("/agile-dashboard"),
+      },
+      Profile: {
+        isEnabled: isLoggedIn,
+        label: "Profile",
+        icon: RiProfileLine,
+        onClick: () => navigate("/profile"),
       },
       Login: {
         className: "absolute bottom-15",

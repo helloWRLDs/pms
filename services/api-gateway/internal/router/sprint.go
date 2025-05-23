@@ -150,10 +150,6 @@ func (s *Server) StreamSprint(c *websocket.Conn) {
 				})
 			}
 		}
-
-		// if err := sendTasks(c); err != nil {
-		// 	log.Errorw("failed to send tasks", "err", err)
-		// }
 	}
 }
 
