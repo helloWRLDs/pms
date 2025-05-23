@@ -6,15 +6,41 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	documentdata "pms.analytics/internal/data/document"
+	htmlmodule "pms.analytics/internal/modules/htmlgen"
 	"pms.pkg/errs"
 	"pms.pkg/transport/grpc/dto"
 )
 
-func (l *Logic) GetDocument(ctx context.Context, id string) (*dto.Document, error) {
-	log := l.log.Named("GetDocument").With(
+func (l *Logic) DownloadDocument(ctx context.Context, docID string) (pdf *dto.DocumentPDF, err error) {
+	log := l.log.Named("DownloadDocument").With(
+		zap.String("id", docID),
+	)
+	log.Debug("DownloadDocument called")
+
+	doc, err := l.getDocument(ctx, docID)
+	if err != nil {
+		log.Errorw("failed to get document from db", "err", err)
+		return nil, err
+	}
+
+	pdfData, err := htmlmodule.PDF(doc.Body)
+	if err != nil {
+		log.Errorw("failed to transform html to pdf", "err", err)
+		return nil, err
+	}
+	pdf = new(dto.DocumentPDF)
+	pdf.Body = pdfData
+	pdf.Title = doc.Title
+	pdf.DocId = doc.Id
+
+	return pdf, nil
+}
+
+func (l *Logic) getDocument(ctx context.Context, id string) (*dto.Document, error) {
+	log := l.log.Named("getDocument").With(
 		zap.String("id", id),
 	)
-	log.Debug("GetDocument called")
+	log.Debug("getDocument called")
 
 	if _, err := uuid.Parse(id); err != nil {
 		return nil, errs.ErrBadGateway{
@@ -28,6 +54,19 @@ func (l *Logic) GetDocument(ctx context.Context, id string) (*dto.Document, erro
 		return nil, err
 	}
 	return doc.DTO(), nil
+}
+
+func (l *Logic) GetDocument(ctx context.Context, id string) (*dto.Document, error) {
+	log := l.log.Named("GetDocument").With(
+		zap.String("id", id),
+	)
+	log.Debug("GetDocument called")
+
+	doc, err := l.getDocument(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return doc, nil
 }
 
 func (l *Logic) UpdateDocument(ctx context.Context, id string, updatedDoc *dto.Document) error {

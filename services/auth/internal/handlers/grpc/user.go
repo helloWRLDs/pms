@@ -44,7 +44,7 @@ func (s *ServerGRPC) ListUsers(ctx context.Context, req *pb.ListUsersRequest) (r
 		return res, err
 	}
 	res.Success = true
-	res.Companies = &dto.UserList{
+	res.UserList = &dto.UserList{
 		Items:      users.Items,
 		TotalPages: int32(users.TotalPages),
 		Page:       int32(users.Page),

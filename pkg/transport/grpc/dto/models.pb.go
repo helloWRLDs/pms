@@ -1041,11 +1041,71 @@ func (x *Document) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+type DocumentPDF struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Body          []byte                 `protobuf:"bytes,1,opt,name=body,proto3" json:"body,omitempty"`
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	DocId         string                 `protobuf:"bytes,3,opt,name=doc_id,json=docId,proto3" json:"doc_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DocumentPDF) Reset() {
+	*x = DocumentPDF{}
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DocumentPDF) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DocumentPDF) ProtoMessage() {}
+
+func (x *DocumentPDF) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DocumentPDF.ProtoReflect.Descriptor instead.
+func (*DocumentPDF) Descriptor() ([]byte, []int) {
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *DocumentPDF) GetBody() []byte {
+	if x != nil {
+		return x.Body
+	}
+	return nil
+}
+
+func (x *DocumentPDF) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *DocumentPDF) GetDocId() string {
+	if x != nil {
+		return x.DocId
+	}
+	return ""
+}
+
 type DocumentFilter struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Page           int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	PerPage        int32                  `protobuf:"varint,2,opt,name=per_page,json=perPage,proto3" json:"per_page,omitempty"`
-	ProjectId      string                 `protobuf:"bytes,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	CompanyId      string                 `protobuf:"bytes,3,opt,name=company_id,json=companyId,proto3" json:"company_id,omitempty"`
 	Title          string                 `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
 	DateFrom       string                 `protobuf:"bytes,5,opt,name=date_from,json=dateFrom,proto3" json:"date_from,omitempty"`
 	DateTo         string                 `protobuf:"bytes,6,opt,name=date_to,json=dateTo,proto3" json:"date_to,omitempty"`
@@ -1057,7 +1117,7 @@ type DocumentFilter struct {
 
 func (x *DocumentFilter) Reset() {
 	*x = DocumentFilter{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[11]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1069,7 +1129,7 @@ func (x *DocumentFilter) String() string {
 func (*DocumentFilter) ProtoMessage() {}
 
 func (x *DocumentFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[11]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1082,7 +1142,7 @@ func (x *DocumentFilter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DocumentFilter.ProtoReflect.Descriptor instead.
 func (*DocumentFilter) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{11}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *DocumentFilter) GetPage() int32 {
@@ -1099,9 +1159,9 @@ func (x *DocumentFilter) GetPerPage() int32 {
 	return 0
 }
 
-func (x *DocumentFilter) GetProjectId() string {
+func (x *DocumentFilter) GetCompanyId() string {
 	if x != nil {
-		return x.ProjectId
+		return x.CompanyId
 	}
 	return ""
 }
@@ -1159,7 +1219,7 @@ type SprintFilter struct {
 
 func (x *SprintFilter) Reset() {
 	*x = SprintFilter{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[12]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1171,7 +1231,7 @@ func (x *SprintFilter) String() string {
 func (*SprintFilter) ProtoMessage() {}
 
 func (x *SprintFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[12]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1184,7 +1244,7 @@ func (x *SprintFilter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SprintFilter.ProtoReflect.Descriptor instead.
 func (*SprintFilter) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{12}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *SprintFilter) GetPage() int32 {
@@ -1275,7 +1335,7 @@ type ProjectFilter struct {
 
 func (x *ProjectFilter) Reset() {
 	*x = ProjectFilter{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[13]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1287,7 +1347,7 @@ func (x *ProjectFilter) String() string {
 func (*ProjectFilter) ProtoMessage() {}
 
 func (x *ProjectFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[13]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1300,7 +1360,7 @@ func (x *ProjectFilter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectFilter.ProtoReflect.Descriptor instead.
 func (*ProjectFilter) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{13}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ProjectFilter) GetPage() int32 {
@@ -1397,7 +1457,7 @@ type TaskFilter struct {
 
 func (x *TaskFilter) Reset() {
 	*x = TaskFilter{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[14]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1409,7 +1469,7 @@ func (x *TaskFilter) String() string {
 func (*TaskFilter) ProtoMessage() {}
 
 func (x *TaskFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[14]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1422,7 +1482,7 @@ func (x *TaskFilter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TaskFilter.ProtoReflect.Descriptor instead.
 func (*TaskFilter) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{14}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *TaskFilter) GetPage() int32 {
@@ -1553,7 +1613,7 @@ type TaskCommentFilter struct {
 
 func (x *TaskCommentFilter) Reset() {
 	*x = TaskCommentFilter{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[15]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1565,7 +1625,7 @@ func (x *TaskCommentFilter) String() string {
 func (*TaskCommentFilter) ProtoMessage() {}
 
 func (x *TaskCommentFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[15]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1578,7 +1638,7 @@ func (x *TaskCommentFilter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TaskCommentFilter.ProtoReflect.Descriptor instead.
 func (*TaskCommentFilter) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{15}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *TaskCommentFilter) GetPage() int32 {
@@ -1659,7 +1719,7 @@ type UserFilter struct {
 
 func (x *UserFilter) Reset() {
 	*x = UserFilter{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[16]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1671,7 +1731,7 @@ func (x *UserFilter) String() string {
 func (*UserFilter) ProtoMessage() {}
 
 func (x *UserFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[16]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1684,7 +1744,7 @@ func (x *UserFilter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserFilter.ProtoReflect.Descriptor instead.
 func (*UserFilter) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{16}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *UserFilter) GetPage() int32 {
@@ -1804,7 +1864,7 @@ type CompanyFilter struct {
 
 func (x *CompanyFilter) Reset() {
 	*x = CompanyFilter{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[17]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1816,7 +1876,7 @@ func (x *CompanyFilter) String() string {
 func (*CompanyFilter) ProtoMessage() {}
 
 func (x *CompanyFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[17]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1829,7 +1889,7 @@ func (x *CompanyFilter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CompanyFilter.ProtoReflect.Descriptor instead.
 func (*CompanyFilter) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{17}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *CompanyFilter) GetPage() int32 {
@@ -1926,7 +1986,7 @@ type ParticipantFilter struct {
 
 func (x *ParticipantFilter) Reset() {
 	*x = ParticipantFilter{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[18]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1938,7 +1998,7 @@ func (x *ParticipantFilter) String() string {
 func (*ParticipantFilter) ProtoMessage() {}
 
 func (x *ParticipantFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[18]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1951,7 +2011,7 @@ func (x *ParticipantFilter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ParticipantFilter.ProtoReflect.Descriptor instead.
 func (*ParticipantFilter) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{18}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ParticipantFilter) GetPage() int32 {
@@ -2030,7 +2090,7 @@ type DocumentList struct {
 
 func (x *DocumentList) Reset() {
 	*x = DocumentList{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[19]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2042,7 +2102,7 @@ func (x *DocumentList) String() string {
 func (*DocumentList) ProtoMessage() {}
 
 func (x *DocumentList) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[19]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2055,7 +2115,7 @@ func (x *DocumentList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DocumentList.ProtoReflect.Descriptor instead.
 func (*DocumentList) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{19}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *DocumentList) GetPage() int32 {
@@ -2106,7 +2166,7 @@ type SprintList struct {
 
 func (x *SprintList) Reset() {
 	*x = SprintList{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[20]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2118,7 +2178,7 @@ func (x *SprintList) String() string {
 func (*SprintList) ProtoMessage() {}
 
 func (x *SprintList) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[20]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2131,7 +2191,7 @@ func (x *SprintList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SprintList.ProtoReflect.Descriptor instead.
 func (*SprintList) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{20}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *SprintList) GetPage() int32 {
@@ -2182,7 +2242,7 @@ type ProjectList struct {
 
 func (x *ProjectList) Reset() {
 	*x = ProjectList{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[21]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2194,7 +2254,7 @@ func (x *ProjectList) String() string {
 func (*ProjectList) ProtoMessage() {}
 
 func (x *ProjectList) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[21]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2207,7 +2267,7 @@ func (x *ProjectList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectList.ProtoReflect.Descriptor instead.
 func (*ProjectList) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{21}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ProjectList) GetPage() int32 {
@@ -2258,7 +2318,7 @@ type TaskList struct {
 
 func (x *TaskList) Reset() {
 	*x = TaskList{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[22]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2270,7 +2330,7 @@ func (x *TaskList) String() string {
 func (*TaskList) ProtoMessage() {}
 
 func (x *TaskList) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[22]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2283,7 +2343,7 @@ func (x *TaskList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TaskList.ProtoReflect.Descriptor instead.
 func (*TaskList) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{22}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *TaskList) GetPage() int32 {
@@ -2334,7 +2394,7 @@ type TaskCommentList struct {
 
 func (x *TaskCommentList) Reset() {
 	*x = TaskCommentList{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[23]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2346,7 +2406,7 @@ func (x *TaskCommentList) String() string {
 func (*TaskCommentList) ProtoMessage() {}
 
 func (x *TaskCommentList) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[23]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2359,7 +2419,7 @@ func (x *TaskCommentList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TaskCommentList.ProtoReflect.Descriptor instead.
 func (*TaskCommentList) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{23}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *TaskCommentList) GetPage() int32 {
@@ -2410,7 +2470,7 @@ type CompanyList struct {
 
 func (x *CompanyList) Reset() {
 	*x = CompanyList{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[24]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2422,7 +2482,7 @@ func (x *CompanyList) String() string {
 func (*CompanyList) ProtoMessage() {}
 
 func (x *CompanyList) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[24]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2435,7 +2495,7 @@ func (x *CompanyList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CompanyList.ProtoReflect.Descriptor instead.
 func (*CompanyList) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{24}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *CompanyList) GetPage() int32 {
@@ -2486,7 +2546,7 @@ type UserList struct {
 
 func (x *UserList) Reset() {
 	*x = UserList{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[25]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2498,7 +2558,7 @@ func (x *UserList) String() string {
 func (*UserList) ProtoMessage() {}
 
 func (x *UserList) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[25]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2511,7 +2571,7 @@ func (x *UserList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserList.ProtoReflect.Descriptor instead.
 func (*UserList) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{25}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *UserList) GetPage() int32 {
@@ -2562,7 +2622,7 @@ type ParticipantList struct {
 
 func (x *ParticipantList) Reset() {
 	*x = ParticipantList{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[26]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2574,7 +2634,7 @@ func (x *ParticipantList) String() string {
 func (*ParticipantList) ProtoMessage() {}
 
 func (x *ParticipantList) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[26]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2587,7 +2647,7 @@ func (x *ParticipantList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ParticipantList.ProtoReflect.Descriptor instead.
 func (*ParticipantList) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{26}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ParticipantList) GetPage() int32 {
@@ -2637,7 +2697,7 @@ type DocumentCreation struct {
 
 func (x *DocumentCreation) Reset() {
 	*x = DocumentCreation{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[27]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2649,7 +2709,7 @@ func (x *DocumentCreation) String() string {
 func (*DocumentCreation) ProtoMessage() {}
 
 func (x *DocumentCreation) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[27]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2662,7 +2722,7 @@ func (x *DocumentCreation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DocumentCreation.ProtoReflect.Descriptor instead.
 func (*DocumentCreation) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{27}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *DocumentCreation) GetTitle() string {
@@ -2702,7 +2762,7 @@ type TaskCreation struct {
 
 func (x *TaskCreation) Reset() {
 	*x = TaskCreation{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[28]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2714,7 +2774,7 @@ func (x *TaskCreation) String() string {
 func (*TaskCreation) ProtoMessage() {}
 
 func (x *TaskCreation) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[28]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2727,7 +2787,7 @@ func (x *TaskCreation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TaskCreation.ProtoReflect.Descriptor instead.
 func (*TaskCreation) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{28}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *TaskCreation) GetTitle() string {
@@ -2799,7 +2859,7 @@ type SprintCreation struct {
 
 func (x *SprintCreation) Reset() {
 	*x = SprintCreation{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[29]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2811,7 +2871,7 @@ func (x *SprintCreation) String() string {
 func (*SprintCreation) ProtoMessage() {}
 
 func (x *SprintCreation) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[29]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2824,7 +2884,7 @@ func (x *SprintCreation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SprintCreation.ProtoReflect.Descriptor instead.
 func (*SprintCreation) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{29}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *SprintCreation) GetTitle() string {
@@ -2875,7 +2935,7 @@ type ProjectCreation struct {
 
 func (x *ProjectCreation) Reset() {
 	*x = ProjectCreation{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[30]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2887,7 +2947,7 @@ func (x *ProjectCreation) String() string {
 func (*ProjectCreation) ProtoMessage() {}
 
 func (x *ProjectCreation) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[30]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2900,7 +2960,7 @@ func (x *ProjectCreation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectCreation.ProtoReflect.Descriptor instead.
 func (*ProjectCreation) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{30}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ProjectCreation) GetTitle() string {
@@ -2949,7 +3009,7 @@ type TaskCommentCreation struct {
 
 func (x *TaskCommentCreation) Reset() {
 	*x = TaskCommentCreation{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[31]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2961,7 +3021,7 @@ func (x *TaskCommentCreation) String() string {
 func (*TaskCommentCreation) ProtoMessage() {}
 
 func (x *TaskCommentCreation) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[31]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2974,7 +3034,7 @@ func (x *TaskCommentCreation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TaskCommentCreation.ProtoReflect.Descriptor instead.
 func (*TaskCommentCreation) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{31}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *TaskCommentCreation) GetBody() string {
@@ -3010,7 +3070,7 @@ type NewUser struct {
 
 func (x *NewUser) Reset() {
 	*x = NewUser{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[32]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3022,7 +3082,7 @@ func (x *NewUser) String() string {
 func (*NewUser) ProtoMessage() {}
 
 func (x *NewUser) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[32]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3035,7 +3095,7 @@ func (x *NewUser) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NewUser.ProtoReflect.Descriptor instead.
 func (*NewUser) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{32}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *NewUser) GetName() string {
@@ -3076,7 +3136,7 @@ type NewCompany struct {
 
 func (x *NewCompany) Reset() {
 	*x = NewCompany{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[33]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3088,7 +3148,7 @@ func (x *NewCompany) String() string {
 func (*NewCompany) ProtoMessage() {}
 
 func (x *NewCompany) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[33]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3101,7 +3161,7 @@ func (x *NewCompany) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NewCompany.ProtoReflect.Descriptor instead.
 func (*NewCompany) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{33}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *NewCompany) GetName() string {
@@ -3129,7 +3189,7 @@ type NewRole struct {
 
 func (x *NewRole) Reset() {
 	*x = NewRole{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[34]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3141,7 +3201,7 @@ func (x *NewRole) String() string {
 func (*NewRole) ProtoMessage() {}
 
 func (x *NewRole) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[34]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3154,7 +3214,7 @@ func (x *NewRole) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NewRole.ProtoReflect.Descriptor instead.
 func (*NewRole) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{34}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *NewRole) GetName() string {
@@ -3189,7 +3249,7 @@ type NewParticipant struct {
 
 func (x *NewParticipant) Reset() {
 	*x = NewParticipant{}
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[35]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3201,7 +3261,7 @@ func (x *NewParticipant) String() string {
 func (*NewParticipant) ProtoMessage() {}
 
 func (x *NewParticipant) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[35]
+	mi := &file_pkg_transport_grpc_proto_models_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3214,7 +3274,7 @@ func (x *NewParticipant) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NewParticipant.ProtoReflect.Descriptor instead.
 func (*NewParticipant) Descriptor() ([]byte, []int) {
-	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{35}
+	return file_pkg_transport_grpc_proto_models_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *NewParticipant) GetUserId() string {
@@ -3423,13 +3483,18 @@ var file_pkg_transport_grpc_proto_models_proto_rawDesc = []byte{
 	0x61, 0x74, 0x65, 0x64, 0x5f, 0x61, 0x74, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e,
 	0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e,
 	0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x09, 0x63, 0x72, 0x65, 0x61, 0x74,
-	0x65, 0x64, 0x41, 0x74, 0x22, 0xee, 0x01, 0x0a, 0x0e, 0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e,
+	0x65, 0x64, 0x41, 0x74, 0x22, 0x4e, 0x0a, 0x0b, 0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74,
+	0x50, 0x44, 0x46, 0x12, 0x12, 0x0a, 0x04, 0x62, 0x6f, 0x64, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x0c, 0x52, 0x04, 0x62, 0x6f, 0x64, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x69, 0x74, 0x6c, 0x65,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x69, 0x74, 0x6c, 0x65, 0x12, 0x15, 0x0a,
+	0x06, 0x64, 0x6f, 0x63, 0x5f, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x64,
+	0x6f, 0x63, 0x49, 0x64, 0x22, 0xee, 0x01, 0x0a, 0x0e, 0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e,
 	0x74, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x61, 0x67, 0x65, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x70, 0x61, 0x67, 0x65, 0x12, 0x19, 0x0a, 0x08, 0x70,
 	0x65, 0x72, 0x5f, 0x70, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x07, 0x70,
-	0x65, 0x72, 0x50, 0x61, 0x67, 0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x70, 0x72, 0x6f, 0x6a, 0x65, 0x63,
-	0x74, 0x5f, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x70, 0x72, 0x6f, 0x6a,
-	0x65, 0x63, 0x74, 0x49, 0x64, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x69, 0x74, 0x6c, 0x65, 0x18, 0x04,
+	0x65, 0x72, 0x50, 0x61, 0x67, 0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x6e,
+	0x79, 0x5f, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x63, 0x6f, 0x6d, 0x70,
+	0x61, 0x6e, 0x79, 0x49, 0x64, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x69, 0x74, 0x6c, 0x65, 0x18, 0x04,
 	0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x69, 0x74, 0x6c, 0x65, 0x12, 0x1b, 0x0a, 0x09, 0x64,
 	0x61, 0x74, 0x65, 0x5f, 0x66, 0x72, 0x6f, 0x6d, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08,
 	0x64, 0x61, 0x74, 0x65, 0x46, 0x72, 0x6f, 0x6d, 0x12, 0x17, 0x0a, 0x07, 0x64, 0x61, 0x74, 0x65,
@@ -3762,7 +3827,7 @@ func file_pkg_transport_grpc_proto_models_proto_rawDescGZIP() []byte {
 	return file_pkg_transport_grpc_proto_models_proto_rawDescData
 }
 
-var file_pkg_transport_grpc_proto_models_proto_msgTypes = make([]protoimpl.MessageInfo, 36)
+var file_pkg_transport_grpc_proto_models_proto_msgTypes = make([]protoimpl.MessageInfo, 37)
 var file_pkg_transport_grpc_proto_models_proto_goTypes = []any{
 	(*User)(nil),                  // 0: models.User
 	(*Company)(nil),               // 1: models.Company
@@ -3775,59 +3840,60 @@ var file_pkg_transport_grpc_proto_models_proto_goTypes = []any{
 	(*Sprint)(nil),                // 8: models.Sprint
 	(*TaskComment)(nil),           // 9: models.TaskComment
 	(*Document)(nil),              // 10: models.Document
-	(*DocumentFilter)(nil),        // 11: models.DocumentFilter
-	(*SprintFilter)(nil),          // 12: models.SprintFilter
-	(*ProjectFilter)(nil),         // 13: models.ProjectFilter
-	(*TaskFilter)(nil),            // 14: models.TaskFilter
-	(*TaskCommentFilter)(nil),     // 15: models.TaskCommentFilter
-	(*UserFilter)(nil),            // 16: models.UserFilter
-	(*CompanyFilter)(nil),         // 17: models.CompanyFilter
-	(*ParticipantFilter)(nil),     // 18: models.ParticipantFilter
-	(*DocumentList)(nil),          // 19: models.DocumentList
-	(*SprintList)(nil),            // 20: models.SprintList
-	(*ProjectList)(nil),           // 21: models.ProjectList
-	(*TaskList)(nil),              // 22: models.TaskList
-	(*TaskCommentList)(nil),       // 23: models.TaskCommentList
-	(*CompanyList)(nil),           // 24: models.CompanyList
-	(*UserList)(nil),              // 25: models.UserList
-	(*ParticipantList)(nil),       // 26: models.ParticipantList
-	(*DocumentCreation)(nil),      // 27: models.DocumentCreation
-	(*TaskCreation)(nil),          // 28: models.TaskCreation
-	(*SprintCreation)(nil),        // 29: models.SprintCreation
-	(*ProjectCreation)(nil),       // 30: models.ProjectCreation
-	(*TaskCommentCreation)(nil),   // 31: models.TaskCommentCreation
-	(*NewUser)(nil),               // 32: models.NewUser
-	(*NewCompany)(nil),            // 33: models.NewCompany
-	(*NewRole)(nil),               // 34: models.NewRole
-	(*NewParticipant)(nil),        // 35: models.NewParticipant
-	(*timestamppb.Timestamp)(nil), // 36: google.protobuf.Timestamp
+	(*DocumentPDF)(nil),           // 11: models.DocumentPDF
+	(*DocumentFilter)(nil),        // 12: models.DocumentFilter
+	(*SprintFilter)(nil),          // 13: models.SprintFilter
+	(*ProjectFilter)(nil),         // 14: models.ProjectFilter
+	(*TaskFilter)(nil),            // 15: models.TaskFilter
+	(*TaskCommentFilter)(nil),     // 16: models.TaskCommentFilter
+	(*UserFilter)(nil),            // 17: models.UserFilter
+	(*CompanyFilter)(nil),         // 18: models.CompanyFilter
+	(*ParticipantFilter)(nil),     // 19: models.ParticipantFilter
+	(*DocumentList)(nil),          // 20: models.DocumentList
+	(*SprintList)(nil),            // 21: models.SprintList
+	(*ProjectList)(nil),           // 22: models.ProjectList
+	(*TaskList)(nil),              // 23: models.TaskList
+	(*TaskCommentList)(nil),       // 24: models.TaskCommentList
+	(*CompanyList)(nil),           // 25: models.CompanyList
+	(*UserList)(nil),              // 26: models.UserList
+	(*ParticipantList)(nil),       // 27: models.ParticipantList
+	(*DocumentCreation)(nil),      // 28: models.DocumentCreation
+	(*TaskCreation)(nil),          // 29: models.TaskCreation
+	(*SprintCreation)(nil),        // 30: models.SprintCreation
+	(*ProjectCreation)(nil),       // 31: models.ProjectCreation
+	(*TaskCommentCreation)(nil),   // 32: models.TaskCommentCreation
+	(*NewUser)(nil),               // 33: models.NewUser
+	(*NewCompany)(nil),            // 34: models.NewCompany
+	(*NewRole)(nil),               // 35: models.NewRole
+	(*NewParticipant)(nil),        // 36: models.NewParticipant
+	(*timestamppb.Timestamp)(nil), // 37: google.protobuf.Timestamp
 }
 var file_pkg_transport_grpc_proto_models_proto_depIdxs = []int32{
 	3,  // 0: models.User.participants:type_name -> models.Participant
-	36, // 1: models.User.created_at:type_name -> google.protobuf.Timestamp
-	36, // 2: models.User.updated_at:type_name -> google.protobuf.Timestamp
-	36, // 3: models.Company.created_at:type_name -> google.protobuf.Timestamp
-	36, // 4: models.Company.updated_at:type_name -> google.protobuf.Timestamp
-	21, // 5: models.Company.projects:type_name -> models.ProjectList
-	36, // 6: models.Role.created_at:type_name -> google.protobuf.Timestamp
-	36, // 7: models.Role.updated_at:type_name -> google.protobuf.Timestamp
-	36, // 8: models.Participant.created_at:type_name -> google.protobuf.Timestamp
-	36, // 9: models.Participant.updated_at:type_name -> google.protobuf.Timestamp
+	37, // 1: models.User.created_at:type_name -> google.protobuf.Timestamp
+	37, // 2: models.User.updated_at:type_name -> google.protobuf.Timestamp
+	37, // 3: models.Company.created_at:type_name -> google.protobuf.Timestamp
+	37, // 4: models.Company.updated_at:type_name -> google.protobuf.Timestamp
+	22, // 5: models.Company.projects:type_name -> models.ProjectList
+	37, // 6: models.Role.created_at:type_name -> google.protobuf.Timestamp
+	37, // 7: models.Role.updated_at:type_name -> google.protobuf.Timestamp
+	37, // 8: models.Participant.created_at:type_name -> google.protobuf.Timestamp
+	37, // 9: models.Participant.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 10: models.AuthPayload.user:type_name -> models.User
-	36, // 11: models.Task.created_at:type_name -> google.protobuf.Timestamp
-	36, // 12: models.Task.updated_at:type_name -> google.protobuf.Timestamp
-	36, // 13: models.Task.due_date:type_name -> google.protobuf.Timestamp
-	36, // 14: models.Project.created_at:type_name -> google.protobuf.Timestamp
-	36, // 15: models.Project.updated_at:type_name -> google.protobuf.Timestamp
+	37, // 11: models.Task.created_at:type_name -> google.protobuf.Timestamp
+	37, // 12: models.Task.updated_at:type_name -> google.protobuf.Timestamp
+	37, // 13: models.Task.due_date:type_name -> google.protobuf.Timestamp
+	37, // 14: models.Project.created_at:type_name -> google.protobuf.Timestamp
+	37, // 15: models.Project.updated_at:type_name -> google.protobuf.Timestamp
 	8,  // 16: models.Project.sprints:type_name -> models.Sprint
-	36, // 17: models.Sprint.created_at:type_name -> google.protobuf.Timestamp
-	36, // 18: models.Sprint.updated_at:type_name -> google.protobuf.Timestamp
+	37, // 17: models.Sprint.created_at:type_name -> google.protobuf.Timestamp
+	37, // 18: models.Sprint.updated_at:type_name -> google.protobuf.Timestamp
 	6,  // 19: models.Sprint.tasks:type_name -> models.Task
-	36, // 20: models.Sprint.start_date:type_name -> google.protobuf.Timestamp
-	36, // 21: models.Sprint.end_date:type_name -> google.protobuf.Timestamp
+	37, // 20: models.Sprint.start_date:type_name -> google.protobuf.Timestamp
+	37, // 21: models.Sprint.end_date:type_name -> google.protobuf.Timestamp
 	0,  // 22: models.TaskComment.user:type_name -> models.User
-	36, // 23: models.TaskComment.created_at:type_name -> google.protobuf.Timestamp
-	36, // 24: models.Document.created_at:type_name -> google.protobuf.Timestamp
+	37, // 23: models.TaskComment.created_at:type_name -> google.protobuf.Timestamp
+	37, // 24: models.Document.created_at:type_name -> google.protobuf.Timestamp
 	10, // 25: models.DocumentList.items:type_name -> models.Document
 	8,  // 26: models.SprintList.items:type_name -> models.Sprint
 	7,  // 27: models.ProjectList.items:type_name -> models.Project
@@ -3836,9 +3902,9 @@ var file_pkg_transport_grpc_proto_models_proto_depIdxs = []int32{
 	1,  // 30: models.CompanyList.items:type_name -> models.Company
 	0,  // 31: models.UserList.items:type_name -> models.User
 	3,  // 32: models.ParticipantList.items:type_name -> models.Participant
-	36, // 33: models.TaskCreation.due_date:type_name -> google.protobuf.Timestamp
-	36, // 34: models.SprintCreation.start_date:type_name -> google.protobuf.Timestamp
-	36, // 35: models.SprintCreation.end_date:type_name -> google.protobuf.Timestamp
+	37, // 33: models.TaskCreation.due_date:type_name -> google.protobuf.Timestamp
+	37, // 34: models.SprintCreation.start_date:type_name -> google.protobuf.Timestamp
+	37, // 35: models.SprintCreation.end_date:type_name -> google.protobuf.Timestamp
 	36, // [36:36] is the sub-list for method output_type
 	36, // [36:36] is the sub-list for method input_type
 	36, // [36:36] is the sub-list for extension type_name
@@ -3851,14 +3917,14 @@ func file_pkg_transport_grpc_proto_models_proto_init() {
 	if File_pkg_transport_grpc_proto_models_proto != nil {
 		return
 	}
-	file_pkg_transport_grpc_proto_models_proto_msgTypes[32].OneofWrappers = []any{}
+	file_pkg_transport_grpc_proto_models_proto_msgTypes[33].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_pkg_transport_grpc_proto_models_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   36,
+			NumMessages:   37,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

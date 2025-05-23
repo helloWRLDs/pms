@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 	"pms.pkg/transport/grpc/dto"
 	pb "pms.pkg/transport/grpc/services"
@@ -20,7 +19,7 @@ func (l *Logic) processDocumentStream() {
 	ticker := time.NewTicker(1 * time.Second)
 	for range ticker.C {
 		if l.ProjectClient() == nil || l.AnalyticsClient() == nil {
-			log.Infow("project or analytics service unavailable yet")
+			log.Debugw("project or analytics service unavailable yet")
 			continue
 		}
 
@@ -42,7 +41,7 @@ func (l *Logic) processDocumentStream() {
 				if _, err := uuid.Parse(id); err != nil {
 					return
 				}
-				log.Infow("ws hub info", "type", name, "id", id)
+				log.Debugw("ws hub info", "type", name, "id", id)
 				if !strings.HasPrefix(hubID, "doc") {
 					return
 				}
@@ -62,7 +61,7 @@ func (l *Logic) processDocumentStream() {
 						DocId:      cachedDoc.Document.Id,
 						UpdatedDoc: cachedDoc.Document,
 					})
-					log.Infow("update doc results", "res", updateRes)
+					log.Debugw("update doc results", "res", updateRes)
 					if err != nil {
 						log.Errorw("failed to update doc", "err", err)
 					}
@@ -75,12 +74,14 @@ func (l *Logic) processDocumentStream() {
 }
 
 func (l *Logic) processTaskStream() {
+	log := l.log.Named("processTaskStream")
+
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {
 		if l.ProjectClient() == nil {
-			log.Infow("project service unavailable yet")
+			log.Debug("project service unavailable yet")
 			continue
 		}
 
@@ -104,28 +105,28 @@ func (l *Logic) processTaskStream() {
 					return
 				}
 
-				log.Infow("ws hub info", "type", name, "id", id)
+				log.Debugw("ws hub info", "type", name, "id", id)
 
 				task, err := l.TaskQueue.Rpop(context.Background(), hubID)
 				if err != nil || task.Value == nil {
-					log.Infow("no tasks found in queue")
+					log.Debugw("no tasks found in queue")
 					return
 				}
 				if err := l.UpdateTask(context.Background(), task.Value.Id, task.Value); err != nil {
 					log.Errorw("failed to update task", "err", err)
 					return
 				}
-				log.Infow("task is updated")
+				log.Debug("task is updated")
 
 				if hub.CountClient() == 0 {
+					log.Infow("no clients found")
 					return
 				}
 
 				tasks, err := l.ListTasks(context.Background(), &dto.TaskFilter{
 					SprintId: id,
-					// AssigneeId: c.Query("assignee_id"),
-					Page:    1,
-					PerPage: 10000,
+					Page:     1,
+					PerPage:  10000,
 				})
 				if err != nil {
 					log.Errorw("failed to fetch tasks", "err", err)
@@ -136,11 +137,11 @@ func (l *Logic) processTaskStream() {
 					log.Errorw("failed marshaling trask list", "err", err)
 					return
 				}
-				log.Info("broadcasting to all connected clients")
+				log.Debug("broadcasting to all connected clients")
 
 				hub.Broadcast(msg)
 				if len(hub.GetClients()) == 0 {
-					log.Infow("no more clients. removing from queue", "hub_id", id)
+					log.Debugw("no more clients. removing from queue", "hub_id", id)
 					delete(l.WsHubs, hubID)
 				}
 			}(hubID, hub)

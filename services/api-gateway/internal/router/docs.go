@@ -10,6 +10,26 @@ import (
 	"pms.pkg/transport/grpc/dto"
 )
 
+func (s *Server) DownloadDocument(c *fiber.Ctx) error {
+	log := s.log.Named("DownloadDocument").With(
+		zap.String("ip", c.IP()),
+	)
+	log.Info("DownloadDocument called")
+
+	docID := c.Params("docID", "")
+	c.Set("Content-Type", "application/pdf")
+
+	docPDF, err := s.Logic.DownloadDocumentPDF(c.UserContext(), docID)
+	if err != nil {
+		return err
+	}
+	c.Set("X-Document-Title", docPDF.Title)
+	c.Set("X-Document-ID", docPDF.DocId)
+	c.Set("Content-Type", "application/pdf")
+
+	return c.Status(200).Send(docPDF.Body)
+}
+
 func (s *Server) CreateReportTemplate(c *fiber.Ctx) error {
 	log := s.log.Named("CreateReportTemplate").With(
 		zap.String("ip", c.IP()),
@@ -65,7 +85,7 @@ func (s *Server) ListDocuments(c *fiber.Ctx) error {
 		Page:      int32(c.QueryInt("page", 1)),
 		PerPage:   int32(c.QueryInt("per_page", 10)),
 		Title:     c.Query("title", ""),
-		ProjectId: c.Query("project_id", ""),
+		CompanyId: c.Query("company_id", ""),
 	}
 	docs, err := s.Logic.ListDocuments(c.UserContext(), filter)
 	if err != nil {

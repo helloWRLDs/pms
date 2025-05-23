@@ -49,6 +49,7 @@ func (s *Server) SetupREST() {
 		docs.Get("/:docID", s.GetDocument)
 		docs.Get("/", s.ListDocuments)
 		docs.Put("/:docID", s.UpdateDocument)
+		docs.Get(":docID/download", s.DownloadDocument)
 	})
 
 	v1.Route("/projects", func(proj fiber.Router) {

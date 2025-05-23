@@ -2,7 +2,6 @@ go 1.23.2
 
 use (
 	./pkg
-	./services/test
 	./services/auth
 	./services/project
 	./services/notifier

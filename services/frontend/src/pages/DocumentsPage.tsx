@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DocumentCreation, DocumentFilter } from "../lib/document/document";
 import documentAPI from "../api/documentAPI";
 import { Button } from "../components/ui/Button";
@@ -13,8 +13,10 @@ import { SlOptionsVertical } from "react-icons/sl";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import type { IconType } from "react-icons";
 import { BsFillPlusCircleFill } from "react-icons/bs";
+import Input from "../components/ui/Input";
 
 const DocumentsPage = () => {
+  const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<DocumentFilter>({
     page: 1,
     per_page: 10,
@@ -30,19 +32,6 @@ const DocumentsPage = () => {
     onClick: (id: string) => void;
     icon: IconType;
   };
-
-  const PROJECT_ACTIONS: MenuButtonItem[] = [
-    {
-      label: "Open in Editor",
-      onClick: (docID: string) => navigate(`documents/${docID}`),
-      icon: SlOptionsVertical,
-    },
-    {
-      label: "Download",
-      onClick: (docID: string) => console.log(`download`),
-      icon: SlOptionsVertical,
-    },
-  ];
 
   const {
     data: documents,
@@ -86,13 +75,28 @@ const DocumentsPage = () => {
         </Modal>
       </section>
       <section>
-        <Button
-          onClick={() => {
-            setNewDocumentModal(true);
-          }}
-        >
-          Create
-        </Button>
+        <div className="container mx-auto flex justify-between items-center mb-4">
+          <h2 className="font-bold text-2xl mb-4">Document Storage</h2>
+          <div className="flex gap-4 items-baseline">
+            <Input>
+              <Input.Element
+                type="text"
+                label="Title"
+                value={search}
+                onInput={(e) => {
+                  setSearch(e.currentTarget.value);
+                }}
+              />
+            </Input>
+            <Button
+              onClick={() => {
+                setFilter({ ...filter, title: search });
+              }}
+            >
+              Search
+            </Button>
+          </div>
+        </div>
       </section>
 
       <section>
@@ -150,7 +154,31 @@ const DocumentsPage = () => {
                                 </button>
                               </MenuItem>
                               <MenuItem>
-                                <button className="block w-full px-2 text-left py-2 text-neutral-100 bg-secondary-200 hover:bg-secondary-100 transition-all duration-300 cursor-pointer">
+                                <button
+                                  className="block w-full px-2 text-left py-2 text-neutral-100 bg-secondary-200 hover:bg-secondary-100 transition-all duration-300 cursor-pointer"
+                                  onClick={async () => {
+                                    try {
+                                      const doc = await documentAPI.download(
+                                        item.id
+                                      );
+                                      console.log(doc);
+                                      const blob = new Blob([doc.body]);
+
+                                      const url =
+                                        window.URL.createObjectURL(blob);
+
+                                      const a = document.createElement("a");
+                                      a.href = url;
+                                      a.download = doc.title || "document.pdf"; // fallback filename
+                                      document.body.appendChild(a);
+                                      a.click();
+                                      a.remove();
+                                      window.URL.revokeObjectURL(url);
+                                    } catch (e) {
+                                      console.error(e);
+                                    }
+                                  }}
+                                >
                                   Download
                                 </button>
                               </MenuItem>

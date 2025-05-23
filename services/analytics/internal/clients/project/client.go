@@ -4,12 +4,9 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	configgrpc "pms.pkg/transport/grpc/config"
 	pb "pms.pkg/transport/grpc/services"
 )
-
-type Config struct {
-	Host string `env:"HOST"`
-}
 
 type ProjectClient struct {
 	pb.ProjectServiceClient
@@ -18,10 +15,17 @@ type ProjectClient struct {
 	log  *zap.SugaredLogger
 }
 
-func New(conf Config, logger *zap.SugaredLogger) (*ProjectClient, error) {
-	log := logger.Named("projectclient.New").With(
-		zap.String("host", conf.Host),
-	)
+func New(conf configgrpc.ClientConfig, logger *zap.SugaredLogger) (*ProjectClient, error) {
+	var log *zap.SugaredLogger
+	{
+		if conf.DisableLog {
+			log = zap.NewNop().Sugar()
+		} else {
+			log = logger.Named("projectclient.New").With(
+				zap.String("host", conf.Host),
+			)
+		}
+	}
 	log.Debug("New called")
 
 	conn, err := grpc.NewClient(conf.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))

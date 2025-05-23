@@ -48,9 +48,9 @@ func main() {
 	}
 	serv := grpc.NewServer()
 
-	data := data.New(db, log)
-	logic := logic.New(data, &conf, log)
-	grpcHandler := grpchandler.New(logic, log)
+	data := data.New(db, logger.Log)
+	logic := logic.New(data, &conf, logger.Log)
+	grpcHandler := grpchandler.New(logic, logger.Log)
 
 	pb.RegisterAnalyticsServiceServer(serv, grpcHandler)
 

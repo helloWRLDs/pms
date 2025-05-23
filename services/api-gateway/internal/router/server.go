@@ -32,7 +32,7 @@ func New(conf config.Config, logic *logic.Logic, log *zap.SugaredLogger) *Server
 		log:  log,
 		App: *fiber.New(fiber.Config{
 			AppName:           "API-GATEWAY",
-			EnablePrintRoutes: true,
+			EnablePrintRoutes: false,
 			ErrorHandler: func(c *fiber.Ctx, err error) error {
 				if err == nil {
 					return nil

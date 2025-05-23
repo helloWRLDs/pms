@@ -58,3 +58,20 @@ func (s *ServerGRPC) UpdateDocument(ctx context.Context, req *pb.UpdateDocumentR
 
 	return res, nil
 }
+
+func (s *ServerGRPC) DownloadDocument(ctx context.Context, req *pb.DownloadDocumentRequest) (res *pb.DownloadDocumentResponse, err error) {
+	defer func() {
+		err = errs.WrapGRPC(err)
+	}()
+
+	res = new(pb.DownloadDocumentResponse)
+	res.Success = false
+
+	document, err := s.logic.DownloadDocument(ctx, req.Id)
+	if err != nil {
+		return res, err
+	}
+	res.Success = true
+	res.Document = document
+	return res, nil
+}

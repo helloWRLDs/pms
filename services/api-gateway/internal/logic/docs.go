@@ -8,6 +8,22 @@ import (
 	pb "pms.pkg/transport/grpc/services"
 )
 
+func (l *Logic) DownloadDocumentPDF(ctx context.Context, docID string) (*dto.DocumentPDF, error) {
+	log := l.log.Named("DownloadDocumentPDF").With(
+		zap.Any("docID", docID),
+	)
+	log.Info("DownloadDocumentPDF called")
+
+	reportRes, err := l.analyticsClient.DownloadDocument(ctx, &pb.DownloadDocumentRequest{
+		Id: docID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	doc := reportRes.Document
+	return doc, nil
+}
+
 func (l *Logic) CreateReportTemplate(ctx context.Context, docCreation *dto.DocumentCreation) (string, error) {
 	log := l.log.Named("CreateReportTemplate").With(
 		zap.Any("creation", docCreation),
@@ -28,7 +44,7 @@ func (l *Logic) GetDocument(ctx context.Context, docID string) (*dto.Document, e
 	log := l.log.Named("GetDocument").With(
 		zap.String("doc_id", docID),
 	)
-	log.Info("GetDocument called")
+	log.Debug("GetDocument called")
 
 	docRes, err := l.analyticsClient.GetDocument(ctx, &pb.GetDocumentRequest{
 		Id: docID,

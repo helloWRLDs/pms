@@ -7,11 +7,11 @@ import (
 	"github.com/SebastiaanKlippert/go-wkhtmltopdf"
 )
 
-func PDF(data []byte) error {
+func PDF(data []byte) ([]byte, error) {
 	pdfg, err := wkhtmltopdf.NewPDFGenerator()
 	if err != nil {
 		log.Fatal(err)
-		return err
+		return nil, err
 	}
 
 	pdfg.AddPage(wkhtmltopdf.NewPageReader(bytes.NewReader(data)))
@@ -21,7 +21,9 @@ func PDF(data []byte) error {
 	err = pdfg.Create()
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
-	pdfg.WriteFile("output.pdf")
-	return nil
+	pdfg.Bytes()
+	// pdfg.WrsiteFile("output.pdf")
+	return pdfg.Bytes(), nil
 }

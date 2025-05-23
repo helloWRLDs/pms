@@ -23,6 +23,7 @@ const (
 	AnalyticsService_ListDocuments_FullMethodName          = "/analytics.AnalyticsService/ListDocuments"
 	AnalyticsService_GetDocument_FullMethodName            = "/analytics.AnalyticsService/GetDocument"
 	AnalyticsService_UpdateDocument_FullMethodName         = "/analytics.AnalyticsService/UpdateDocument"
+	AnalyticsService_DownloadDocument_FullMethodName       = "/analytics.AnalyticsService/DownloadDocument"
 )
 
 // AnalyticsServiceClient is the client API for AnalyticsService service.
@@ -33,6 +34,7 @@ type AnalyticsServiceClient interface {
 	ListDocuments(ctx context.Context, in *ListDocumentsRequest, opts ...grpc.CallOption) (*ListDocumentsResponse, error)
 	GetDocument(ctx context.Context, in *GetDocumentRequest, opts ...grpc.CallOption) (*GetDocumentResponse, error)
 	UpdateDocument(ctx context.Context, in *UpdateDocumentRequest, opts ...grpc.CallOption) (*UpdateDocumentResponse, error)
+	DownloadDocument(ctx context.Context, in *DownloadDocumentRequest, opts ...grpc.CallOption) (*DownloadDocumentResponse, error)
 }
 
 type analyticsServiceClient struct {
@@ -83,6 +85,16 @@ func (c *analyticsServiceClient) UpdateDocument(ctx context.Context, in *UpdateD
 	return out, nil
 }
 
+func (c *analyticsServiceClient) DownloadDocument(ctx context.Context, in *DownloadDocumentRequest, opts ...grpc.CallOption) (*DownloadDocumentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DownloadDocumentResponse)
+	err := c.cc.Invoke(ctx, AnalyticsService_DownloadDocument_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AnalyticsServiceServer is the server API for AnalyticsService service.
 // All implementations must embed UnimplementedAnalyticsServiceServer
 // for forward compatibility.
@@ -91,6 +103,7 @@ type AnalyticsServiceServer interface {
 	ListDocuments(context.Context, *ListDocumentsRequest) (*ListDocumentsResponse, error)
 	GetDocument(context.Context, *GetDocumentRequest) (*GetDocumentResponse, error)
 	UpdateDocument(context.Context, *UpdateDocumentRequest) (*UpdateDocumentResponse, error)
+	DownloadDocument(context.Context, *DownloadDocumentRequest) (*DownloadDocumentResponse, error)
 	mustEmbedUnimplementedAnalyticsServiceServer()
 }
 
@@ -112,6 +125,9 @@ func (UnimplementedAnalyticsServiceServer) GetDocument(context.Context, *GetDocu
 }
 func (UnimplementedAnalyticsServiceServer) UpdateDocument(context.Context, *UpdateDocumentRequest) (*UpdateDocumentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateDocument not implemented")
+}
+func (UnimplementedAnalyticsServiceServer) DownloadDocument(context.Context, *DownloadDocumentRequest) (*DownloadDocumentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DownloadDocument not implemented")
 }
 func (UnimplementedAnalyticsServiceServer) mustEmbedUnimplementedAnalyticsServiceServer() {}
 func (UnimplementedAnalyticsServiceServer) testEmbeddedByValue()                          {}
@@ -206,6 +222,24 @@ func _AnalyticsService_UpdateDocument_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AnalyticsService_DownloadDocument_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DownloadDocumentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticsServiceServer).DownloadDocument(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticsService_DownloadDocument_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticsServiceServer).DownloadDocument(ctx, req.(*DownloadDocumentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AnalyticsService_ServiceDesc is the grpc.ServiceDesc for AnalyticsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -228,6 +262,10 @@ var AnalyticsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateDocument",
 			Handler:    _AnalyticsService_UpdateDocument_Handler,
+		},
+		{
+			MethodName: "DownloadDocument",
+			Handler:    _AnalyticsService_DownloadDocument_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

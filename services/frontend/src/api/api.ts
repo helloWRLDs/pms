@@ -43,6 +43,7 @@ export class API {
               break;
             case 401:
               toast.error("Unauthorized! Please login.", toastOpts);
+
               break;
             case 404:
               toast.error(resBody?.msg || "Not found", toastOpts);
