@@ -9,9 +9,16 @@ import (
 )
 
 func New(conf mq.Config, logger *zap.SugaredLogger) (*mq.Publisher, error) {
-	log := logger.With(
-		zap.String("func", "notifierclient.New"),
-	)
+	log := new(zap.SugaredLogger)
+	{
+		if conf.DisableLog {
+			log = zap.NewNop().Sugar()
+		} else {
+			log = logger.With(
+				zap.String("func", "notifierclient.New"),
+			)
+		}
+	}
 	log.Debug("notifierclient.New called")
 
 	pub, err := mq.NewPublisher(context.Background(), mq.PublisherOpts{

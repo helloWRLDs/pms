@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"go.uber.org/zap"
 	analyticsclient "pms.api-gateway/internal/client/analytics"
 	authclient "pms.api-gateway/internal/client/auth"
 	notifierclient "pms.api-gateway/internal/client/notifier"
@@ -44,7 +45,14 @@ func (l *Logic) InitTasks() {
 }
 
 func (l *Logic) CheckAnalyticsHealth(ctx context.Context) error {
-	log := l.log.With("func", "CheckAnalyticsHealth")
+	log := new(zap.SugaredLogger)
+	{
+		if l.Config.Analytics.DisableLog {
+			log = zap.NewNop().Sugar()
+		} else {
+			log = l.log.With("func", "CheckAnalyticsHealth")
+		}
+	}
 
 	l.mu.Lock()
 	currentAnalyticsClient := l.analyticsClient
@@ -74,7 +82,14 @@ func (l *Logic) CheckAnalyticsHealth(ctx context.Context) error {
 }
 
 func (l *Logic) CheckProjectHealth(ctx context.Context) error {
-	log := l.log.With("func", "CheckProjectHealth")
+	log := new(zap.SugaredLogger)
+	{
+		if l.Config.Project.DisableLog {
+			log = zap.NewNop().Sugar()
+		} else {
+			log = l.log.With("func", "CheckProjectHealth")
+		}
+	}
 
 	l.mu.Lock()
 	currentProjectClient := l.projectClient
@@ -104,7 +119,14 @@ func (l *Logic) CheckProjectHealth(ctx context.Context) error {
 }
 
 func (l *Logic) CheckAuthHealth(ctx context.Context) error {
-	log := l.log.With("func", "CheckAuthHealth")
+	log := new(zap.SugaredLogger)
+	{
+		if l.Config.Auth.DisableLog {
+			log = zap.NewNop().Sugar()
+		} else {
+			log = l.log.With("func", "CheckAuthHealth")
+		}
+	}
 
 	l.mu.Lock()
 	currentAuthClient := l.authClient
@@ -133,7 +155,14 @@ func (l *Logic) CheckAuthHealth(ctx context.Context) error {
 }
 
 func (l *Logic) CheckNotifierHealth(ctx context.Context) error {
-	log := l.log.With("func", "CheckNotifierHealth")
+	log := new(zap.SugaredLogger)
+	{
+		if l.Config.NotificationMQ.DisableLog {
+			log = zap.NewNop().Sugar()
+		} else {
+			log = l.log.With("func", "CheckNotifierHealth")
+		}
+	}
 	log.Debug("CheckNotifierHealth called")
 
 	l.mu.Lock()

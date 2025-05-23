@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"go.uber.org/zap"
 	projectclient "pms.analytics/internal/clients/project"
 	"pms.pkg/tools/scheduler"
 )
@@ -20,7 +21,14 @@ func (l *Logic) InitTasks() {
 }
 
 func (l *Logic) CheckProjectHealth(ctx context.Context) error {
-	log := l.log.With("func", "CheckProjectHealth")
+	log := new(zap.SugaredLogger)
+	{
+		if l.Conf.Project.DisableLog {
+			log = zap.NewNop().Sugar()
+		} else {
+			log = l.log.With("func", "CheckProjectHealth")
+		}
+	}
 
 	l.mu.Lock()
 	currentProjectClient := l.projectClient
