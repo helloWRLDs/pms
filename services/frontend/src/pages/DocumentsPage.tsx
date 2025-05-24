@@ -63,6 +63,7 @@ const DocumentsPage = () => {
           onClose={() => {
             setNewDocumentModal(false);
           }}
+          className="bg-secondary-200"
         >
           <NewDocumentForm
             onSubmit={async (newDoc: DocumentCreation) => {

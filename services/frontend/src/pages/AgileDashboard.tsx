@@ -29,7 +29,7 @@ const AgileDashboard: FC = () => {
           visible={manageTasksModal}
           title="Manage Tasks"
           onClose={() => setManageTasksModal(false)}
-          className="w-[80%]"
+          className="w-[80%] bg-secondary-200"
         >
           <div>
             <div className="flex ">

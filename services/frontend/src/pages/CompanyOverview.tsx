@@ -104,6 +104,7 @@ const CompanyOverviewPage = () => {
           onClose={() => {
             setAddUserModal(false);
           }}
+          className="bg-secondary-100"
         >
           <AddParticipantForm
             onFinish={async (userID) => {

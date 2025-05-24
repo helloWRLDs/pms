@@ -57,7 +57,7 @@ const SprintsPage = () => {
           title="Create Sprint"
           visible={newSprintModal}
           onClose={() => setNewSprintModal(false)}
-          className=""
+          className="bg-secondary-100"
         >
           <NewSprintForm
             onFinish={async (creation) => {
