@@ -17,7 +17,7 @@ func (l *Logic) CreateReportTemplate(ctx context.Context, creation *dto.Document
 	log := l.log.Named("CreateReportTemplate").With(
 		zap.Any("sprint_id", creation.SprintId),
 	)
-	log.Debug("CreateReportTemplate called")
+	log.Info("CreateReportTemplate called")
 
 	newDoc := documentdata.Document{
 		ID:        uuid.NewString(),

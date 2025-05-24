@@ -15,6 +15,7 @@ import (
 
 func (l *Logic) processDocumentStream() {
 	log := l.log.Named("processDocumentStream")
+	log.Info("started listening for document updates")
 
 	ticker := time.NewTicker(1 * time.Second)
 	for range ticker.C {
@@ -70,11 +71,13 @@ func (l *Logic) processDocumentStream() {
 				}
 			}(hubID, hub)
 		}
+		wg.Wait()
 	}
 }
 
 func (l *Logic) processTaskStream() {
 	log := l.log.Named("processTaskStream")
+	log.Info("started listening for task streams")
 
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
@@ -122,6 +125,11 @@ func (l *Logic) processTaskStream() {
 					log.Infow("no clients found")
 					return
 				}
+				log.Infow("filters", "filter", dto.TaskFilter{
+					SprintId: id,
+					Page:     1,
+					PerPage:  10000,
+				})
 
 				tasks, err := l.ListTasks(context.Background(), &dto.TaskFilter{
 					SprintId: id,

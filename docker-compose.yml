@@ -28,9 +28,6 @@ services:
       - pg_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-
-  volumes:
-    pg_data:
       
   redis-pms:
     image: redis:7.0.8
@@ -55,3 +52,6 @@ services:
 
 networks:
   webnet:
+
+volumes:
+  pg_data:

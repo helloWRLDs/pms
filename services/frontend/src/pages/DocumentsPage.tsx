@@ -12,26 +12,24 @@ import Paginator from "../components/ui/Paginator";
 import { SlOptionsVertical } from "react-icons/sl";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import type { IconType } from "react-icons";
-import { BsFillPlusCircleFill } from "react-icons/bs";
+import { BsDownload, BsFillPlusCircleFill } from "react-icons/bs";
 import Input from "../components/ui/Input";
+import { useProjectStore } from "../store/selectedProjectStore";
+import { MdOpenInNew } from "react-icons/md";
 
 const DocumentsPage = () => {
+  const { project: selectedProject } = useProjectStore();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<DocumentFilter>({
     page: 1,
     per_page: 10,
-    company_id: "",
+    project_id: selectedProject?.id,
     title: "",
   });
   const [newDocumentModal, setNewDocumentModal] = useState(false);
   const { projects } = useCacheStore();
-  const navigate = useNavigate();
 
-  type MenuButtonItem = {
-    label: string;
-    onClick: (id: string) => void;
-    icon: IconType;
-  };
+  const navigate = useNavigate();
 
   const {
     data: documents,
@@ -43,11 +41,18 @@ const DocumentsPage = () => {
       filter.page,
       filter.per_page,
       filter.title,
-      filter.company_id,
+      filter.project_id,
     ],
     queryFn: () => documentAPI.list(filter),
-    enabled: true,
+    enabled: !!selectedProject,
   });
+
+  useEffect(() => {
+    console.log(JSON.stringify(documents));
+    if (!selectedProject) {
+      navigate("/projects");
+    }
+  }, [selectedProject, documents]);
 
   return (
     <div className="w-full h-[100lvh] px-5 py-10 bg-primary-600 text-neutral-100">
@@ -75,8 +80,11 @@ const DocumentsPage = () => {
         </Modal>
       </section>
       <section>
-        <div className="container mx-auto flex justify-between items-center mb-4">
-          <h2 className="font-bold text-2xl mb-4">Document Storage</h2>
+        <div className="container mx-auto flex justify-between items-center mb-5">
+          <h2 className="font-bold text-2xl mb-4">
+            <span className="text-accent-500">{selectedProject?.title}</span>{" "}
+            Document Storage
+          </h2>
           <div className="flex gap-4 items-baseline">
             <Input>
               <Input.Element
@@ -124,14 +132,13 @@ const DocumentsPage = () => {
                       <Table.Row
                         className="cursor-pointer bg-secondary-200 text-neutral-100 hover:bg-secondary-100 p-5"
                         key={i}
-                        // onClick={() => {
-                        //   navigate(`/documents/${item.id}`);
-                        // }}
                       >
                         <Table.Cell>{i + 1}</Table.Cell>
                         <Table.Cell>{item.title}</Table.Cell>
                         <Table.Cell>
-                          {projects ? projects[item?.project_id].title : "None"}
+                          {projects
+                            ? projects[item.project_id].title
+                            : item.project_id}
                         </Table.Cell>
                         <Table.Cell>
                           <Menu>
@@ -150,7 +157,10 @@ const DocumentsPage = () => {
                                   }}
                                   className="block w-full px-2 text-left py-2 text-neutral-100 bg-secondary-200 hover:bg-secondary-100 transition-all duration-300 cursor-pointer"
                                 >
-                                  Open in Editor
+                                  <span className="flex flex-row items-center gap-2">
+                                    <MdOpenInNew />
+                                    Open in Editor
+                                  </span>
                                 </button>
                               </MenuItem>
                               <MenuItem>
@@ -179,7 +189,9 @@ const DocumentsPage = () => {
                                     }
                                   }}
                                 >
-                                  Download
+                                  <span className="flex flex-row items-center gap-2">
+                                    <BsDownload /> Download
+                                  </span>
                                 </button>
                               </MenuItem>
                             </MenuItems>

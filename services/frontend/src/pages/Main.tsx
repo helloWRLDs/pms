@@ -29,6 +29,7 @@ import SprintsPage from "./SprintsPage";
 import DocumentsPage from "./DocumentsPage";
 import DocumentPage from "./DocumentPage";
 import { RiProfileLine } from "react-icons/ri";
+import AnalyticsPage from "./AnalyticsPage";
 
 const Main = () => {
   const navigate = useNavigate();
@@ -76,6 +77,7 @@ const Main = () => {
         isEnabled: isLoggedIn,
         label: "Analytics",
         icon: IoAnalyticsOutline,
+        onClick: () => navigate("/analytics"),
       },
       Documents: {
         isEnabled: isLoggedIn,
@@ -164,6 +166,7 @@ const Main = () => {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
 
+          <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/companies" element={<CompaniesPage />} />
           <Route path="/projects" element={<CompanyOverviewPage />} />
           <Route path="/backlog" element={<BacklogPage />} />

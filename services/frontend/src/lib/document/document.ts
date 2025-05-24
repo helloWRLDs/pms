@@ -15,7 +15,7 @@ export type DocumentCreation = Pick<Document, "project_id" | "title"> & {
 };
 
 export type DocumentFilter = Pagination & {
-  company_id?: string;
+  project_id?: string;
   title?: string;
   date_from?: string;
   date_to?: string;

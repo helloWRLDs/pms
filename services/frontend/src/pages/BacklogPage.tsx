@@ -20,9 +20,10 @@ import { useAuthStore } from "../store/authStore";
 import TaskView from "../components/task/TaskView";
 import { useCacheStore } from "../store/cacheStore";
 import { BsFillPlusCircleFill } from "react-icons/bs";
-import Input from "../components/ui/Input";
 import { ListItems } from "../lib/utils/list";
 import { parseError } from "../lib/errors";
+import authAPI from "../api/auth";
+import { useCacheLoader } from "../hooks/useCacheLoader";
 
 const BacklogPage = () => {
   usePageSettings({ requireAuth: true, title: "Backlog" });
@@ -38,7 +39,7 @@ const BacklogPage = () => {
   const [taskCreationModal, setTaskCreationModal] = useState(false);
   const [filter, setFilter] = useState<TaskFilter>({
     page: 1,
-    per_page: 3,
+    per_page: 10,
   });
 
   const {
@@ -72,6 +73,28 @@ const BacklogPage = () => {
     enabled: !!project?.id,
   });
 
+  const { data: assignees } = useQuery({
+    queryKey: ["assignees", project?.company_id],
+    queryFn: async () => {
+      try {
+        const res = await authAPI.listUsers({
+          page: 1,
+          per_page: 100,
+          company_id: project?.company_id ?? "",
+        });
+        return res;
+      } catch (e) {
+        if (parseError(e)?.status === 401) {
+          clearAuth();
+          navigate("/login");
+        }
+      }
+    },
+    enabled: !!project?.company_id,
+  });
+
+  useCacheLoader({ userList: assignees });
+
   useEffect(() => {
     console.log(`check error: `, error, isLoadingError);
   }, [error]);
@@ -82,6 +105,8 @@ const BacklogPage = () => {
     }
   }, []);
 
+  const { getAssignee } = useCacheStore();
+
   return (
     <div className="w-full h-[100lvh] px-5 py-10 bg-primary-600 text-neutral-100">
       <section id="modals">
@@ -89,9 +114,16 @@ const BacklogPage = () => {
           title={`${task?.title ?? "Task Preview"}`}
           visible={taskViewModal}
           onClose={() => setTaskViewModal(false)}
-          className="bg-white"
+          className="bg-secondary-300"
         >
-          {task && <TaskView task={task} />}
+          {task && (
+            <TaskView
+              refetchTasks={refetachTasks}
+              assignees={assignees}
+              task={task}
+              className=""
+            />
+          )}
         </Modal>
         <Modal
           title="Create New Task"
@@ -99,7 +131,7 @@ const BacklogPage = () => {
           onClose={() => {
             setTaskCreationModal(false);
           }}
-          className="w-[50%] mx-auto bg-primary-300 text-white"
+          className="w-[50%] mx-auto bg-secondary-300"
         >
           {project && (
             <NewTaskForm
@@ -123,69 +155,89 @@ const BacklogPage = () => {
         </Modal>
       </section>
 
-      <section id="task-filter">
-        <div className="container mx-auto flex justify-between items-center mb-4">
-          <div className="flex gap-4 items-center mb-4">
-            <label
-              htmlFor="filter-priority"
-              className="flex gap-2 items-center"
-            >
-              <span>Priority</span>
-              <select
-                name=""
-                id=""
-                className="px-4 py-2 border rounded-lg text-neutral-100 bg-primary-400"
-              >
-                {PriorityFilterValues.map((priority) => (
-                  <option
-                    value={priority.value}
-                    onClick={() => {
-                      setFilter({ ...filter, priority: priority.value });
-                    }}
-                  >
-                    {priority.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+      <section id="task-header">
+        <div className="container mx-auto ">
+          <div className="mb-5">
+            <h1 className="font-bold text-3xl">
+              <span className="text-accent-500">
+                {project && project.title}
+              </span>{" "}
+              Backlog
+            </h1>
+          </div>
 
-            <label htmlFor="filter-status" className="flex gap-2 items-center">
-              <span>Status</span>
-              <select
-                name=""
-                id=""
-                className="px-4 py-2 border rounded-lg text-neutral-100 bg-primary-400 cursor-pointer"
+          <div className="flex items-center mb-4">
+            <div className="flex gap-4 items-center mb-4">
+              <label
+                htmlFor="filter-priority"
+                className="flex gap-2 items-center"
               >
-                {StatusFilterValues.map((status) => (
-                  <option
-                    value={status.value}
-                    onClick={() => {
-                      setFilter({ ...filter, status: status.value });
-                    }}
-                  >
-                    {status.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+                <span>Priority</span>
+                <select
+                  name=""
+                  id=""
+                  className="px-4 py-2 border rounded-lg text-neutral-100 bg-primary-400"
+                >
+                  {PriorityFilterValues.map((priority) => (
+                    <option
+                      value={priority.value}
+                      onClick={() => {
+                        setFilter({ ...filter, priority: priority.value });
+                      }}
+                    >
+                      {priority.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-            <label htmlFor="filter-status" className="flex gap-2 items-center">
-              <span>Show mine</span>
-              <Switch
-                checked={!!filter.assignee_id}
-                onClick={() => {
-                  if (filter.assignee_id !== "") {
-                    setFilter({ ...filter, assignee_id: "" });
-                  } else {
-                    setFilter({ ...filter, assignee_id: auth?.user.id ?? "" });
-                  }
-                  console.log(filter);
-                }}
-                className="cursor-pointer bg-secondary-100 group inline-flex h-6 w-11 items-center rounded-full  transition data-checked:bg-accent-600"
+              <label
+                htmlFor="filter-status"
+                className="flex gap-2 items-center"
               >
-                <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-checked:translate-x-6" />
-              </Switch>
-            </label>
+                <span>Status</span>
+                <select
+                  name=""
+                  id=""
+                  className="px-4 py-2 border rounded-lg text-neutral-100 bg-primary-400 cursor-pointer"
+                >
+                  {StatusFilterValues.map((status) => (
+                    <option
+                      value={status.value}
+                      onClick={() => {
+                        setFilter({ ...filter, status: status.value });
+                      }}
+                    >
+                      {status.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label
+                htmlFor="filter-status"
+                className="flex gap-2 items-center"
+              >
+                <span>Show mine</span>
+                <Switch
+                  checked={!!filter.assignee_id}
+                  onClick={() => {
+                    if (filter.assignee_id !== "") {
+                      setFilter({ ...filter, assignee_id: "" });
+                    } else {
+                      setFilter({
+                        ...filter,
+                        assignee_id: auth?.user.id ?? "",
+                      });
+                    }
+                    console.log(filter);
+                  }}
+                  className="cursor-pointer bg-secondary-100 group inline-flex h-6 w-11 items-center rounded-full  transition data-checked:bg-accent-600"
+                >
+                  <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-checked:translate-x-6" />
+                </Switch>
+              </label>
+            </div>
           </div>
         </div>
       </section>
@@ -202,6 +254,7 @@ const BacklogPage = () => {
                     <Table.HeadCell>Status</Table.HeadCell>
                     <Table.HeadCell>Priority</Table.HeadCell>
                     <Table.HeadCell>Sprint</Table.HeadCell>
+                    <Table.HeadCell>Assignee</Table.HeadCell>
                     <Table.HeadCell>Due to</Table.HeadCell>
                     <Table.HeadCell>Created</Table.HeadCell>
                   </Table.Row>
@@ -221,9 +274,9 @@ const BacklogPage = () => {
                           setTask(task);
                           setTaskViewModal(true);
                         }}
-                        className="cursor-pointer bg-secondary-200 text-neutral-100 hover:bg-secondary-100 py-10"
+                        className="cursor-pointer bg-secondary-200 text-neutral-100 hover:bg-secondary-100"
                       >
-                        <Table.Cell>{task.code}</Table.Cell>
+                        <Table.Cell className="py-5">{task.code}</Table.Cell>
                         <Table.Cell>{task.title}</Table.Cell>
                         <Table.Cell>
                           <Badge className="text-white bg-primary-400">
@@ -242,6 +295,11 @@ const BacklogPage = () => {
                         <Table.Cell>
                           {task.sprint_id
                             ? getSprint(task.sprint_id)?.title
+                            : "none"}
+                        </Table.Cell>
+                        <Table.Cell>
+                          {task.assignee_id
+                            ? getAssignee(task.assignee_id)?.name ?? "none "
                             : "none"}
                         </Table.Cell>
                         <Table.Cell>

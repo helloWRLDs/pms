@@ -1,8 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import {
+  QueryObserverBaseResult,
+  RefetchOptions,
+  useQuery,
+} from "@tanstack/react-query";
 import { Task } from "../../lib/task/task";
 import { taskAPI } from "../../api/taskAPI";
 import { TaskCommentCreation, TaskCommentFilter } from "../../lib/task/comment";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MdOutlineSend } from "react-icons/md";
 import { formatTime } from "../../lib/utils/time";
 import { useAuthStore } from "../../store/authStore";
@@ -10,13 +14,23 @@ import Paginator from "../ui/Paginator";
 import DropDownList from "../ui/DropDown";
 import { useCacheStore } from "../../store/cacheStore";
 import { infoToast } from "../../lib/utils/toast";
+import { ListItems } from "../../lib/utils/list";
+import { User } from "../../lib/user/user";
 
 type TaskViewProps = React.HTMLAttributes<HTMLDivElement> & {
   task: Task;
+  assignees: ListItems<User> | undefined;
+  refetchTasks?: (
+    options?: RefetchOptions | undefined
+  ) => Promise<QueryObserverBaseResult<ListItems<Task>, Error>>;
 };
 
-const TaskView = ({ task, ...props }: TaskViewProps) => {
+const TaskView = ({ task, assignees, ...props }: TaskViewProps) => {
   const { auth } = useAuthStore();
+
+  const { getAssignee } = useCacheStore();
+  const [reassignDropDown, setReassignDropDown] = useState(false);
+
   const [newComment, setNewComment] = useState<TaskCommentCreation>({
     body: "",
     task_id: task.id,
@@ -47,14 +61,14 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
   const [addSprintDropDown, setAddSprintDropDown] = useState(false);
   const { getSprint, getProject, sprints } = useCacheStore();
   return (
-    <div {...props}>
+    <div className={` ${props.className}`} {...props}>
       <div id="body" className="text-lg w-full">
         <div id="body-main" className="min-h-[5rem]">
           {task.body}
         </div>
         <div
           id="body-secondary"
-          className="text-sm flex gap-4 text-gray-500 flex-wrap"
+          className="text-sm flex gap-4 text-neutral-400 flex-wrap"
         >
           <div id="body-secondary-project">
             Project:{" "}
@@ -63,7 +77,46 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
               : "none"}
           </div>
           <div id="body-secondary-assignee">
-            Assignee: {task.assignee_id ?? "none"}
+            <div>
+              Assignee:{" "}
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => {
+                  setReassignDropDown(true);
+                }}
+              >
+                {task.assignee_id
+                  ? getAssignee(task.assignee_id)?.name
+                  : "none"}
+              </span>
+            </div>
+            <DropDownList
+              visible={reassignDropDown}
+              onClose={() => setReassignDropDown(false)}
+            >
+              {assignees &&
+                assignees.items.length > 0 &&
+                assignees.items.map((assignee) => (
+                  <DropDownList.Element
+                    className="w-[5rem] px-4 py-2 bg-secondary-100 cursor-pointer text-neutral-200 hover:bg-accent-500 hover:text-secondary-100"
+                    onClick={async () => {
+                      try {
+                        if (task.assignee_id) {
+                          await taskAPI.unassign(task.id, task.assignee_id);
+                        }
+                        await taskAPI.assign(task.id, assignee.id);
+                      } catch (e) {
+                        console.error(e);
+                      } finally {
+                        setReassignDropDown(false);
+                        props.refetchTasks && props.refetchTasks();
+                      }
+                    }}
+                  >
+                    {assignee.name}
+                  </DropDownList.Element>
+                ))}
+            </DropDownList>
           </div>
           <div id="body-secondary-code">
             Code:{" "}
@@ -108,9 +161,10 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
                       console.log(JSON.stringify(updatedTask));
                       taskAPI.update(updatedTask.id, updatedTask);
                       refetch();
+                      props.refetchTasks && props.refetchTasks();
                       setAddSprintDropDown(false);
                     }}
-                    className="px-2 py-1 bg-primary-500 text-white hover:bg-accent-500 hover:text-black cursor-pointer"
+                    className="w-[10rem] px-4 py-2 bg-secondary-100 cursor-pointer text-neutral-200 hover:bg-accent-500 hover:text-secondary-100"
                   >
                     {sprint.title}
                   </DropDownList.Element>
@@ -155,14 +209,14 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
               .sort((a, b) => b.created_at.seconds - a.created_at.seconds)
               .map((comment, i) => (
                 <div key={i} className="">
-                  <div className="text-xs flex items-center gap-2 bg-muted-500 w-fit px-2 py-1 rounded-tr-md rounded-tl-md">
+                  <div className="text-xs flex items-center gap-2  w-fit px-2 py-1 rounded-tr-md rounded-tl-md">
                     <img
                       src={`data:image/jpeg;base64,${comment.user.avatar_img}`}
-                      className="w-5 h-5 rounded-full"
+                      className="w-5 h-5 rounded-full bg-neutral-300"
                     />
                     <div>{comment.user.name}</div>
                   </div>
-                  <div className="text-sm px-2 py-1  bg-muted-500 rounded-md rounded-tl-none relative mb-4">
+                  <div className="text-sm px-2 py-1   rounded-md rounded-tl-none relative mb-4">
                     <div className="max-w-[80%]">
                       <span className="">{comment.body}</span>
                     </div>

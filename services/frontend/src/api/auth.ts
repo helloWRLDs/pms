@@ -49,7 +49,6 @@ class AuthAPI extends API {
   }
 
   async listUsers(filter: UserFilter): Promise<ListItems<User>> {
-    console.log(buildQuery(`${this.baseURL}/users`, filter));
     try {
       const res = await this.req.get(
         buildQuery(`${this.baseURL}/users`, filter)

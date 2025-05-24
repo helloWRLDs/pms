@@ -76,6 +76,7 @@ func New(config config.Config, log *zap.SugaredLogger) *Logic {
 	l.InitTasks()
 
 	go l.processTaskStream()
+
 	go l.processDocumentStream()
 
 	for _, task := range l.Tasks {

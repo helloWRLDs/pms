@@ -13,7 +13,7 @@ type NewTaskFormProps = {
   assignees?: UserOptional[];
   sprints?: Sprint[];
   project: Project;
-  onSubmit?: (data: TaskCreation) => void;
+  onSubmit: (data: TaskCreation) => void;
 };
 
 const PRIORITIES = [1, 2, 3, 4, 5];
@@ -49,7 +49,13 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit && onSubmit(newTask);
+        const fixedTask: TaskCreation = {
+          ...newTask,
+          due_date: {
+            seconds: Math.floor(newTask.due_date.seconds),
+          },
+        };
+        onSubmit(fixedTask);
         setNewTask(NULL_TASK);
       }}
       className={`mx-auto ${className}`}
@@ -70,6 +76,7 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
           type="textarea"
           label="Body"
           value={newTask.body}
+          required
           onChange={(e) => handleChange("body", e.currentTarget.value)}
         />
       </Input>
@@ -84,7 +91,7 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
         />
       </Input>
 
-      <Input>
+      <Input className="text-gray-700">
         <Input.Element
           type="select"
           label="Priority"
@@ -95,6 +102,7 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
             };
           })}
           value={newTask.priority}
+          className=""
           onChange={(e) => {
             handleChange("priority", parseInt(e.currentTarget.value));
           }}

@@ -128,7 +128,7 @@ message DocumentPDF {
 message DocumentFilter {
     int32 page = 1;
     int32 per_page = 2;
-    string company_id = 3;
+    string project_id = 3;
     string title = 4;
     string date_from = 5;
     string date_to = 6;

@@ -19,8 +19,6 @@ type Server struct {
 
 	Logic *logic.Logic
 
-	// wshubs       map[string]*ws.Hub
-
 	log *zap.SugaredLogger
 }
 

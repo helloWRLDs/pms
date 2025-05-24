@@ -47,7 +47,8 @@ export const useCacheStore = create<CacheStore>()(
     }),
     {
       name: "cache-data",
-      storage: createCookieStorage<CacheStore>("cache-data"),
+      storage: localStorage,
+      // storage: createCookieStorage<CacheStore>("cache-data"),
     }
   )
 );

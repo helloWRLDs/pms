@@ -22,7 +22,7 @@ func (l *Logic) ListUsers(ctx context.Context, filter *dto.UserFilter) (result l
 		log.Errorw("failed to list users", "err", err)
 		return list.List[*dto.User]{}, err
 	}
-	log.Infow("users found", "users", entities)
+	// log.Infow("users found", "users", entities)
 
 	for _, usr := range entities.Items {
 		result.Items = append(result.Items, func() (u *dto.User) {

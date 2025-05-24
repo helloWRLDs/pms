@@ -65,8 +65,8 @@ func (r *Repository) List(ctx context.Context, filter *dto.DocumentFilter) (res 
 		Select("d.*").
 		From("\"Document\" d")
 
-	if filter.CompanyId != "" {
-		builder = builder.Where(sq.Eq{"d.project_id": filter.CompanyId})
+	if filter.ProjectId != "" {
+		builder = builder.Where(sq.Eq{"d.project_id": filter.ProjectId})
 	}
 	if filter.Title != "" {
 		builder = builder.Where(sq.Eq{"d.title": filter.Title})

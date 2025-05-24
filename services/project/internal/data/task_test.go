@@ -12,6 +12,13 @@ import (
 	taskdata "pms.project/internal/data/task"
 )
 
+func Test_GetAssignment(t *testing.T) {
+	taskID := "04aa3fdd-0a1d-4019-bb5c-2e285a5b670b"
+	assignment, err := repo.TaskAssignment.GetByTask(context.Background(), taskID)
+	assert.NoError(t, err)
+	t.Log(assignment)
+}
+
 func Test_GetTask(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

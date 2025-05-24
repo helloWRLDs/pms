@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
 	"go.uber.org/zap"
 	"pms.pkg/errs"
 	"pms.pkg/tools/jwtoken"
@@ -33,7 +32,6 @@ func (s *Server) CheckCompany() fiber.Handler {
 				Reason: "don't have access to project",
 			}
 		}
-		log.Info("project_id: ", project)
 		c.Locals("project_id", project)
 
 		return c.Next()

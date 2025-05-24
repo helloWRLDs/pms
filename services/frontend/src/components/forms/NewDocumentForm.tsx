@@ -57,6 +57,13 @@ const NewDocumentForm = ({
         <Input.Element
           type="select"
           label="Sprint"
+          value={newDocument.sprint_id}
+          onChange={(e) => {
+            setNewDocument({
+              ...newDocument,
+              sprint_id: e.currentTarget.value,
+            });
+          }}
           options={[
             { label: "None", value: "" },
             ...(sprints

@@ -14,7 +14,7 @@ export const useProjectStore = create<ProjectStore>()(
   persist(
     (set, get) => ({
       project: null,
-      selectProject: (project: Project) => set({ project }),
+      selectProject: (project: Project | null) => set({ project }),
       resetProject: () => set({ project: null }),
       getProject: () => get().project,
     }),

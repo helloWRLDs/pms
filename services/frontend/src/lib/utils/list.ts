@@ -28,6 +28,5 @@ export const buildQuery = (baseURL: string, query: {}): string => {
     });
   }
   const q = params.toString();
-  console.log(`${baseURL}?${q}`);
   return q ? `${baseURL}?${q}` : baseURL;
 };

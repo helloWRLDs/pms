@@ -123,13 +123,13 @@ func (l *Logic) ListTasks(ctx context.Context, filter *dto.TaskFilter) (result l
 			TotalPages: tasks.TotalPages,
 			TotalItems: tasks.TotalItems,
 		},
-		Items: func() (items []*dto.Task) {
-			items = make([]*dto.Task, len(tasks.Items))
-			for i, t := range tasks.Items {
-				items[i] = t.DTO()
-			}
-			return items
-		}(),
+	}
+	result.Items = make([]*dto.Task, len(tasks.Items))
+	for i, t := range tasks.Items {
+		result.Items[i] = t.DTO()
+		if assignment, err := l.Repo.TaskAssignment.GetByTask(ctx, t.ID); err == nil {
+			result.Items[i].AssigneeId = assignment.UserID
+		}
 	}
 
 	return result, nil

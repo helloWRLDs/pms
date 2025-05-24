@@ -42,7 +42,9 @@ func (s *Server) SetupREST() {
 
 		comp.Get("/", s.ListCompanies)
 		comp.Get("/:id", s.GetCompany)
-	}, "companies")
+		comp.Post("/", s.CreateCompany)
+		comp.Post("/:companyID/participants/:userID", s.CompanyAddParticipant)
+	})
 
 	v1.Route("/docs", func(docs fiber.Router) {
 		docs.Post("/", s.CreateReportTemplate)
@@ -55,9 +57,9 @@ func (s *Server) SetupREST() {
 	v1.Route("/projects", func(proj fiber.Router) {
 		proj.Use(s.RequireAuthService(), s.Authorize())
 
-		proj.Get("/", s.ListProjects) // /projects?company_id required
-		proj.Get("/:projectID", s.GetProject)
 		proj.Post("/", s.CreateProject)
+		proj.Get("/", s.ListProjects)
+		proj.Get("/:projectID", s.GetProject)
 
 		proj.Route("/:projectID/tasks", func(tasks fiber.Router) {
 			tasks.Use(s.CheckCompany())
@@ -67,6 +69,11 @@ func (s *Server) SetupREST() {
 			tasks.Get("/:taskID", s.GetTask)
 			tasks.Put("/:taskID", s.UpdateTask)
 			tasks.Delete("/:taskID", s.DeleteTask)
+
+			tasks.Route("/:taskID/assignment", func(assignment fiber.Router) {
+				assignment.Post("/:userID", s.CreateTaskAssignment)
+				assignment.Delete("/:userID", s.DeleteTaskAssignment)
+			})
 
 			tasks.Route("/:taskID/comments", func(comment fiber.Router) {
 				comment.Get("/", s.ListTaskComments)

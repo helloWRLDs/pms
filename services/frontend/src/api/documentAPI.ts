@@ -1,4 +1,8 @@
-import { DocumentCreation, DocumentFilter } from "../lib/document/document";
+import {
+  Document,
+  DocumentCreation,
+  DocumentFilter,
+} from "../lib/document/document";
 import { DocumentPDF } from "../lib/document/documentPDF";
 import { buildQuery, ListItems } from "../lib/utils/list";
 import { API } from "./api";

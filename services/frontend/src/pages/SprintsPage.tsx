@@ -32,7 +32,7 @@ const SprintsPage = () => {
   const {
     data: sprintList,
     isLoading: isSprintListLoading,
-    refetch,
+    refetch: refetchSprints,
   } = useQuery({
     queryKey: [
       "sprints",
@@ -57,21 +57,25 @@ const SprintsPage = () => {
           title="Create Sprint"
           visible={newSprintModal}
           onClose={() => setNewSprintModal(false)}
-          className="bg-white"
+          className=""
         >
           <NewSprintForm
-            onSubmit={(creation) => {
-              sprintAPI.create(creation);
+            onFinish={async (creation) => {
+              console.log(creation);
+              await sprintAPI.create(creation);
               setNewSprintModal(false);
-              refetch();
+              refetchSprints();
             }}
           />
         </Modal>
       </section>
 
       <section id="companies-header">
-        <div className="container mx-auto flex justify-between items-center mb-4">
-          <h2 className="font-bold text-2xl mb-4">Sprints</h2>
+        <div className="container mx-auto flex justify-between items-center mb-5">
+          <h2 className="font-bold text-3xl">
+            <span className="text-accent-500">{selectedProject?.title}</span>{" "}
+            Sprints
+          </h2>
           <div className="flex gap-4 items-baseline">
             <Input>
               <Input.Element

@@ -20,6 +20,7 @@ func (s *Server) StreamDocument(c *websocket.Conn) {
 		zap.String("ip", c.IP()),
 	)
 	log.Debug("StreamDocument called")
+	log.Info("client connected")
 
 	docID := c.Params("docID")
 	if strings.Trim(docID, " ") == "" {
@@ -92,9 +93,11 @@ func (s *Server) StreamSprint(c *websocket.Conn) {
 		zap.String("ip", c.IP()),
 	)
 	log.Debug("StreamSprint called")
+	log.Info("client connected")
 
 	sprintID := c.Params("sprintID")
 	if strings.Trim(sprintID, " ") == "" {
+		log.Error("sprint_id is invalid")
 		return
 	}
 	hubID := fmt.Sprintf("sprint-%s", sprintID)
@@ -104,33 +107,31 @@ func (s *Server) StreamSprint(c *websocket.Conn) {
 	}()
 
 	if _, exists := s.Logic.WsHubs[hubID]; !exists {
+		log.Info("hub not found. Creating...")
 		s.Logic.WsHubs[hubID] = ws.NewHub()
 	}
 	s.Logic.WsHubs[hubID].AddClient(c)
 
-	sendTasks := func(c *websocket.Conn) error {
-		tasks, err := s.Logic.ListTasks(context.Background(), &dto.TaskFilter{
-			SprintId:   sprintID,
-			AssigneeId: c.Query("assignee_id"),
-			Page:       1,
-			PerPage:    10000,
-		})
-		if err != nil {
-			log.Errorw("failed to fetch tasks", "err", err)
-			return err
-		} else {
-			log.Infow("fetched tasks", "tasks", tasks)
-			c.WriteJSON(tasks.Items)
-		}
-		return nil
-	}
-
-	sendTasks(c)
 	var (
 		mt  int
 		msg []byte
 		err error
 	)
+
+	log.Infow("trying to list tasks", "sprint_id", sprintID)
+	tasks, err := s.Logic.ListTasks(context.Background(), &dto.TaskFilter{
+		SprintId: sprintID,
+		// AssigneeId: c.Query("assignee_id"),
+		Page:    1,
+		PerPage: 10000,
+	})
+	if err != nil {
+		log.Errorw("failed to fetch tasks", "err", err)
+		return
+	} else {
+		log.Infow("fetched tasks", "tasks", tasks)
+		c.WriteJSON(tasks.Items)
+	}
 
 	for {
 		mt, msg, err = c.ReadMessage()

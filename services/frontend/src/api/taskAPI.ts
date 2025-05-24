@@ -22,6 +22,33 @@ class TaskAPI extends API {
     this.projectID = useProjectStore.getState().project?.id ?? "";
   }
 
+  async unassign(taskID: string, userID: string): Promise<void> {
+    this.setupProjectID();
+    try {
+      await this.req.delete(
+        `${this.baseURL}/projects/${this.projectID}/tasks/${taskID}/assignment/${userID}`
+      );
+      return;
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  }
+
+  async assign(taskID: string, userID: string): Promise<void> {
+    this.setupProjectID();
+    console.log(`assign called: task=${taskID} user=${userID}`);
+    try {
+      await this.req.post(
+        `${this.baseURL}/projects/${this.projectID}/tasks/${taskID}/assignment/${userID}`
+      );
+      return;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+
   async list(filter: TaskFilter): Promise<ListItems<Task>> {
     this.setupProjectID();
     try {
@@ -31,8 +58,8 @@ class TaskAPI extends API {
       return res.data;
     } catch (err) {
       console.log(err);
+      throw err;
     }
-    return {} as ListItems<Task>;
   }
 
   async create(task: TaskCreation) {
@@ -57,8 +84,8 @@ class TaskAPI extends API {
       return res.data;
     } catch (err) {
       console.log(err);
+      throw err;
     }
-    return {} as Task;
   }
 
   async update(id: string, task: Task): Promise<void> {

@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Company, CompanyCreation } from "../../lib/company/company";
+import { CompanyCreation } from "../../lib/company/company";
 
 type NewCompanyFormProps = React.HTMLAttributes<HTMLFormElement> & {
-  onSubmit?: (data: CompanyCreation) => void;
+  onFinish: (data: CompanyCreation) => void;
 };
 
-const NewCompanyForm = ({ onSubmit, ...props }: NewCompanyFormProps) => {
+const NewCompanyForm = ({ onFinish, ...props }: NewCompanyFormProps) => {
   const NULL_COMPANY: CompanyCreation = {
     name: "",
     codename: "",
@@ -15,7 +15,7 @@ const NewCompanyForm = ({ onSubmit, ...props }: NewCompanyFormProps) => {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit && onSubmit(newCompany);
+        onFinish(newCompany);
         setNewCompany(NULL_COMPANY);
       }}
       className="mx-auto"

@@ -18,6 +18,7 @@ import Input from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 import { BsFillPlusCircleFill } from "react-icons/bs";
 import { parseError } from "../lib/errors";
+import { useProjectStore } from "../store/selectedProjectStore";
 
 const CompaniesPage: FC = () => {
   usePageSettings({ requireAuth: true, title: "Companies" });
@@ -30,6 +31,7 @@ const CompaniesPage: FC = () => {
 
   const { isAuthenticated, auth, clearAuth } = useAuthStore();
   const { selectCompany } = useCompanyStore();
+  const { selectProject } = useProjectStore();
 
   const [search, setSearch] = useState("");
   const [newCompanyModal, setNewCompanyModal] = useState<boolean>(false);
@@ -43,12 +45,22 @@ const CompaniesPage: FC = () => {
     ListItems<Company>
   >({
     queryKey: ["companies", filter.page, filter.per_page, filter.company_name],
-    queryFn: () =>
-      companyAPI.list({
-        page: filter.page,
-        per_page: filter.per_page,
-        user_id: auth?.user.id ?? "",
-      }),
+    queryFn: async () => {
+      try {
+        const res = await companyAPI.list({
+          page: filter.page,
+          per_page: filter.per_page,
+          user_id: auth?.user.id ?? "",
+        });
+        return res;
+      } catch (e) {
+        if (parseError(e)?.status === 401) {
+          clearAuth();
+          navigate("/login");
+        }
+        return {} as ListItems<Company>;
+      }
+    },
     enabled: isAuthenticated(),
   });
 
@@ -59,6 +71,7 @@ const CompaniesPage: FC = () => {
   const handleSelectCompany = async (company: Company) => {
     try {
       selectCompany(company);
+      selectProject(null);
       navigate(`/projects`);
     } catch (e) {
       console.error(e);
@@ -74,8 +87,8 @@ const CompaniesPage: FC = () => {
         className="w-[50%] mx-auto bg-primary-300 text-white"
       >
         <NewCompanyForm
-          onSubmit={(data) => {
-            console.log(data);
+          onFinish={(data) => {
+            companyAPI.create(data);
             setNewCompanyModal(false);
           }}
         />
@@ -120,11 +133,13 @@ const CompaniesPage: FC = () => {
                     <Table.HeadCell>Created</Table.HeadCell>
                   </Table.Row>
                 </Table.Head>
-                {isCompanyListLoading || !companyList ? (
+                {isCompanyListLoading ? (
                   <div className="p-4 text-center text-gray-500">
                     Loading companies...
                   </div>
-                ) : companyList.items?.length === 0 ? (
+                ) : !companyList ||
+                  !companyList.items ||
+                  companyList.items?.length === 0 ? (
                   <Table.Body></Table.Body>
                 ) : (
                   <Table.Body>

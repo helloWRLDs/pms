@@ -85,7 +85,7 @@ func (s *Server) ListDocuments(c *fiber.Ctx) error {
 		Page:      int32(c.QueryInt("page", 1)),
 		PerPage:   int32(c.QueryInt("per_page", 10)),
 		Title:     c.Query("title", ""),
-		CompanyId: c.Query("company_id", ""),
+		ProjectId: c.Query("project_id", ""),
 	}
 	docs, err := s.Logic.ListDocuments(c.UserContext(), filter)
 	if err != nil {

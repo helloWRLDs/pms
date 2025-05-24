@@ -18,4 +18,5 @@ export type UserNew = Pick<User, "email" | "password" | "name">;
 export type UserOptional = DeepPartial<User>;
 export type UserFilter = Pagination & {
   company_id: string;
+  email?: string;
 };

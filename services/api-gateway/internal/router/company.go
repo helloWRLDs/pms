@@ -33,6 +33,51 @@ func (s *Server) ListCompanies(c *fiber.Ctx) error {
 	return c.Status(200).JSON(companies)
 }
 
+func (s *Server) CreateCompany(c *fiber.Ctx) error {
+	log := s.log.Named("CreateCompany").With(
+		zap.String("ip", c.IP()),
+	)
+	log.Debug("CreateCompany called")
+
+	newCompany := new(dto.NewCompany)
+	if err := c.BodyParser(newCompany); err != nil {
+		return errs.ErrBadGateway{
+			Object: "new company data",
+		}
+	}
+	if err := s.Logic.CreateCompany(c.UserContext(), newCompany); err != nil {
+		return err
+	}
+	return c.SendStatus(201)
+}
+
+func (s *Server) CompanyAddParticipant(c *fiber.Ctx) error {
+	log := s.log.Named("CompanyAddParticipant").With(
+		zap.String("ip", c.IP()),
+	)
+	log.Debug("CompanyAddParticipant called")
+
+	companyID := c.Params("companyID")
+	if strings.Trim(companyID, " ") == "" {
+		return errs.ErrBadGateway{
+			Object: "company_id",
+		}
+	}
+
+	userID := c.Params("userID")
+	if strings.Trim(userID, " ") == "" {
+		return errs.ErrBadGateway{
+			Object: "user_id",
+		}
+	}
+
+	if err := s.Logic.CompanyAddParticipant(c.UserContext(), companyID, userID); err != nil {
+		return err
+	}
+
+	return c.SendStatus(200)
+}
+
 func (s *Server) GetCompany(c *fiber.Ctx) error {
 	log := s.log.With(
 		zap.String("func", "GetCompany"),
