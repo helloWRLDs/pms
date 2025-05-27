@@ -5,13 +5,15 @@ import { capitalize } from "../../lib/utils/string";
 import { UserOptional } from "../../lib/user/user";
 import { Sprint } from "../../lib/sprint/sprint";
 import { Project } from "../../lib/project/project";
+import Input from "../ui/Input";
+import { Priority } from "../../lib/task/priority";
 
 type NewTaskFormProps = {
   className?: string;
   assignees?: UserOptional[];
   sprints?: Sprint[];
   project: Project;
-  onSubmit?: (data: TaskCreation) => void;
+  onSubmit: (data: TaskCreation) => void;
 };
 
 const PRIORITIES = [1, 2, 3, 4, 5];
@@ -47,178 +49,121 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit && onSubmit(newTask);
+        const fixedTask: TaskCreation = {
+          ...newTask,
+          due_date: {
+            seconds: Math.floor(newTask.due_date.seconds),
+          },
+        };
+        onSubmit(fixedTask);
         setNewTask(NULL_TASK);
       }}
       className={`mx-auto ${className}`}
       {...props}
     >
-      <div className="relative z-0 mb-4 mt-8">
-        <input
+      <Input>
+        <Input.Element
           type="text"
+          label="Title"
           value={newTask.title}
-          id="new-project-description"
-          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
-          placeholder=" "
           required={true}
           onChange={(e) => handleChange("title", e.currentTarget.value)}
         />
-        <label
-          htmlFor="new-project-description"
-          className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-accent-600 peer-focus:dark:text-accent-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
-        >
-          Title
-        </label>
-      </div>
+      </Input>
 
-      <div className="relative z-0 mb-4 mt-8">
-        <textarea
+      <Input>
+        <Input.Element
+          type="textarea"
+          label="Body"
           value={newTask.body}
-          id="new-project-description"
-          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
-          placeholder=" "
-          required={true}
-          onChange={(e) =>
-            setNewTask({ ...newTask, body: e.currentTarget.value })
-          }
+          required
+          onChange={(e) => handleChange("body", e.currentTarget.value)}
         />
-        <label
-          htmlFor="new-task-body"
-          className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-accent-600 peer-focus:dark:text-accent-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
-        >
-          Body
-        </label>
-      </div>
+      </Input>
 
-      <div className="relative z-0 mb-4 mt-8">
-        <select
-          id="new-task-status"
-          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
-          value={newTask.status}
-          onChange={(e) => handleChange("status", e.currentTarget.value)}
-        >
-          {getTaskStatuses.map((status) => (
-            <option key={status} value={status} className="text-black">
-              {capitalize(status.replace("_", " "))}
-            </option>
-          ))}
-        </select>
-        <label
-          htmlFor="new-task-status"
-          className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-accent-600 peer-focus:dark:text-accent-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
-        >
-          Status
-        </label>
-      </div>
+      <Input>
+        <Input.Element
+          type="select"
+          label="Status"
+          options={getTaskStatuses.map((item) => {
+            return { label: capitalize(item.replace("_", " ")), value: item };
+          })}
+        />
+      </Input>
 
-      <div className="relative z-0 mb-4 mt-8">
-        <select
-          id="new-task-priority"
-          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
+      <Input className="text-gray-700">
+        <Input.Element
+          type="select"
+          label="Priority"
+          options={PRIORITIES.map((item) => {
+            return {
+              label: new Priority(item).toString(),
+              value: item,
+            };
+          })}
           value={newTask.priority}
-          onChange={(e) =>
-            handleChange("priority", parseInt(e.currentTarget.value))
-          }
-        >
-          {PRIORITIES.map((priority) => (
-            <option key={priority} value={priority}>
-              {priority}
-            </option>
-          ))}
-        </select>
-        <label
-          htmlFor="new-task-priority"
-          className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-accent-600 peer-focus:dark:text-accent-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
-        >
-          Priority
-        </label>
-      </div>
-
-      <div className="relative z-0 mb-4 mt-8">
-        <select
-          id="new-task-assignee"
-          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
-          value={newTask.assignee_id}
-          onChange={(e) => handleChange("assignee_id", e.currentTarget.value)}
-        >
-          <option value="">Unassigned</option>
-          {props.assignees &&
-            props.assignees.map((assignee) => (
-              <option key={assignee.id} value={assignee.id}>
-                {assignee.name}
-              </option>
-            ))}
-        </select>
-        <label
-          htmlFor="new-task-status"
-          className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-accent-600 peer-focus:dark:text-accent-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
-        >
-          Assignee
-        </label>
-      </div>
-
-      <div className="relative z-0 mb-4 mt-8">
-        <input
-          type="date"
-          id="new-project-description"
-          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
-          placeholder=" "
-          required={true}
-          value={new Date(newTask.due_date.seconds).toISOString().split("T")[0]}
+          className=""
           onChange={(e) => {
-            handleChange("due_date", {
-              seconds: new Date(e.currentTarget.value).getTime() / 1000,
-            });
+            handleChange("priority", parseInt(e.currentTarget.value));
           }}
         />
-        <label
-          htmlFor="new-project-description"
-          className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-accent-600 peer-focus:dark:text-accent-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
-        >
-          Due Date
-        </label>
-      </div>
+      </Input>
+
+      <Input>
+        <Input.Element
+          type="select"
+          label="Assignee"
+          options={[
+            { label: "Unassigned", value: "" },
+            ...(props.assignees?.map((item) => ({
+              label: item.name ?? "",
+              value: item.id ?? "",
+            })) ?? []),
+          ]}
+        />
+      </Input>
+
+      <Input>
+        <Input.Element
+          label="Due date"
+          type="date"
+          value={
+            new Date(newTask.due_date.seconds * 1000)
+              .toISOString()
+              .split("T")[0]
+          }
+          onChange={(e) =>
+            handleChange("due_date", {
+              seconds: new Date(e.currentTarget.value).getTime() / 1000,
+            })
+          }
+        />
+      </Input>
 
       {props.sprints && props.sprints.length > 0 && (
-        <div className="relative z-0 mb-4 mt-8">
-          <select
-            id="new-task-sprint"
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
-            value={newTask.sprint_id}
-            onChange={(e) => handleChange("sprint_id", e.currentTarget.value)}
-          >
-            <option value="">No Sprint</option>
-            {props.sprints.map((sprint) => (
-              <option key={sprint.id} value={sprint.id}>
-                {sprint.title}
-              </option>
-            ))}
-          </select>
-          <label
-            htmlFor="new-task-sprint"
-            className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-accent-600 peer-focus:dark:text-accent-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
-          >
-            Sprint
-          </label>
-        </div>
+        <Input>
+          <Input.Element
+            type="select"
+            label="Sprint"
+            options={[
+              { label: "No Sprint", value: "" },
+              ...(props.sprints?.map((item) => ({
+                label: item.title ?? "",
+                value: item.id ?? "",
+              })) ?? []),
+            ]}
+          />
+        </Input>
       )}
 
-      <div className="relative z-0 mb-4 mt-8">
-        <input
+      <Input>
+        <Input.Element
           type="text"
+          label="Project"
           value={props.project.code_name}
-          id="new-project-description"
-          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
-          placeholder=" "
           disabled
         />
-        <label
-          htmlFor="new-project-description"
-          className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-accent-600 peer-focus:dark:text-accent-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
-        >
-          Project
-        </label>
-      </div>
+      </Input>
 
       <div className="w-1/2 mx-auto mt-8">
         <input

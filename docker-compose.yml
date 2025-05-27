@@ -15,6 +15,44 @@ services:
       - webnet
     depends_on:
       - redis-pms
+
+  analytics-service:
+    container_name: analytics-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: analytics-service
+    ports:
+      - "50054:50054"
+    environment:
+      - HOST=:50054
+      - POSTGRES_HOST=pg-pms
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_SSL_MODE=disable
+      - LOG_LEVEL=debug
+      - PROJECT_HOST=project-service:50053
+    networks:
+      - webnet
+    depends_on:
+      - pg-pms
+
+  pg-pms:
+    container_name: postgres
+    image: postgres:16.4
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - webnet
       
   redis-pms:
     image: redis:7.0.8
@@ -39,3 +77,6 @@ services:
 
 networks:
   webnet:
+
+volumes:
+  pg_data:

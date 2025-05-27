@@ -4,6 +4,7 @@ type PaginationProps = {
   total_pages: number;
   total_items: number;
   onPageChange?: (page: number, per_page: number) => void;
+  className?: string;
 };
 
 const Paginator = (props: PaginationProps) => {
@@ -39,12 +40,14 @@ const Paginator = (props: PaginationProps) => {
     panel.push({ value: ">", page: props.page + 1 });
   }
   return (
-    <div className="flex justify-center gap-1 border-t border-gray-200 shadow-xl px-2 py-1 rounded-md">
+    <div
+      className={`flex justify-center gap-1 border-t border-secondary-200 shadow-xl px-2 py-1 rounded-md ${props.className}`}
+    >
       {panel.map((item, i) => (
         <div
           key={i}
           className={`px-2 py-1 text-center m-1 cursor-pointer rounded-md select-none   ${
-            item.page === props.page ? "bg-accent-500" : ""
+            item.page === props.page ? "bg-accent-500 text-primary-500" : ""
           } ${item.page && "hover:bg-accent-500"}`}
           onClick={() =>
             item.page &&

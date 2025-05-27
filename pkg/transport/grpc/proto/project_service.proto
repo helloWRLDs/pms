@@ -17,6 +17,9 @@ service ProjectService {
     rpc UpdateTask(UpdateTaskRequest) returns (UpdateTaskResponse);
     rpc DeleteTask(DeleteTaskRequest) returns (DeleteTaskResponse);
 
+    rpc TaskAssign (TaskAssignRequest) returns (TaskAssignResponse);
+    rpc TaskUnassign (TaskUnassignRequest) returns (TaskUnassignResponse);
+
     rpc GetSprint(GetSprintRequest) returns (GetSprintResponse);
     rpc ListSprints(ListSprintsRequest) returns (ListSprintsResponse);
     rpc CreateSprint(CreateSprintRequest) returns (CreateSprintResponse);
@@ -108,6 +111,27 @@ message DeleteTaskRequest {
 message DeleteTaskResponse {
     bool success = 1;
 }
+
+// TASK ASSIGNMENT
+
+message TaskAssignRequest {
+    string task_id = 1;
+    string user_id = 2;
+}
+
+message TaskAssignResponse {
+    bool success = 1;
+}
+
+message TaskUnassignRequest {
+    string task_id = 1;
+    string user_id = 2;
+}
+
+message TaskUnassignResponse {
+    bool success = 1;
+}
+
 
 
 // SPRINTS

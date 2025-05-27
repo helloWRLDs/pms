@@ -1,4 +1,8 @@
-import { Company, CompanyFilters } from "../lib/company/company";
+import {
+  Company,
+  CompanyCreation,
+  CompanyFilters,
+} from "../lib/company/company";
 import { ListItems } from "../lib/utils/list";
 import { API } from "./api";
 
@@ -15,6 +19,26 @@ class CompanyAPI extends API {
     return {} as Company;
   }
 
+  async addParticipant(companyID: string, userID: string): Promise<void> {
+    try {
+      await this.req.post(
+        `${this.baseURL}/companies/${companyID}/participants/${userID}`
+      );
+      return;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async create(creation: CompanyCreation): Promise<void> {
+    try {
+      await this.req.post(`${this.baseURL}/companies`, creation);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  }
+
   async list(filters: CompanyFilters): Promise<ListItems<Company>> {
     try {
       const res = await this.req.get<ListItems<Company>>(
@@ -24,8 +48,8 @@ class CompanyAPI extends API {
       return res.data;
     } catch (err) {
       console.log(err);
+      throw err;
     }
-    return {} as ListItems<Company>;
   }
 }
 

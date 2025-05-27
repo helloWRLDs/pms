@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"go.uber.org/zap"
+	analyticsclient "pms.api-gateway/internal/client/analytics"
 	authclient "pms.api-gateway/internal/client/auth"
 	notifierclient "pms.api-gateway/internal/client/notifier"
 	projectclient "pms.api-gateway/internal/client/project"
@@ -11,6 +13,12 @@ import (
 )
 
 func (l *Logic) InitTasks() {
+	analyticsTask := &scheduler.Task{
+		ID:          "analytics-client-connector",
+		MaxAttempts: -1,
+		Func:        l.CheckAnalyticsHealth,
+		Interval:    10 * time.Second,
+	}
 	authTask := &scheduler.Task{
 		ID:          "auth-client-connector",
 		MaxAttempts: -1,
@@ -33,10 +41,55 @@ func (l *Logic) InitTasks() {
 	l.Tasks[authTask.ID] = authTask
 	l.Tasks[notifierTask.ID] = notifierTask
 	l.Tasks[projectTask.ID] = projectTask
+	l.Tasks[analyticsTask.ID] = analyticsTask
+}
+
+func (l *Logic) CheckAnalyticsHealth(ctx context.Context) error {
+	log := new(zap.SugaredLogger)
+	{
+		if l.Config.Analytics.DisableLog {
+			log = zap.NewNop().Sugar()
+		} else {
+			log = l.log.With("func", "CheckAnalyticsHealth")
+		}
+	}
+
+	l.mu.Lock()
+	currentAnalyticsClient := l.analyticsClient
+	l.mu.Unlock()
+
+	if currentAnalyticsClient != nil {
+		if currentAnalyticsClient.Ping() {
+			log.Debug("analytics conn is ok")
+			return nil
+		}
+		log.Debug("analytics conn has been lost. Reconnecting...")
+	}
+
+	newClient, err := analyticsclient.New(l.Config.Analytics, l.log)
+	if err != nil {
+		log.Errorw("failed to establish project conn", "err", err)
+		return err
+	}
+
+	l.mu.Lock()
+	l.analyticsClient = newClient
+	l.mu.Unlock()
+
+	log.Info("analytics conn re-established")
+	return nil
+
 }
 
 func (l *Logic) CheckProjectHealth(ctx context.Context) error {
-	log := l.log.With("func", "CheckProjectHealth")
+	log := new(zap.SugaredLogger)
+	{
+		if l.Config.Project.DisableLog {
+			log = zap.NewNop().Sugar()
+		} else {
+			log = l.log.With("func", "CheckProjectHealth")
+		}
+	}
 
 	l.mu.Lock()
 	currentProjectClient := l.projectClient
@@ -66,7 +119,14 @@ func (l *Logic) CheckProjectHealth(ctx context.Context) error {
 }
 
 func (l *Logic) CheckAuthHealth(ctx context.Context) error {
-	log := l.log.With("func", "CheckAuthHealth")
+	log := new(zap.SugaredLogger)
+	{
+		if l.Config.Auth.DisableLog {
+			log = zap.NewNop().Sugar()
+		} else {
+			log = l.log.With("func", "CheckAuthHealth")
+		}
+	}
 
 	l.mu.Lock()
 	currentAuthClient := l.authClient
@@ -95,7 +155,14 @@ func (l *Logic) CheckAuthHealth(ctx context.Context) error {
 }
 
 func (l *Logic) CheckNotifierHealth(ctx context.Context) error {
-	log := l.log.With("func", "CheckNotifierHealth")
+	log := new(zap.SugaredLogger)
+	{
+		if l.Config.NotificationMQ.DisableLog {
+			log = zap.NewNop().Sugar()
+		} else {
+			log = l.log.With("func", "CheckNotifierHealth")
+		}
+	}
 	log.Debug("CheckNotifierHealth called")
 
 	l.mu.Lock()
@@ -144,5 +211,12 @@ func (l *Logic) CloseClients(ctx context.Context) {
 		} else {
 			log.Debug("notifier client connection closed")
 		}
+	}
+	if l.projectClient != nil {
+		l.projectClient.Close()
+	}
+
+	if l.analyticsClient != nil {
+		l.analyticsClient.Close()
 	}
 }

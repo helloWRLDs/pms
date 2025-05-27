@@ -16,7 +16,7 @@ const ProjectCardWrapper = ({
 };
 
 type ProjectCardProps = React.HTMLAttributes<HTMLDivElement> & {
-  project: Project;
+  project?: Project;
 };
 const ProjectCard = ({
   className,
@@ -26,39 +26,49 @@ const ProjectCard = ({
 }: ProjectCardProps) => {
   return (
     <div
-      className="bg-white px-3 py-6 w-full rounded-lg shadow border border-black backdrop-opacity-100"
+      className={`rounded-lg shadow  backdrop-opacity-100 ${className}`}
       {...props}
     >
-      <div id="card-header" className="flex gap-2 items-center">
-        <h4>{project.title}</h4>
-        <Badge className="inline bg-accent-600 text-black">
-          {project.code_name}
-        </Badge>
-      </div>
-      <div>
-        <Badge className="bg-blue-500 text-white">{project.status}</Badge>
-      </div>
-      <div
-        id="card-progress"
-        className="flex items-center justify-between gap-5"
-      >
-        <div
-          className="bg-[rgb(41,43,41)] rounded-full h-2 transition-all duration-300"
-          style={{
-            width: `${
-              (project.done_tasks / project.total_tasks) * 100
-                ? (project.done_tasks / project.total_tasks) * 100
-                : 1
-            }%`,
-          }}
-        ></div>
-        {project.done_tasks && project.total_tasks ? (
-          <p>{(project.done_tasks / project.total_tasks) * 100}%</p>
-        ) : (
-          <p>No Tasks</p>
-        )}
-      </div>
-      <div>{formatTime(project.created_at.seconds)}</div>
+      {project ? (
+        <div>
+          <div id="card-header" className="flex gap-2 items-center">
+            <h4>{project.title}</h4>
+            <Badge className="inline bg-accent-600 text-black">
+              {project.code_name}
+            </Badge>
+          </div>
+          <div>
+            <Badge className="bg-blue-500 text-neutral-100">
+              {project.status}
+            </Badge>
+          </div>
+          <div
+            id="card-progress"
+            className="flex items-center justify-between gap-5"
+          >
+            <div
+              className="bg-green-500 rounded-full h-2 transition-all duration-300"
+              style={{
+                width: `${
+                  (project.done_tasks / project.total_tasks) * 100
+                    ? (project.done_tasks / project.total_tasks) * 100
+                    : 1
+                }%`,
+              }}
+            ></div>
+            {project.done_tasks && project.total_tasks ? (
+              <p>
+                {Math.round((project.done_tasks / project.total_tasks) * 100)}%
+              </p>
+            ) : (
+              <p>No Tasks</p>
+            )}
+          </div>
+          <div>{formatTime(project.created_at.seconds)}</div>
+        </div>
+      ) : (
+        <>{children}</>
+      )}
     </div>
   );
 };

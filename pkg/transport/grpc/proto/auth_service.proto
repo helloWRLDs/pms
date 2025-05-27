@@ -7,6 +7,7 @@ option go_package = "pkg/transport/grpc/services;pb";
 import "pkg/transport/grpc/proto/models.proto";
 import "google/protobuf/timestamp.proto";
 
+
 service AuthService {
     rpc CreateCompany(CreateCompanyRequest) returns (CreateCompanyResponse);
     rpc ListCompanies(ListCompaniesRequest) returns (ListCompaniesResponse);
@@ -22,8 +23,12 @@ service AuthService {
     rpc GetUser(GetUserRequest) returns (GetUserResponse);
     rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
     rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+
+    rpc InitiateOAuth2(InitiateOAuth2Request) returns (InitiateOAuth2Response);
+    rpc CompleteOAuth2(CompleteOAuth2Request) returns (CompleteOAuth2Response);
 }
 
+// Company request/response messages
 message CreateCompanyRequest {
     bool success = 1;
     models.NewCompany company = 2;
@@ -34,38 +39,6 @@ message CreateCompanyResponse {
     bool success = 1;
     models.Company company = 2;
 }
-
-
-// USER
-
-message ListUsersRequest {
-    models.UserFilter filter = 1;
-}
-
-message ListUsersResponse {
-    bool success = 1;
-    models.UserList companies = 2;
-}
-
-
-message LoginUserRequest {
-    models.UserCredentials credentials = 1;
-}
-
-message LoginUserResponse {
-    bool success = 1;
-    models.AuthPayload payload = 2;
-}
-
-message RegisterUserRequest {
-    models.NewUser new_user = 1;
-}
-
-message RegisterUserResponse {
-    bool success = 1;
-    models.User user = 2;
-}
-
 
 message ListCompaniesRequest {
     models.CompanyFilter filter = 1;
@@ -83,6 +56,44 @@ message GetCompanyRequest {
 message GetCompanyResponse {
     bool success = 1;
     models.Company company = 2;
+}
+
+message UpdateCompanyRequest {
+    string id = 1;
+    models.Company company = 2;
+}
+
+message UpdateCompanyResponse {
+    bool success = 1;
+    models.Company company = 2;
+}
+
+// User request/response messages
+message ListUsersRequest {
+    models.UserFilter filter = 1;
+}
+
+message ListUsersResponse {
+    bool success = 1;
+    models.UserList userList = 2;
+}
+
+message LoginUserRequest {
+    models.UserCredentials credentials = 1;
+}
+
+message LoginUserResponse {
+    bool success = 1;
+    models.AuthPayload payload = 2;
+}
+
+message RegisterUserRequest {
+    models.NewUser new_user = 1;
+}
+
+message RegisterUserResponse {
+    bool success = 1;
+    models.User user = 2;
 }
 
 message GetUserRequest {
@@ -104,19 +115,7 @@ message UpdateUserResponse {
     models.User user = 2;
 }
 
-message UpdateCompanyRequest {
-    string id = 1;
-    models.Company company = 2;
-}
-
-message UpdateCompanyResponse {
-    bool success = 1;
-    models.Company company = 2;
-}
-
-
-// PARTICIPANTS
-
+// Participant request/response messages
 message ListParticipantsRequest {
     models.ParticipantFilter filter = 1;
 }
@@ -125,7 +124,6 @@ message ListParticipantsResponse {
     bool success = 1;
     models.ParticipantList participants = 2;
 }
-
 
 message AddParticipantRequest {
     string company_id = 1;
@@ -145,4 +143,27 @@ message RemoveParticipantRequest {
 
 message RemoveParticipantResponse {
     bool success = 1;
+}
+
+message InitiateOAuth2Request {
+  string provider = 1; 
+  string state = 2;
+  string redirect_url = 3;
+}
+
+message InitiateOAuth2Response {
+  string auth_url = 1;
+  string state = 2;
+}
+
+message CompleteOAuth2Request {
+  string provider = 1;
+  string code = 2;
+  string state = 3;
+}
+
+message CompleteOAuth2Response {
+  bool success = 1;
+  models.AuthPayload payload = 2;
+  models.User user = 3;
 }

@@ -129,3 +129,59 @@ func (s *Server) DeleteTask(c *fiber.Ctx) error {
 
 	return c.SendStatus(200)
 }
+
+func (s *Server) CreateTaskAssignment(c *fiber.Ctx) error {
+	log := s.log.Named("CreateTaskAssignment").With(
+		zap.String("ip", c.IP()),
+	)
+	log.Info("CreateTaskAssignment called")
+
+	taskID := c.Params("taskID", "")
+	if strings.Trim(taskID, " ") == "" {
+		return errs.ErrBadGateway{
+			Object: "task_id",
+		}
+	}
+	userID := c.Params("userID", "")
+	if strings.Trim(userID, " ") == "" {
+		return errs.ErrBadGateway{
+			Object: "user_id",
+		}
+	}
+	log.Infow("creating task assignment", "task_id", taskID, "user_id", userID)
+
+	if err := s.Logic.TaskAssign(c.UserContext(), taskID, userID); err != nil {
+		return err
+	}
+
+	return c.SendStatus(200)
+
+}
+
+func (s *Server) DeleteTaskAssignment(c *fiber.Ctx) error {
+	log := s.log.Named("DeleteTaskAssignment").With(
+		zap.String("ip", c.IP()),
+	)
+	log.Info("DeleteTaskAssignment called")
+
+	taskID := c.Params("taskID", "")
+	if strings.Trim(taskID, " ") == "" {
+		return errs.ErrBadGateway{
+			Object: "task_id",
+		}
+	}
+	userID := c.Params("userID", "")
+	if strings.Trim(userID, " ") == "" {
+		return errs.ErrBadGateway{
+			Object: "user_id",
+		}
+	}
+
+	log.Infow("deleting task assignment", "task_id", taskID, "user_id", userID)
+
+	if err := s.Logic.TaskUnassign(c.UserContext(), taskID, userID); err != nil {
+		return err
+	}
+
+	return c.SendStatus(200)
+}

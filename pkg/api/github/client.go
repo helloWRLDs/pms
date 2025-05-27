@@ -1,13 +1,23 @@
 package github
 
-import "fmt"
+import (
+	"fmt"
 
-type Config struct {
-	ClientID     string `env:"CLIENT_ID"`
-	ClientSecret string `env:"CLIENT_SECRET"`
-	RedirectURL  string `env:"REDICRECT_URL"`
-	HOST         string `env:"HOST"`
-	Scopes       []string
+	"go.uber.org/zap"
+)
+
+type Client struct {
+	conf        Config
+	accessToken string
+
+	log *zap.SugaredLogger
+}
+
+func New(conf Config, log *zap.SugaredLogger) *Client {
+	return &Client{
+		conf: conf,
+		log:  log,
+	}
 }
 
 func (c *Client) headers() []string {
@@ -17,8 +27,8 @@ func (c *Client) headers() []string {
 }
 
 // Default headers:
-//  - Content-Type: application/json
-//  - Authorization: Bearer <access-token>
+//   - Content-Type: application/json
+//   - Authorization: Bearer <access-token>
 func (c *Client) setHeaders(headers ...string) map[string]string {
 	h := make(map[string]string, 0)
 	if c.accessToken != "" {
@@ -32,15 +42,4 @@ func (c *Client) setHeaders(headers ...string) map[string]string {
 		h[headers[i]] = headers[i+1]
 	}
 	return h
-}
-
-type Client struct {
-	Conf        Config
-	accessToken string
-}
-
-func New(conf Config) *Client {
-	return &Client{
-		Conf: conf,
-	}
 }

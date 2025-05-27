@@ -4,10 +4,11 @@ import { useCompanyStore } from "../../store/selectedCompanyStore";
 
 type NewProjectFormProps = React.HTMLAttributes<HTMLFormElement> & {
   onSubmit?: (data: ProjectCreation) => void;
+  onFinish: (data: ProjectCreation) => void;
 };
 
 const NewProjectForm = ({
-  onSubmit,
+  onFinish,
   className,
   ...props
 }: NewProjectFormProps) => {
@@ -28,7 +29,7 @@ const NewProjectForm = ({
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit && onSubmit(newProject);
+        onFinish(newProject);
         setNewProject(NULL_PROJECT);
       }}
       className="mx-auto"

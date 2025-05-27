@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"pms.pkg/api/google"
 	"pms.pkg/datastore/redis"
 	ctxutils "pms.pkg/utils/ctx"
 )
@@ -19,6 +20,9 @@ type Session struct {
 	SelectedCompanyID string    `json:"selected_company_id"`
 	Companies         []string  `json:"companies"`
 	Projects          []string  `json:"projects"`
+
+	// OAuth2 specific fields
+	OAuth2 *google.Session `json:"oauth2,omitempty"`
 }
 
 func (s Session) GetDB() int {

@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
 	"go.uber.org/zap"
 	"pms.pkg/errs"
 	"pms.pkg/tools/jwtoken"
@@ -12,6 +11,32 @@ import (
 	"pms.pkg/utils"
 	ctxutils "pms.pkg/utils/ctx"
 )
+
+func (s *Server) RequireProject() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		projectID := c.Get("X-Project-ID")
+		if projectID == "" {
+			return errs.ErrBadGateway{
+				Object: "project_id",
+			}
+		}
+
+		c.Locals("project_id", projectID)
+		return c.Next()
+	}
+}
+
+func (s *Server) RequireCompany() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		companyID := c.Get("X-Company-ID")
+		if companyID == "" {
+			return errs.ErrBadGateway{Object: "company_id"}
+		}
+
+		c.Locals("company_id", companyID)
+		return c.Next()
+	}
+}
 
 func (s *Server) CheckCompany() fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -33,7 +58,6 @@ func (s *Server) CheckCompany() fiber.Handler {
 				Reason: "don't have access to project",
 			}
 		}
-		log.Info("project_id: ", project)
 		c.Locals("project_id", project)
 
 		return c.Next()
@@ -84,6 +108,17 @@ func (s *Server) Authorize() fiber.Handler {
 		log.Debugw("got session from cache", "session", session)
 		ctx := ctxutils.Embed(c.UserContext(), session)
 		c.SetUserContext(ctx)
+		return c.Next()
+	}
+}
+
+func (s *Server) RequireProjectService() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		if s.Logic.ProjectClient() == nil {
+			return errs.ErrUnavalaiable{
+				Object: "project Service",
+			}
+		}
 		return c.Next()
 	}
 }

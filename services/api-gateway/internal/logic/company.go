@@ -44,6 +44,71 @@ func (l *Logic) ListCompanies(ctx context.Context, filter *dto.CompanyFilter) (*
 	return companyRes.Companies, nil
 }
 
+func (l *Logic) CompanyRemoveParticipant(ctx context.Context, companyID, userID string) error {
+	log := l.log.Named("CompanyRemoveParticipant").With(
+		zap.String("company_id", companyID),
+		zap.String("user_id", userID),
+	)
+	log.Debug("CompanyRemoveParticipant called")
+
+	res, err := l.authClient.RemoveParticipant(ctx, &pb.RemoveParticipantRequest{
+		CompanyId: companyID,
+		UserId:    userID,
+	})
+	log.Infow("trying to remove participant", "res", res)
+
+	if err != nil {
+		log.Errorw("failed to remove participant", "err", err)
+		return err
+	}
+
+	return nil
+}
+
+func (l *Logic) CompanyAddParticipant(ctx context.Context, companyID, userID string) error {
+	log := l.log.Named("CompanyAddParticipant").With(
+		zap.Any("user_id", userID),
+		zap.String("company_id", companyID),
+	)
+	log.Debug("CompanyAddParticipant called")
+
+	res, err := l.authClient.AddParticipant(ctx, &pb.AddParticipantRequest{
+		CompanyId: companyID,
+		UserId:    userID,
+		RoleId:    "admin",
+	})
+	log.Infow("adding participant", "res", res)
+
+	if err != nil {
+		log.Errorw("failed to add participant", "err", err)
+		return err
+	}
+
+	return nil
+}
+
+func (l *Logic) CreateCompany(ctx context.Context, creation *dto.NewCompany) error {
+	log := l.log.Named("CreateCompany").With(
+		zap.Any("creation", creation),
+	)
+	log.Debug("GetCompany called")
+
+	sessionInfo, err := l.GetSessionInfo(ctx)
+	if err != nil {
+		return err
+	}
+	creationRes, err := l.authClient.CreateCompany(ctx, &pb.CreateCompanyRequest{
+		Company: creation,
+		UserId:  sessionInfo.UserID,
+	})
+	if err != nil {
+		return err
+	}
+	log.Infow("created company", "created", creationRes.Company)
+
+	return nil
+}
+
 func (l *Logic) GetCompany(ctx context.Context, companyID string) (*dto.Company, error) {
 	log := l.log.With(
 		zap.String("func", "GetCompany"),

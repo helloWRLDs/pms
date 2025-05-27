@@ -26,6 +26,10 @@ import CompanyOverviewPage from "./CompanyOverview";
 import TestPage1 from "./TestPage1";
 import { IoAnalyticsOutline, IoDocumentOutline } from "react-icons/io5";
 import SprintsPage from "./SprintsPage";
+import DocumentsPage from "./DocumentsPage";
+import DocumentPage from "./DocumentPage";
+import { RiProfileLine } from "react-icons/ri";
+import AnalyticsPage from "./AnalyticsPage";
 
 const Main = () => {
   const navigate = useNavigate();
@@ -73,17 +77,25 @@ const Main = () => {
         isEnabled: isLoggedIn,
         label: "Analytics",
         icon: IoAnalyticsOutline,
+        onClick: () => navigate("/analytics"),
       },
       Documents: {
         isEnabled: isLoggedIn,
         label: "Documents",
         icon: IoDocumentOutline,
+        onClick: () => navigate("/documents"),
       },
       AgileDashboard: {
         isEnabled: isLoggedIn,
         label: "Agile Dashboard",
         icon: MdOutlineDashboard,
         onClick: () => navigate("/agile-dashboard"),
+      },
+      Profile: {
+        isEnabled: isLoggedIn,
+        label: "Profile",
+        icon: RiProfileLine,
+        onClick: () => navigate("/profile"),
       },
       Login: {
         className: "absolute bottom-15",
@@ -154,10 +166,13 @@ const Main = () => {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
 
+          <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/companies" element={<CompaniesPage />} />
           <Route path="/projects" element={<CompanyOverviewPage />} />
           <Route path="/backlog" element={<BacklogPage />} />
           <Route path="/sprints" element={<SprintsPage />} />
+          <Route path="/documents/:documentID" element={<DocumentPage />} />
+          <Route path="/documents" element={<DocumentsPage />} />
           <Route path="/projects/:projectID/sprints/:sprintID" />
           <Route path="/projects/:projectID/sprints/:sprintID/tasks/:taskID" />
 

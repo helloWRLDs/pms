@@ -112,3 +112,42 @@ func (l *Logic) ListTasks(ctx context.Context, filter *dto.TaskFilter) (result l
 		},
 	}, nil
 }
+
+func (l *Logic) TaskAssign(ctx context.Context, taskID, userID string) error {
+	log := l.log.Named("TaskAssign").With(
+		zap.String("task_id", taskID),
+		zap.String("user_id", userID),
+	)
+	log.Debug("TaskAssign called")
+
+	assignRes, err := l.projectClient.TaskAssign(ctx, &pb.TaskAssignRequest{
+		TaskId: taskID,
+		UserId: userID,
+	})
+	log.Info("task assignment result", "res", assignRes)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (l *Logic) TaskUnassign(ctx context.Context, taskID, userID string) error {
+	log := l.log.Named("TaskUnassign").With(
+		zap.String("task_id", taskID),
+		zap.String("user_id", userID),
+	)
+	log.Info("TaskUnassign called")
+
+	unassignRes, err := l.projectClient.TaskUnassign(ctx, &pb.TaskUnassignRequest{
+		TaskId: taskID,
+		UserId: userID,
+	})
+	log.Infow("task unassignment result", "res", unassignRes)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}

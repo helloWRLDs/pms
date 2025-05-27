@@ -14,6 +14,7 @@ import (
 	"pms.pkg/tools/jwtoken"
 	"pms.pkg/transport/grpc/dto"
 	"pms.pkg/type/claims"
+	"pms.pkg/utils"
 	"pms.pkg/utils/validators"
 )
 
@@ -31,18 +32,24 @@ func (l *Logic) LoginUser(ctx context.Context, creds *dto.UserCredentials) (payl
 			Reason: "cannot be empty",
 		}
 	}
-	if creds.Password == "" {
-		return nil, errs.ErrInvalidInput{
-			Object: "password",
-			Reason: "cannot be empty",
-		}
-	}
 	existingUser, err := l.Repo.User.GetByEmail(ctx, creds.GetEmail())
 	if err != nil {
 		return nil, err
 	}
-	if err := bcrypt.CompareHashAndPassword([]byte(existingUser.Password), []byte(creds.Password)); err != nil {
-		return nil, err
+	if existingUser.Password == nil {
+		if creds.Password == "" {
+			return nil, errs.ErrInvalidInput{
+				Object: "password",
+				Reason: "cannot be empty",
+			}
+		}
+
+		if err := bcrypt.CompareHashAndPassword(
+			[]byte(utils.Value(existingUser.Password)),
+			[]byte(creds.Password),
+		); err != nil {
+			return nil, err
+		}
 	}
 
 	sessionID := uuid.NewString()
@@ -75,7 +82,8 @@ func (l *Logic) RegisterUser(ctx context.Context, newUser *dto.NewUser) (created
 	log := l.log.With(
 		zap.String("func", "RegsterUser"),
 		zap.String("email", newUser.Email),
-		zap.String("name", newUser.Name),
+		zap.String("first_name", newUser.FirstName),
+		zap.String("last_name", newUser.LastName),
 	)
 	log.Debug("RegsterUser called")
 
@@ -99,10 +107,10 @@ func (l *Logic) RegisterUser(ctx context.Context, newUser *dto.NewUser) (created
 		log.Warnw("invalid email", "err", err)
 		return nil, err
 	}
-	// if err := validators.ValidatePassword(newUser.Password); err != nil {
-	// 	log.Warnw("invalid password", "err", err)
-	// 	return nil, err
-	// }
+	if err := validators.ValidatePassword(newUser.Password); err != nil {
+		log.Warnw("invalid password", "err", err)
+		return nil, err
+	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.GetPassword()), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, errs.ErrInvalidInput{
@@ -112,15 +120,20 @@ func (l *Logic) RegisterUser(ctx context.Context, newUser *dto.NewUser) (created
 	}
 	log.Debugw("generated password", "password", string(hashedPassword))
 	user := userdata.User{
-		ID:       uuid.NewString(),
-		Name:     newUser.GetName(),
-		Email:    newUser.GetEmail(),
-		Password: string(hashedPassword),
-		AvatarIMG: func(avatar []byte) []byte {
+		ID:        uuid.NewString(),
+		FirstName: newUser.GetFirstName(),
+		LastName:  newUser.GetLastName(),
+		Email:     newUser.GetEmail(),
+		Password:  utils.Ptr(string(hashedPassword)),
+		AvatarURL: utils.Ptr(newUser.GetAvatarUrl()),
+		AvatarIMG: func(avatar []byte) (img *[]byte) {
+			img = new([]byte)
 			if len(newUser.GetAvatarImg()) > 0 {
-				return newUser.GetAvatarImg()
+				img = &newUser.AvatarImg
+			} else {
+				img = &defaultProfileAvatar
 			}
-			return defaultProfileAvatar
+			return
 		}(newUser.AvatarImg),
 	}
 

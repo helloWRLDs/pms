@@ -3,7 +3,7 @@ package github
 import (
 	"fmt"
 
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 	"pms.pkg/tools/httpclient"
 )
 
@@ -25,7 +25,7 @@ type Author struct {
 }
 
 func (c *Client) GetCommitDetails(owner, repo, commitSHA string) (commit CommitDetails, err error) {
-	log := logrus.WithField("func", "GetCommitDetails")
+	log := c.log.With("func", "GetCommitDetails")
 
 	res, err := httpclient.New().
 		Method("GET").
@@ -34,17 +34,17 @@ func (c *Client) GetCommitDetails(owner, repo, commitSHA string) (commit CommitD
 		).
 		URL(fmt.Sprintf(
 			"%s/repos/%s/%s/commits/%s",
-			c.Conf.HOST, owner, repo, commitSHA,
+			c.conf.HOST, owner, repo, commitSHA,
 		)).Do()
 	if err != nil || res.Status >= 400 {
-		log.WithField("res", string(res.Status)).Error("failed to make request")
+		log.Error("failed to make request", zap.Int("status", res.Status))
 		return
 	}
 
 	if err = res.ScanJSON(&commit); err != nil {
-		log.WithError(err).Error("failed to unmarshal response")
+		log.Error("failed to unmarshal response", zap.Error(err))
 		return
 	}
-	log.WithField("commit", commit).Debug("fetched commit")
+	log.Debug("fetched commit", zap.Any("commit", commit))
 	return commit, nil
 }

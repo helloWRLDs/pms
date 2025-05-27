@@ -1,24 +1,25 @@
 package config
 
 import (
-	authclient "pms.api-gateway/internal/client/auth"
-	projectclient "pms.api-gateway/internal/client/project"
 	"pms.pkg/datastore/mq"
 	"pms.pkg/datastore/redis"
 	"pms.pkg/logger"
 	"pms.pkg/tools/jwtoken"
+	configgrpc "pms.pkg/transport/grpc/config"
 )
 
 type Config struct {
-	Host string `env:"HOST"`
+	Host        string `env:"HOST"`
+	FrontendURL string `env:"FRONTEND_URL"`
 
 	JWT jwtoken.Config `envPrefix:"JWT_"`
 
 	Redis redis.Config `envPrefix:"REDIS_"`
 
-	Auth           authclient.Config    `envPrefix:"AUTH_"`
-	Project        projectclient.Config `envPrefix:"PROJECT_"`
-	NotificationMQ mq.Config            `envPrefix:"NOTIFICATION_"`
+	Auth           configgrpc.ClientConfig `envPrefix:"AUTH_"`
+	Project        configgrpc.ClientConfig `envPrefix:"PROJECT_"`
+	Analytics      configgrpc.ClientConfig `envPrefix:"ANALYTICS_"`
+	NotificationMQ mq.Config               `envPrefix:"NOTIFICATION_"`
 	// Notifier notifierclient.Config `envPrefix:"NOTIFIER_"`
 
 	Log logger.Config `envPrefix:"LOG_"`

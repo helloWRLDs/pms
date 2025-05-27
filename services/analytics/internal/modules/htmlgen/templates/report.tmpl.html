@@ -1,0 +1,24 @@
+{{template "base" .}}
+
+{{define "title"}}
+    {{.Title}}
+{{end}}
+
+{{define "content"}}
+    <h1>{{ .Content.Title}}</h1>
+    <p>Sprint Duration: {{.Content.StartDate}} - {{.Content.EndDate}}</p>
+    <p>Sprint Goal: {{ .Content.Description }}</p>
+    
+    <br>
+    <h2>Result</h2>
+    <ul>
+        <li>Done Tasks: {{ .Content.DoneTasks }}</li>
+        <li>Undone Taks: {{ .Content.UndoneTasks }}</li>
+    </ul>
+    <br>
+
+    <h2>What Went Well?</h2>
+    <ul>
+        <li></li>
+    </ul>
+{{end}}

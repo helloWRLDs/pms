@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"go.uber.org/zap"
+	analyticsclient "pms.api-gateway/internal/client/analytics"
 	authclient "pms.api-gateway/internal/client/auth"
 	projectclient "pms.api-gateway/internal/client/project"
 	"pms.api-gateway/internal/config"
@@ -18,16 +19,18 @@ import (
 type Logic struct {
 	Config config.Config
 
-	authClient    *authclient.AuthClient
-	projectClient *projectclient.ProjectClient
+	authClient      *authclient.AuthClient
+	projectClient   *projectclient.ProjectClient
+	analyticsClient *analyticsclient.AnalyticsClient
 
 	notificationMQ *mq.Publisher
 
-	TaskQueue *redis.Client[models.TaskQueueElement]
-	Sessions  *redis.Client[models.Session]
-	Tasks     map[string]*scheduler.Task
+	TaskQueue      *redis.Client[models.TaskQueueElement]
+	Sessions       *redis.Client[models.Session]
+	DocumentsCache *redis.Client[models.DocumentBody]
+	Tasks          map[string]*scheduler.Task
 
-	ws.Hub
+	WsHubs map[string]*ws.Hub
 
 	stopTicker chan struct{}
 	log        *zap.SugaredLogger
@@ -39,6 +42,12 @@ func (l *Logic) NotificationQueue() *mq.Publisher {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	return l.notificationMQ
+}
+
+func (l *Logic) AnalyticsClient() *analyticsclient.AnalyticsClient {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.analyticsClient
 }
 
 func (l *Logic) AuthClient() *authclient.AuthClient {
@@ -55,14 +64,21 @@ func (l *Logic) ProjectClient() *projectclient.ProjectClient {
 
 func New(config config.Config, log *zap.SugaredLogger) *Logic {
 	l := &Logic{
-		Config:     config,
-		log:        log,
-		stopTicker: make(chan struct{}),
-		Tasks:      make(map[string]*scheduler.Task),
-		Sessions:   redis.New(&config.Redis, models.Session{}),
-		TaskQueue:  redis.New(&config.Redis, models.TaskQueueElement{}),
+		Config:         config,
+		log:            log,
+		stopTicker:     make(chan struct{}),
+		Tasks:          make(map[string]*scheduler.Task),
+		Sessions:       redis.New(&config.Redis, models.Session{}),
+		DocumentsCache: redis.New(&config.Redis, models.DocumentBody{}),
+		TaskQueue:      redis.New(&config.Redis, models.TaskQueueElement{}),
+		WsHubs:         make(map[string]*ws.Hub),
 	}
 	l.InitTasks()
+
+	go l.processTaskStream()
+
+	go l.processDocumentStream()
+
 	for _, task := range l.Tasks {
 		scheduler.Run(context.Background(), task)
 	}

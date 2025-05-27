@@ -31,6 +31,8 @@ const (
 	AuthService_GetUser_FullMethodName           = "/auth.AuthService/GetUser"
 	AuthService_ListUsers_FullMethodName         = "/auth.AuthService/ListUsers"
 	AuthService_UpdateUser_FullMethodName        = "/auth.AuthService/UpdateUser"
+	AuthService_InitiateOAuth2_FullMethodName    = "/auth.AuthService/InitiateOAuth2"
+	AuthService_CompleteOAuth2_FullMethodName    = "/auth.AuthService/CompleteOAuth2"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -49,6 +51,8 @@ type AuthServiceClient interface {
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
+	InitiateOAuth2(ctx context.Context, in *InitiateOAuth2Request, opts ...grpc.CallOption) (*InitiateOAuth2Response, error)
+	CompleteOAuth2(ctx context.Context, in *CompleteOAuth2Request, opts ...grpc.CallOption) (*CompleteOAuth2Response, error)
 }
 
 type authServiceClient struct {
@@ -179,6 +183,26 @@ func (c *authServiceClient) UpdateUser(ctx context.Context, in *UpdateUserReques
 	return out, nil
 }
 
+func (c *authServiceClient) InitiateOAuth2(ctx context.Context, in *InitiateOAuth2Request, opts ...grpc.CallOption) (*InitiateOAuth2Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InitiateOAuth2Response)
+	err := c.cc.Invoke(ctx, AuthService_InitiateOAuth2_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) CompleteOAuth2(ctx context.Context, in *CompleteOAuth2Request, opts ...grpc.CallOption) (*CompleteOAuth2Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CompleteOAuth2Response)
+	err := c.cc.Invoke(ctx, AuthService_CompleteOAuth2_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
@@ -195,6 +219,8 @@ type AuthServiceServer interface {
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
 	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
+	InitiateOAuth2(context.Context, *InitiateOAuth2Request) (*InitiateOAuth2Response, error)
+	CompleteOAuth2(context.Context, *CompleteOAuth2Request) (*CompleteOAuth2Response, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -240,6 +266,12 @@ func (UnimplementedAuthServiceServer) ListUsers(context.Context, *ListUsersReque
 }
 func (UnimplementedAuthServiceServer) UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
+}
+func (UnimplementedAuthServiceServer) InitiateOAuth2(context.Context, *InitiateOAuth2Request) (*InitiateOAuth2Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InitiateOAuth2 not implemented")
+}
+func (UnimplementedAuthServiceServer) CompleteOAuth2(context.Context, *CompleteOAuth2Request) (*CompleteOAuth2Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CompleteOAuth2 not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -478,6 +510,42 @@ func _AuthService_UpdateUser_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_InitiateOAuth2_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InitiateOAuth2Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).InitiateOAuth2(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_InitiateOAuth2_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).InitiateOAuth2(ctx, req.(*InitiateOAuth2Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_CompleteOAuth2_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CompleteOAuth2Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).CompleteOAuth2(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_CompleteOAuth2_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).CompleteOAuth2(ctx, req.(*CompleteOAuth2Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -532,6 +600,14 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateUser",
 			Handler:    _AuthService_UpdateUser_Handler,
+		},
+		{
+			MethodName: "InitiateOAuth2",
+			Handler:    _AuthService_InitiateOAuth2_Handler,
+		},
+		{
+			MethodName: "CompleteOAuth2",
+			Handler:    _AuthService_CompleteOAuth2_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

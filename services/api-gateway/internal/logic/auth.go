@@ -8,24 +8,27 @@ import (
 	"pms.api-gateway/internal/models"
 	"pms.pkg/transport/grpc/dto"
 	pb "pms.pkg/transport/grpc/services"
-	"pms.pkg/utils"
 )
 
 func (l *Logic) RegisterUser(ctx context.Context, newUser *dto.NewUser) (*dto.User, error) {
+	log := l.log.Named("RegisterUser").With(
+		zap.Any("new_user", newUser),
+	)
+	log.Debug("RegisterUser called")
+
 	req := pb.RegisterUserRequest{
 		NewUser: newUser,
 	}
 	registered, err := l.authClient.RegisterUser(ctx, &req)
 	if err != nil {
-		print(utils.JSON(err))
+		log.Errorw("failed to register user", "err", err)
 		return nil, err
 	}
 	return registered.User, nil
 }
 
 func (l *Logic) LoginUser(ctx context.Context, creds *dto.UserCredentials) (*dto.AuthPayload, error) {
-	log := l.log.With(
-		zap.String("func", "logic.LoginUser"),
+	log := l.log.Named("LoginUser").With(
 		zap.String("email", creds.Email),
 	)
 	log.Debug("LoginUser called")

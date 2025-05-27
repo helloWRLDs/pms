@@ -1,3 +1,4 @@
+import { DeepPartial } from "../utils/generics";
 import { Pagination } from "../utils/list";
 
 export type Task = {
@@ -25,6 +26,8 @@ export type TaskCreation = Omit<
   Task,
   "id" | "created_at" | "updated_at" | "code"
 >;
+
+export type TaskOptional = DeepPartial<Task>;
 
 export type TaskFilter = Pagination & {
   sprint_id?: string;

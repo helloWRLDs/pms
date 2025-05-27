@@ -1,22 +1,14 @@
-import { ComponentProps, FC, ReactNode } from "react";
-import { IconType } from "react-icons";
+import React from "react";
 
+type ButtonProps = React.HTMLAttributes<HTMLButtonElement> & {};
 
-type color = 'primary-1' | 'primary-2' | 'primary-3' | 'primary-4' | 'primary-5' | 'primary-3';
-
-interface Props extends ComponentProps<"button"> {
-    color?: color;
-    size?: 'sm' | 'md' | 'lg';
-    icon?: IconType;
-    children?: ReactNode;
-}
-
-export const Button: FC<Props> = ({color='primary-1', size='md', icon: Icon, children, ...rest}) => {
-    const classes = `main-btn ${color} ${size}`.trimEnd()
-    return (
-        <button {...rest} className={classes}>
-            {Icon && <Icon/>}
-            {children}
-        </button>
-    )
-}
+export const Button = ({ children, className, ...props }: ButtonProps) => {
+  return (
+    <button
+      className={`px-4 py-2 transition-all duration-300 cursor-pointer rounded-md outline-1 outline-accent-500 bg-secondary-100 text-accent-500 hover:text-secondary-100  hover:bg-accent-500 ${className}`}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};

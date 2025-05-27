@@ -27,6 +27,8 @@ const (
 	ProjectService_CreateTask_FullMethodName        = "/project.ProjectService/CreateTask"
 	ProjectService_UpdateTask_FullMethodName        = "/project.ProjectService/UpdateTask"
 	ProjectService_DeleteTask_FullMethodName        = "/project.ProjectService/DeleteTask"
+	ProjectService_TaskAssign_FullMethodName        = "/project.ProjectService/TaskAssign"
+	ProjectService_TaskUnassign_FullMethodName      = "/project.ProjectService/TaskUnassign"
 	ProjectService_GetSprint_FullMethodName         = "/project.ProjectService/GetSprint"
 	ProjectService_ListSprints_FullMethodName       = "/project.ProjectService/ListSprints"
 	ProjectService_CreateSprint_FullMethodName      = "/project.ProjectService/CreateSprint"
@@ -51,6 +53,8 @@ type ProjectServiceClient interface {
 	CreateTask(ctx context.Context, in *CreateTaskRequest, opts ...grpc.CallOption) (*CreateTaskResponse, error)
 	UpdateTask(ctx context.Context, in *UpdateTaskRequest, opts ...grpc.CallOption) (*UpdateTaskResponse, error)
 	DeleteTask(ctx context.Context, in *DeleteTaskRequest, opts ...grpc.CallOption) (*DeleteTaskResponse, error)
+	TaskAssign(ctx context.Context, in *TaskAssignRequest, opts ...grpc.CallOption) (*TaskAssignResponse, error)
+	TaskUnassign(ctx context.Context, in *TaskUnassignRequest, opts ...grpc.CallOption) (*TaskUnassignResponse, error)
 	GetSprint(ctx context.Context, in *GetSprintRequest, opts ...grpc.CallOption) (*GetSprintResponse, error)
 	ListSprints(ctx context.Context, in *ListSprintsRequest, opts ...grpc.CallOption) (*ListSprintsResponse, error)
 	CreateSprint(ctx context.Context, in *CreateSprintRequest, opts ...grpc.CallOption) (*CreateSprintResponse, error)
@@ -145,6 +149,26 @@ func (c *projectServiceClient) DeleteTask(ctx context.Context, in *DeleteTaskReq
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeleteTaskResponse)
 	err := c.cc.Invoke(ctx, ProjectService_DeleteTask_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectServiceClient) TaskAssign(ctx context.Context, in *TaskAssignRequest, opts ...grpc.CallOption) (*TaskAssignResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TaskAssignResponse)
+	err := c.cc.Invoke(ctx, ProjectService_TaskAssign_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectServiceClient) TaskUnassign(ctx context.Context, in *TaskUnassignRequest, opts ...grpc.CallOption) (*TaskUnassignResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TaskUnassignResponse)
+	err := c.cc.Invoke(ctx, ProjectService_TaskUnassign_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -263,6 +287,8 @@ type ProjectServiceServer interface {
 	CreateTask(context.Context, *CreateTaskRequest) (*CreateTaskResponse, error)
 	UpdateTask(context.Context, *UpdateTaskRequest) (*UpdateTaskResponse, error)
 	DeleteTask(context.Context, *DeleteTaskRequest) (*DeleteTaskResponse, error)
+	TaskAssign(context.Context, *TaskAssignRequest) (*TaskAssignResponse, error)
+	TaskUnassign(context.Context, *TaskUnassignRequest) (*TaskUnassignResponse, error)
 	GetSprint(context.Context, *GetSprintRequest) (*GetSprintResponse, error)
 	ListSprints(context.Context, *ListSprintsRequest) (*ListSprintsResponse, error)
 	CreateSprint(context.Context, *CreateSprintRequest) (*CreateSprintResponse, error)
@@ -306,6 +332,12 @@ func (UnimplementedProjectServiceServer) UpdateTask(context.Context, *UpdateTask
 }
 func (UnimplementedProjectServiceServer) DeleteTask(context.Context, *DeleteTaskRequest) (*DeleteTaskResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTask not implemented")
+}
+func (UnimplementedProjectServiceServer) TaskAssign(context.Context, *TaskAssignRequest) (*TaskAssignResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TaskAssign not implemented")
+}
+func (UnimplementedProjectServiceServer) TaskUnassign(context.Context, *TaskUnassignRequest) (*TaskUnassignResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TaskUnassign not implemented")
 }
 func (UnimplementedProjectServiceServer) GetSprint(context.Context, *GetSprintRequest) (*GetSprintResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSprint not implemented")
@@ -498,6 +530,42 @@ func _ProjectService_DeleteTask_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ProjectServiceServer).DeleteTask(ctx, req.(*DeleteTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectService_TaskAssign_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TaskAssignRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).TaskAssign(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_TaskAssign_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).TaskAssign(ctx, req.(*TaskAssignRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectService_TaskUnassign_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TaskUnassignRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).TaskUnassign(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_TaskUnassign_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).TaskUnassign(ctx, req.(*TaskUnassignRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -720,6 +788,14 @@ var ProjectService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteTask",
 			Handler:    _ProjectService_DeleteTask_Handler,
+		},
+		{
+			MethodName: "TaskAssign",
+			Handler:    _ProjectService_TaskAssign_Handler,
+		},
+		{
+			MethodName: "TaskUnassign",
+			Handler:    _ProjectService_TaskUnassign_Handler,
 		},
 		{
 			MethodName: "GetSprint",

@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package analytics;
+
+option go_package = "pkg/transport/grpc/services;pb";
+
+import "pkg/transport/grpc/proto/models.proto";
+import "google/protobuf/timestamp.proto";
+
+service AnalyticsService {
+    rpc CreateDocumentTemplate(CreateDocumentTemplateRequest) returns (CreateDocumentTemplateResponse);
+    rpc ListDocuments(ListDocumentsRequest) returns (ListDocumentsResponse);
+    rpc GetDocument(GetDocumentRequest) returns (GetDocumentResponse);
+    rpc UpdateDocument (UpdateDocumentRequest) returns (UpdateDocumentResponse);
+    rpc DownloadDocument (DownloadDocumentRequest) returns (DownloadDocumentResponse);
+}
+
+message CreateDocumentTemplateRequest {
+    models.DocumentCreation creation = 1;
+}
+
+message CreateDocumentTemplateResponse {
+    bool success = 1;
+    string doc_id = 2;
+}
+
+message ListDocumentsRequest {
+    models.DocumentFilter filter = 1;
+}
+
+message ListDocumentsResponse {
+    bool success = 1;
+    models.DocumentList docs = 2;
+}
+
+message GetDocumentRequest {
+    string id = 1;
+}
+
+message GetDocumentResponse {
+    bool success = 1;
+    models.Document doc = 2;
+}
+
+message UpdateDocumentRequest {
+    string doc_id = 1;
+    models.Document updated_doc = 2;
+}
+
+message UpdateDocumentResponse {
+    bool success = 1;
+    models.Document updated = 2;
+}
+
+message DownloadDocumentRequest {
+    string id = 1;
+}
+
+message DownloadDocumentResponse {
+    bool success = 1;
+    models.DocumentPDF document = 2;
+}

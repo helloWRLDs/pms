@@ -37,6 +37,18 @@ func (wh *Hub) Clean() {
 	wh.Cache = nil
 }
 
+func (wh *Hub) CountClient() (count int) {
+	wh.mu.Lock()
+	defer wh.mu.Unlock()
+
+	for conn, val := range wh.clients {
+		if conn != nil && val {
+			count++
+		}
+	}
+	return
+}
+
 func (wh *Hub) GetClients() map[*websocket.Conn]bool {
 	wh.mu.Lock()
 	defer wh.mu.Unlock()

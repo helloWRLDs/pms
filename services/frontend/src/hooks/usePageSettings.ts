@@ -14,7 +14,6 @@ export interface PageSettingsConfig {
 export const usePageSettings = ({
   title,
   requireAuth = true,
-  showSidebar = true,
 }: PageSettingsConfig) => {
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
@@ -28,7 +27,5 @@ export const usePageSettings = ({
     }
   }, [title, requireAuth, isAuthenticated, navigate]);
 
-  return {
-    showSidebar,
-  };
+  return {};
 };
