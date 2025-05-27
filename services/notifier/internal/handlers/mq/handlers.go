@@ -17,9 +17,6 @@ func (m *MessageQueueHandler) HandleMessage(ctx context.Context, msg *amqp.Deliv
 	)
 	log.Debug("mq.HandleMessage called")
 
-	// Decode the message
-
-	// Route the event based on the routing key
 	switch mqtp.QueueRoute(msg.RoutingKey) {
 	case (notifiermq.GreetMessage{}).RoutingKey():
 		var event notifiermq.GreetMessage
@@ -30,6 +27,6 @@ func (m *MessageQueueHandler) HandleMessage(ctx context.Context, msg *amqp.Deliv
 		return m.HandleGreetEvent(ctx, event)
 	default:
 		log.Warnw("unhandled routing key", "key", msg.RoutingKey)
-		return nil // Don't Nack; ignore unknown messages
+		return nil
 	}
 }

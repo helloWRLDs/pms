@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 	"pms.pkg/tools/httpclient"
 	"pms.pkg/utils"
 )
@@ -27,24 +27,24 @@ type User struct {
 }
 
 func (c *Client) GetUserData() (user User, err error) {
-	log := logrus.WithField("func", "GetUserData")
+	log := c.log.With("func", "GetUserData")
 
-	if !utils.ContainsInArray(c.Conf.Scopes, "user") {
+	if !utils.ContainsInArray(c.conf.Scopes, "user") {
 		return user, fmt.Errorf("missing scope for this action")
 	}
 
 	res, err := httpclient.New().
 		Method("GET").
 		Headers(c.headers()...).
-		URL(fmt.Sprintf("%s/user", c.Conf.HOST)).
+		URL(fmt.Sprintf("%s/user", c.conf.HOST)).
 		Do()
 
 	if err != nil {
-		log.WithError(err).Error("failed to make request")
+		log.Error("failed to make request", zap.Error(err))
 		return user, err
 	}
 	if res.Status >= 400 {
-		log.WithField("res", res.Status).Error("failed to make request")
+		log.Error("failed to make request", zap.Int("status", res.Status))
 		return user, err
 	}
 	if err = res.ScanJSON(&user); err != nil {

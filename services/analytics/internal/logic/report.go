@@ -24,6 +24,7 @@ func (l *Logic) CreateReportTemplate(ctx context.Context, creation *dto.Document
 		ProjectID: creation.ProjectId,
 		CreatedAt: time.Now(),
 		Title:     creation.Title,
+		Body:      new([]byte),
 	}
 
 	if creation.SprintId != "" {
@@ -61,7 +62,7 @@ func (l *Logic) CreateReportTemplate(ctx context.Context, creation *dto.Document
 				log.Errorw("failed to build report template", "err", err)
 				return "", err
 			}
-			newDoc.Body = html
+			newDoc.Body = &html
 		} else {
 			log.Error("failed to get sprint", zap.Error(err))
 		}

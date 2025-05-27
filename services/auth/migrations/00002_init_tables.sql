@@ -4,10 +4,12 @@ CREATE TABLE IF NOT EXISTS "User" (
 	"id" UUID UNIQUE DEFAULT uuid_generate_v4(),
 	"email" VARCHAR(255) NOT NULL UNIQUE,
 	"password" VARCHAR(60),
-	"name" VARCHAR(255) NOT NULL,
+	"first_name" VARCHAR(255) NOT NULL,
+	"last_name" VARCHAR(255) NOT NULL,
 	"phone" VARCHAR(20),
 	"bio" TEXT,
 	"avatar_img" BYTEA,
+	"avatar_url" TEXT,
 	"created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	"updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY("id")

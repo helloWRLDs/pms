@@ -6,17 +6,17 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 	"pms.pkg/tools/httpclient"
 )
 
 func (c *Client) AuthURL(state string) string {
-	scopes := strings.Join(c.Conf.Scopes, " ")
+	scopes := strings.Join(c.conf.Scopes, " ")
 	return fmt.Sprintf(
 		"%s/login/oauth/authorize?client_id=%s&redirect_uri=%s&scope=%s&state=%s",
-		c.Conf.HOST,
-		url.QueryEscape(c.Conf.ClientID),
-		url.QueryEscape(c.Conf.RedirectURL),
+		c.conf.HOST,
+		url.QueryEscape(c.conf.ClientID),
+		url.QueryEscape(c.conf.RedirectURL),
 		url.QueryEscape(scopes),
 		url.QueryEscape(state),
 	)
@@ -24,14 +24,14 @@ func (c *Client) AuthURL(state string) string {
 
 // exchange the authorization code for an access token
 func (c *Client) SetToken(code string) error {
-	log := logrus.WithField("func", "SetToken")
+	log := c.log.With("func", "SetToken")
 
 	data := url.Values{}
 
-	data.Set("client_id", c.Conf.ClientID)
-	data.Set("client_secret", c.Conf.ClientSecret)
+	data.Set("client_id", c.conf.ClientID)
+	data.Set("client_secret", c.conf.ClientSecret)
 	data.Set("code", code)
-	data.Set("redirect_uri", c.Conf.RedirectURL)
+	data.Set("redirect_uri", c.conf.RedirectURL)
 
 	res, err := httpclient.New().
 		Method("POST").
@@ -41,12 +41,12 @@ func (c *Client) SetToken(code string) error {
 		Do()
 
 	if err != nil {
-		log.WithError(err).Error("failed to make request")
+		log.Error("failed to make request", zap.Error(err))
 		return err
 	}
 
 	if res.Status >= 400 {
-		log.WithField("res", res.Status).Error("GitHub OAuth request failed")
+		log.Error("GitHub OAuth request failed", zap.Int("status", res.Status))
 		return errors.New("GitHub OAuth request failed")
 	}
 

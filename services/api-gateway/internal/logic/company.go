@@ -44,6 +44,27 @@ func (l *Logic) ListCompanies(ctx context.Context, filter *dto.CompanyFilter) (*
 	return companyRes.Companies, nil
 }
 
+func (l *Logic) CompanyRemoveParticipant(ctx context.Context, companyID, userID string) error {
+	log := l.log.Named("CompanyRemoveParticipant").With(
+		zap.String("company_id", companyID),
+		zap.String("user_id", userID),
+	)
+	log.Debug("CompanyRemoveParticipant called")
+
+	res, err := l.authClient.RemoveParticipant(ctx, &pb.RemoveParticipantRequest{
+		CompanyId: companyID,
+		UserId:    userID,
+	})
+	log.Infow("trying to remove participant", "res", res)
+
+	if err != nil {
+		log.Errorw("failed to remove participant", "err", err)
+		return err
+	}
+
+	return nil
+}
+
 func (l *Logic) CompanyAddParticipant(ctx context.Context, companyID, userID string) error {
 	log := l.log.Named("CompanyAddParticipant").With(
 		zap.Any("user_id", userID),

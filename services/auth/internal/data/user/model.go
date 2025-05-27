@@ -10,10 +10,12 @@ import (
 
 type User struct {
 	ID        string    `db:"id"`
-	Name      string    `db:"name"`
+	FirstName string    `db:"first_name"`
+	LastName  string    `db:"last_name"`
 	Email     string    `db:"email"`
-	Password  string    `db:"password"`
-	AvatarIMG []byte    `db:"avatar_img"`
+	Password  *string   `db:"password"`
+	AvatarIMG *[]byte   `db:"avatar_img"`
+	AvatarURL *string   `db:"avatar_url"`
 	Phone     *string   `db:"phone"`
 	Bio       *string   `db:"bio"`
 	CreatedAt time.Time `db:"created_at"`
@@ -21,11 +23,16 @@ type User struct {
 }
 
 func (u *User) DTO() *dto.User {
+	avatarIMG := make([]byte, 0)
+	if u.AvatarIMG != nil {
+		avatarIMG = []byte(*u.AvatarIMG)
+	}
 	return &dto.User{
 		Id:        u.ID,
-		Name:      u.Name,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
 		Email:     u.Email,
-		AvatarImg: u.AvatarIMG,
+		AvatarImg: avatarIMG,
 		Phone:     utils.Value(u.Phone),
 		Bio:       utils.Value(u.Bio),
 		CreatedAt: timestamppb.New(u.CreatedAt),
@@ -34,11 +41,16 @@ func (u *User) DTO() *dto.User {
 }
 
 func Entity(dto *dto.User) *User {
+	avatarIMG := new([]byte)
+	if dto.AvatarImg != nil {
+		avatarIMG = &dto.AvatarImg
+	}
 	return &User{
 		ID:        dto.Id,
-		Name:      dto.Name,
+		FirstName: dto.FirstName,
+		LastName:  dto.LastName,
 		Email:     dto.Email,
-		AvatarIMG: dto.AvatarImg,
+		AvatarIMG: avatarIMG,
 		Phone:     utils.Ptr(dto.Phone),
 		Bio:       utils.Ptr(dto.Bio),
 		CreatedAt: dto.CreatedAt.AsTime(),

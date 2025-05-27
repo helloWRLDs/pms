@@ -41,9 +41,15 @@ func (s *Server) SetupREST() {
 		comp.Use(s.Authorize())
 
 		comp.Get("/", s.ListCompanies)
-		comp.Get("/:id", s.GetCompany)
+		comp.Get("/:companyID", s.GetCompany)
 		comp.Post("/", s.CreateCompany)
-		comp.Post("/:companyID/participants/:userID", s.CompanyAddParticipant)
+
+		comp.Route("/:companyID/participants", func(participants fiber.Router) {
+			participants.Use(s.Authorize(), s.RequireCompany())
+
+			participants.Post("/", s.CompanyAddParticipant)
+			participants.Delete("/:userID", s.CompanyRemoveParticipant)
+		})
 	})
 
 	v1.Route("/docs", func(docs fiber.Router) {
@@ -54,42 +60,47 @@ func (s *Server) SetupREST() {
 		docs.Get(":docID/download", s.DownloadDocument)
 	})
 
+	v1.Route("/tasks", func(tasks fiber.Router) {
+		tasks.Use(s.RequireAuthService(), s.RequireProjectService())
+		tasks.Use(s.Authorize())
+		tasks.Use(s.RequireCompany(), s.RequireProject()) // X-Company-ID, X-Project-ID
+
+		tasks.Post("/", s.CreateTask)
+		tasks.Get("/", s.ListTasks)
+		tasks.Get("/:taskID", s.GetTask)
+		tasks.Put("/:taskID", s.UpdateTask)
+		tasks.Delete("/:taskID", s.DeleteTask)
+
+		tasks.Route("/:taskID/assignment", func(assignment fiber.Router) {
+			assignment.Post("/:userID", s.CreateTaskAssignment)
+			assignment.Delete("/:userID", s.DeleteTaskAssignment)
+		})
+
+		tasks.Route("/:taskID/comments", func(comment fiber.Router) {
+			comment.Get("/", s.ListTaskComments)
+			comment.Post("/", s.CreateTaskComments)
+		})
+	})
+
+	v1.Route("/sprints", func(sprints fiber.Router) {
+		sprints.Use(s.Authorize())
+		sprints.Use(s.RequireProjectService())
+		sprints.Use(s.RequireCompany())
+
+		sprints.Post("/", s.CreateSprint)
+		sprints.Get("/", s.ListSprints)
+		sprints.Get("/:sprintID", s.GetSprint)
+		sprints.Put("/:sprintID", s.UpdateSprint)
+	})
+
 	v1.Route("/projects", func(proj fiber.Router) {
-		proj.Use(s.RequireAuthService(), s.Authorize())
+		proj.Use(s.Authorize())
+		proj.Use(s.RequireAuthService(), s.RequireProjectService())
+		proj.Use(s.RequireCompany())
 
 		proj.Post("/", s.CreateProject)
 		proj.Get("/", s.ListProjects)
 		proj.Get("/:projectID", s.GetProject)
-
-		proj.Route("/:projectID/tasks", func(tasks fiber.Router) {
-			tasks.Use(s.CheckCompany())
-
-			tasks.Post("/", s.CreateTask)
-			tasks.Get("/", s.ListTasks)
-			tasks.Get("/:taskID", s.GetTask)
-			tasks.Put("/:taskID", s.UpdateTask)
-			tasks.Delete("/:taskID", s.DeleteTask)
-
-			tasks.Route("/:taskID/assignment", func(assignment fiber.Router) {
-				assignment.Post("/:userID", s.CreateTaskAssignment)
-				assignment.Delete("/:userID", s.DeleteTaskAssignment)
-			})
-
-			tasks.Route("/:taskID/comments", func(comment fiber.Router) {
-				comment.Get("/", s.ListTaskComments)
-				comment.Post("/", s.CreateTaskComments)
-				comment.Get("/:commentID", s.GetTaskComment)
-			})
-		})
-
-		proj.Route("/:projectID/sprints", func(sprints fiber.Router) {
-			sprints.Use(s.CheckCompany())
-
-			sprints.Post("/", s.CreateSprint)
-			sprints.Get("/", s.ListSprints)
-			sprints.Get("/:sprintID", s.GetSprint)
-			sprints.Put("/:sprintID", s.UpdateSprint)
-		})
 	})
 
 	v1.Route("/background-tasks", func(tasks fiber.Router) {

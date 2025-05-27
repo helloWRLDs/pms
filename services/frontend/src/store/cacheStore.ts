@@ -3,7 +3,6 @@ import { Project } from "../lib/project/project";
 import { Sprint } from "../lib/sprint/sprint";
 import { Company } from "../lib/company/company";
 import { persist } from "zustand/middleware";
-import createCookieStorage from "../lib/storage/cookies";
 import { User } from "../lib/user/user";
 
 interface CacheStore {

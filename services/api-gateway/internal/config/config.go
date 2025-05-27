@@ -9,7 +9,8 @@ import (
 )
 
 type Config struct {
-	Host string `env:"HOST"`
+	Host        string `env:"HOST"`
+	FrontendURL string `env:"FRONTEND_URL"`
 
 	JWT jwtoken.Config `envPrefix:"JWT_"`
 

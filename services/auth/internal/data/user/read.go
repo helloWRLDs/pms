@@ -49,8 +49,11 @@ func (r *Repository) Count(ctx context.Context, filter *dto.UserFilter) (count i
 	if filter.UserEmail != "" {
 		builder = builder.Where(sq.Eq{"u.email": filter.UserEmail})
 	}
-	if filter.UserName != "" {
-		builder = builder.Where(sq.Eq{"u.name": filter.UserName})
+	if filter.UserFirstName != "" {
+		builder = builder.Where(sq.Eq{"u.first_name": filter.UserFirstName})
+	}
+	if filter.UserLastName != "" {
+		builder = builder.Where(sq.Eq{"u.last_name": filter.UserLastName})
 	}
 	if filter.UserPhone != "" {
 		builder = builder.Where(sq.Eq{"u.phone": filter.UserPhone})
@@ -121,8 +124,11 @@ func (r *Repository) List(ctx context.Context, filter *dto.UserFilter) (res list
 	if filter.UserEmail != "" {
 		builder = builder.Where(sq.Eq{"u.email": filter.UserEmail})
 	}
-	if filter.UserName != "" {
-		builder = builder.Where(sq.Eq{"u.name": filter.UserName})
+	if filter.UserFirstName != "" {
+		builder = builder.Where(sq.Eq{"u.first_name": filter.UserFirstName})
+	}
+	if filter.UserLastName != "" {
+		builder = builder.Where(sq.Eq{"u.last_name": filter.UserLastName})
 	}
 	if filter.UserPhone != "" {
 		builder = builder.Where(sq.Eq{"u.phone": filter.UserPhone})
@@ -246,5 +252,3 @@ func (r *Repository) GetByID(ctx context.Context, id string) (user User, err err
 	}
 	return user, nil
 }
-
-// func (r *Repository) Exists(ctx context.Context, )

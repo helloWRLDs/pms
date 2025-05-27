@@ -1,13 +1,9 @@
-package github
+package google
 
-import (
-	"fmt"
-
-	"go.uber.org/zap"
-)
+import "go.uber.org/zap"
 
 type Client struct {
-	conf        Config
+	Conf        Config
 	accessToken string
 
 	log *zap.SugaredLogger
@@ -15,26 +11,29 @@ type Client struct {
 
 func New(conf Config, log *zap.SugaredLogger) *Client {
 	return &Client{
-		conf: conf,
+		Conf: conf,
 		log:  log,
 	}
 }
 
 func (c *Client) headers() []string {
 	return []string{
-		"Authorization", fmt.Sprintf("Bearer %s", c.accessToken),
+		"Authorization", "Bearer " + c.accessToken,
+		"Accept", "application/json",
 	}
 }
 
 // Default headers:
 //   - Content-Type: application/json
 //   - Authorization: Bearer <access-token>
+//   - Accept: application/json
 func (c *Client) setHeaders(headers ...string) map[string]string {
 	h := make(map[string]string, 0)
 	if c.accessToken != "" {
-		h["Authorization"] = fmt.Sprintf("Bearer %s", c.accessToken)
+		h["Authorization"] = "Bearer " + c.accessToken
 	}
 	h["Content-Type"] = "application/json"
+	h["Accept"] = "application/json"
 	for i := 0; i < len(headers); i += 2 {
 		if i+2 > len(headers) {
 			continue

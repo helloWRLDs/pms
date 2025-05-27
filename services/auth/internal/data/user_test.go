@@ -38,10 +38,11 @@ func Test_CreateUser(t *testing.T) {
 	id := uuid.NewString()
 	t.Log("id=", id)
 	user := userdata.User{
-		ID:       id,
-		Name:     "admin",
-		Email:    "admin@example.com",
-		Password: string(hashed),
+		ID:        id,
+		FirstName: "admin",
+		LastName:  "admin",
+		Email:     "admin@example.com",
+		Password:  utils.Ptr(string(hashed)),
 	}
 	if err := repo.User.Create(context.Background(), user); err != nil {
 		t.Fatal(err)
@@ -60,7 +61,7 @@ func Test_SetAvatar(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	user.AvatarIMG = avatar
+	user.AvatarIMG = &avatar
 	err = repo.User.Update(ctx, user.ID, user)
 	assert.NoError(t, err)
 }

@@ -71,7 +71,7 @@ const CompaniesPage: FC = () => {
   const handleSelectCompany = async (company: Company) => {
     try {
       selectCompany(company);
-      selectProject(null);
+      // selectProject(null);
       navigate(`/projects`);
     } catch (e) {
       console.error(e);

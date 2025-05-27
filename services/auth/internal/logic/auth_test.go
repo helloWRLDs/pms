@@ -10,9 +10,10 @@ import (
 
 func Test_RegisterUser(t *testing.T) {
 	newUser := &dto.NewUser{
-		Email:    "admin@example.com",
-		Name:     "admin",
-		Password: "admin",
+		Email:     "admin@example.com",
+		FirstName: "admin",
+		LastName:  "admin",
+		Password:  "admin",
 	}
 	created, err := logic.RegisterUser(context.Background(), newUser)
 	if err != nil {
@@ -35,7 +36,7 @@ func Test_UpdateUser(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	user.Name = "admin"
+	user.FirstName = "admin2"
 
 	updated, err := logic.UpdateUser(context.Background(), userID, user)
 	if err != nil {

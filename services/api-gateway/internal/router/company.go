@@ -51,6 +51,33 @@ func (s *Server) CreateCompany(c *fiber.Ctx) error {
 	return c.SendStatus(201)
 }
 
+func (s *Server) CompanyRemoveParticipant(c *fiber.Ctx) error {
+	log := s.log.Named("CompanyRemoveParticipant").With(
+		zap.String("ip", c.IP()),
+	)
+	log.Debug("CompanyRemoveParticipant called")
+
+	companyID := c.Params("companyID")
+	if strings.Trim(companyID, " ") == "" {
+		return errs.ErrBadGateway{
+			Object: "company_id",
+		}
+	}
+
+	userID := c.Params("userID")
+	if strings.Trim(userID, " ") == "" {
+		return errs.ErrBadGateway{
+			Object: "user_id",
+		}
+	}
+
+	if err := s.Logic.CompanyRemoveParticipant(c.UserContext(), companyID, userID); err != nil {
+		return err
+	}
+
+	return c.SendStatus(200)
+}
+
 func (s *Server) CompanyAddParticipant(c *fiber.Ctx) error {
 	log := s.log.Named("CompanyAddParticipant").With(
 		zap.String("ip", c.IP()),
@@ -85,7 +112,7 @@ func (s *Server) GetCompany(c *fiber.Ctx) error {
 	)
 	log.Debug("GetCompany called")
 
-	companyID := c.Params("id", "")
+	companyID := c.Params("companyID", "")
 	if strings.Trim(companyID, " ") == "" {
 		return errs.ErrBadGateway{
 			Object: "company_id",

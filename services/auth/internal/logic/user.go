@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"pms.pkg/transport/grpc/dto"
 	"pms.pkg/type/list"
 	"pms.pkg/utils"
@@ -59,14 +58,7 @@ func (l *Logic) GetProfile(ctx context.Context, userID string) (profile *dto.Use
 
 	profile = new(dto.User)
 
-	profile.Id = user.ID
-	profile.Name = user.Name
-	profile.Email = user.Email
-	profile.AvatarImg = user.AvatarIMG
-	profile.Phone = utils.Value(user.Phone)
-	profile.Bio = utils.Value(user.Bio)
-	profile.CreatedAt = timestamppb.New(user.CreatedAt)
-	profile.UpdatedAt = timestamppb.New(user.UpdatedAt)
+	profile = user.DTO()
 
 	return profile, nil
 }
@@ -85,8 +77,12 @@ func (l *Logic) UpdateUser(ctx context.Context, id string, user *dto.User) (upda
 
 	isChanged := false
 	{
-		if existing.Name != user.Name {
-			existing.Name = user.Name
+		if existing.FirstName != user.FirstName {
+			existing.FirstName = user.FirstName
+			isChanged = true
+		}
+		if existing.LastName != user.LastName {
+			existing.LastName = user.LastName
 			isChanged = true
 		}
 		if existing.Email != user.Email {
@@ -99,6 +95,10 @@ func (l *Logic) UpdateUser(ctx context.Context, id string, user *dto.User) (upda
 		}
 		if utils.Value(existing.Bio) != user.Bio {
 			existing.Bio = &user.Bio
+			isChanged = true
+		}
+		if utils.Value(existing.AvatarURL) != user.AvatarUrl {
+			existing.AvatarURL = utils.Ptr(user.AvatarUrl)
 			isChanged = true
 		}
 	}

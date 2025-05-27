@@ -11,9 +11,7 @@ export class API {
 
   constructor(baseURL = "http://localhost:8080/api/v1") {
     this.baseURL = baseURL;
-    this.req = axios.create({
-      baseURL: this.baseURL,
-    });
+    this.req = axios.create({ baseURL: this.baseURL });
 
     this.req.interceptors.request.use((config) => {
       const auth: {

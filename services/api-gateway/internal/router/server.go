@@ -24,8 +24,6 @@ type Server struct {
 
 func New(conf config.Config, logic *logic.Logic, log *zap.SugaredLogger) *Server {
 	srv := Server{
-		// wshubs:       make(map[string]*ws.Hub),
-		// DashboardHub: ws.NewHub(),
 		Host: conf.Host,
 		log:  log,
 		App: *fiber.New(fiber.Config{

@@ -76,10 +76,10 @@ func (m *MessageQueueHandler) Listen(ctx context.Context) error {
 				}
 				if err := m.HandleMessage(context.Background(), &msg); err != nil {
 					log.Errorw("failed to process message", "err", err)
-					_ = msg.Nack(false, true) // Requeue message
+					_ = msg.Nack(false, true)
 				} else {
 					log.Debugw("message processed successfully")
-					_ = msg.Ack(false) // Acknowledge message
+					_ = msg.Ack(false)
 				}
 			case <-ctx.Done():
 				log.Warn("stopping message queue consumption")
