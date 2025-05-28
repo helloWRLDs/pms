@@ -37,6 +37,50 @@ func (s *Server) RequireCompany() fiber.Handler {
 		return c.Next()
 	}
 }
+func (s *Server) ValidateCompanyContext() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		log := s.log.With(
+			zap.String("func", "ValidateCompanyContext"),
+		)
+		log.Debug("ValidateCompanyContext called")
+
+		companyID, ok := c.Locals("company_id").(string)
+		if !ok {
+			return errs.ErrBadGateway{
+				Object: "company_id",
+			}
+		}
+
+		companyContext, err := s.Logic.GetCompanyContext(c.UserContext(), companyID)
+		if err != nil {
+			log.Errorw("failed to get company context", "err", err)
+			return errs.ErrBadGateway{
+				Object: "company_context",
+			}
+		}
+
+		projectID := c.Get("X-Project-ID")
+		if projectID != "" {
+			if !utils.ContainsInArray(companyContext.Projects, projectID) {
+				return errs.ErrUnauthorized{
+					Reason: "project not found in company context",
+				}
+			}
+		}
+
+		sprintID := c.Get("X-Sprint-ID")
+		if sprintID != "" {
+			if !utils.ContainsInArray(companyContext.Sprints, sprintID) {
+				return errs.ErrUnauthorized{
+					Reason: "sprint not found in company context",
+				}
+			}
+		}
+
+		c.Locals("company_context", companyContext)
+		return c.Next()
+	}
+}
 
 func (s *Server) CheckCompany() fiber.Handler {
 	return func(c *fiber.Ctx) error {
