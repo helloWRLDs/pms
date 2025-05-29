@@ -17,6 +17,8 @@ func (l *Logic) InitiateOAuth2(provider string) (authURL string, err error) {
 	switch consts.Provider(provider) {
 	case consts.ProviderGoogle:
 		authURL = l.googleClient.AuthURL(provider)
+	// case consts.ProviderGitHub:
+	// 	authURL = l.githubClient.AuthURL(provider)
 	default:
 		return "", errs.ErrNotFound{
 			Object: "provider",

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"pms.pkg/api/github"
 	"pms.pkg/api/google"
 	"pms.pkg/datastore/postgres"
 	"pms.pkg/logger"
@@ -13,4 +14,5 @@ type Config struct {
 	Log          logger.Config   `envPrefix:"LOG_"`
 	JWT          jwtoken.Config  `envPrefix:"JWT_"`
 	GoogleConfig google.Config   `envPrefix:"GOOGLE_"`
+	GitHubConfig github.Config   `envPrefix:"GITHUB_"`
 }

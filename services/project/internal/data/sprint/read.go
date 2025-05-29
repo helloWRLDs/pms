@@ -1,7 +1,6 @@
 package sprintdata
 
 import (
-	"container/list"
 	"context"
 	"strings"
 
@@ -11,6 +10,7 @@ import (
 
 	"pms.pkg/errs"
 	"pms.pkg/transport/grpc/dto"
+	"pms.pkg/type/list"
 	"pms.pkg/utils"
 )
 

@@ -38,9 +38,12 @@ func (l *Logic) UpdateCompany(ctx context.Context, companyID string, updatedComp
 	}()
 
 	company := companydata.Company{
-		ID:       companyID,
-		Name:     updatedCompany.Name,
-		Codename: updatedCompany.Codename,
+		ID:          companyID,
+		Name:        updatedCompany.Name,
+		Codename:    updatedCompany.Codename,
+		BIN:         updatedCompany.Bin,
+		Address:     updatedCompany.Address,
+		Description: updatedCompany.Description,
 	}
 	if err := l.Repo.Company.UpdateCompany(tx, companyID, company); err != nil {
 		log.Errorw("failed to update company", "err", err)
@@ -66,9 +69,12 @@ func (l *Logic) CreateCompany(ctx context.Context, userID string, newCompany *dt
 	}
 
 	company := companydata.Company{
-		ID:       uuid.NewString(),
-		Name:     newCompany.Name,
-		Codename: newCompany.Codename,
+		ID:          uuid.NewString(),
+		Name:        newCompany.Name,
+		Codename:    newCompany.Codename,
+		BIN:         newCompany.Bin,
+		Address:     newCompany.Address,
+		Description: newCompany.Description,
 	}
 
 	participant := participantdata.Participant{
@@ -101,11 +107,14 @@ func (l *Logic) CreateCompany(ctx context.Context, userID string, newCompany *dt
 	created = new(dto.Company)
 	created.Id = company.ID
 	created.Name = company.Name
-
-	// created, err = l.GetCompany(ctx, company.ID)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	created.Codename = company.Codename
+	created.Bin = company.BIN
+	created.Address = company.Address
+	created.Description = company.Description
+	created, err = l.GetCompany(ctx, company.ID)
+	if err != nil {
+		return nil, err
+	}
 
 	return created, nil
 }
@@ -161,6 +170,9 @@ func (l *Logic) GetCompany(ctx context.Context, id string) (*dto.Company, error)
 	company.Id = comp.ID
 	company.Name = comp.Name
 	company.Codename = comp.Codename
+	company.Bin = comp.BIN
+	company.Address = comp.Address
+	company.Description = comp.Description
 
 	company.PeopleCount = l.Repo.Company.Count(ctx, &dto.CompanyFilter{
 		CompanyId: id,
