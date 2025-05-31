@@ -6,42 +6,92 @@ import {
 import { Task } from "../../lib/task/task";
 import { taskAPI } from "../../api/taskAPI";
 import { TaskCommentCreation, TaskCommentFilter } from "../../lib/task/comment";
-import { useEffect, useState } from "react";
-import { MdOutlineSend } from "react-icons/md";
+import { useState } from "react";
+import {
+  MdOutlineSend,
+  MdAssignment,
+  MdCode,
+  MdTimer,
+  MdFolder,
+  MdEdit,
+  MdCategory,
+} from "react-icons/md";
 import { formatTime } from "../../lib/utils/time";
 import { useAuthStore } from "../../store/authStore";
 import Paginator from "../ui/Paginator";
 import DropDownList from "../ui/DropDown";
-import { useCacheStore } from "../../store/cacheStore";
 import { infoToast } from "../../lib/utils/toast";
 import { ListItems } from "../../lib/utils/list";
-import { User } from "../../lib/user/user";
+import useMetaCache from "../../store/useMetaCache";
+import { getTaskTypeConfig } from "../../lib/task/tasktype";
+import Editor from "../text/Editor";
+import HTMLReactParser from "html-react-parser";
+import {
+  useAssigneeList,
+  useProjectList,
+  useSprintList,
+} from "../../hooks/useSprintList";
 
 type TaskViewProps = React.HTMLAttributes<HTMLDivElement> & {
   task: Task;
-  assignees: ListItems<User> | undefined;
   refetchTasks?: (
     options?: RefetchOptions | undefined
   ) => Promise<QueryObserverBaseResult<ListItems<Task>, Error>>;
 };
 
-const TaskView = ({ task, assignees, ...props }: TaskViewProps) => {
-  const { auth } = useAuthStore();
+const MetadataItem: React.FC<{
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  onClick?: () => void;
+  copyable?: boolean;
+}> = ({ icon, label, value, onClick, copyable }) => (
+  <div className="flex items-center gap-1.5 px-2 py-1.5 bg-secondary-400/5 rounded text-xs min-w-0">
+    <span className="text-accent-500 flex-shrink-0">{icon}</span>
+    <span className="text-neutral-400 font-medium flex-shrink-0">{label}:</span>
+    <span
+      className={`text-neutral-200 truncate min-w-0 ${
+        onClick || copyable
+          ? "cursor-pointer hover:text-accent-500 transition-colors"
+          : ""
+      }`}
+      onClick={onClick}
+      title={value}
+    >
+      {value || "none"}
+    </span>
+  </div>
+);
 
-  const { getAssignee } = useCacheStore();
+const TaskView = ({ task, ...props }: TaskViewProps) => {
+  const { auth } = useAuthStore();
+  const metadata = useMetaCache();
+  const { getSprintName, sprints } = useSprintList(
+    metadata.metadata.selectedProject?.id ?? ""
+  );
+  const { getProjectName } = useProjectList(
+    metadata.metadata.selectedCompany?.id ?? ""
+  );
+  const { getAssigneeName, assignees } = useAssigneeList(
+    metadata.metadata.selectedCompany?.id ?? ""
+  );
   const [reassignDropDown, setReassignDropDown] = useState(false);
+  const [addSprintDropDown, setAddSprintDropDown] = useState(false);
+  const [showCommentEditor, setShowCommentEditor] = useState(false);
 
   const [newComment, setNewComment] = useState<TaskCommentCreation>({
     body: "",
     task_id: task.id,
     user_id: auth?.user.id || "",
   });
+
   const [filter, setFilter] = useState<TaskCommentFilter>({
     page: 1,
     per_page: 5,
     task_id: "",
     user_id: "",
   });
+
   const {
     data: commentData,
     isLoading: isCommentDataLoading,
@@ -58,186 +108,230 @@ const TaskView = ({ task, assignees, ...props }: TaskViewProps) => {
     enabled: true,
   });
 
-  const [addSprintDropDown, setAddSprintDropDown] = useState(false);
-  const { getSprint, getProject, sprints } = useCacheStore();
   return (
-    <div className={` ${props.className}`} {...props}>
-      <div id="body" className="text-lg w-full">
-        <div id="body-main" className="min-h-[5rem]">
-          {task.body}
+    <div className={`space-y-3 ${props.className}`} {...props}>
+      {/* Task Description */}
+      <div className="bg-secondary-400/5 border border-secondary-200/20 rounded-lg">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-base font-semibold text-neutral-200 flex items-center gap-2">
+            <MdEdit className="text-accent-500" />
+            Body
+          </h3>
         </div>
         <div
-          id="body-secondary"
-          className="text-sm flex gap-4 text-neutral-400 flex-wrap"
-        >
-          <div id="body-secondary-project">
-            Project:{" "}
-            {task.project_id
-              ? getProject(task.project_id)?.title ?? ""
-              : "none"}
-          </div>
-          <div id="body-secondary-assignee">
-            <div>
-              Assignee:{" "}
-              <span
-                className="cursor-pointer hover:underline"
-                onClick={() => {
-                  setReassignDropDown(true);
-                }}
-              >
-                {task.assignee_id
-                  ? getAssignee(task.assignee_id)?.name
-                  : "none"}
-              </span>
-            </div>
-            <DropDownList
-              visible={reassignDropDown}
-              onClose={() => setReassignDropDown(false)}
-            >
-              {assignees &&
-                assignees.items.length > 0 &&
-                assignees.items.map((assignee) => (
-                  <DropDownList.Element
-                    className="w-[5rem] px-4 py-2 bg-secondary-100 cursor-pointer text-neutral-200 hover:bg-accent-500 hover:text-secondary-100"
-                    onClick={async () => {
-                      try {
-                        if (task.assignee_id) {
-                          await taskAPI.unassign(task.id, task.assignee_id);
-                        }
-                        await taskAPI.assign(task.id, assignee.id);
-                      } catch (e) {
-                        console.error(e);
-                      } finally {
-                        setReassignDropDown(false);
-                        props.refetchTasks && props.refetchTasks();
-                      }
-                    }}
-                  >
-                    {assignee.name}
-                  </DropDownList.Element>
-                ))}
-            </DropDownList>
-          </div>
-          <div id="body-secondary-code">
-            Code:{" "}
-            <span
-              className={`${task.code && "cursor-pointer hover:underline"}`}
-              onClick={() => {
-                if (task.code) {
-                  navigator.clipboard.writeText(task.code);
-                  infoToast("Copied to clipboard!");
+          className="prose prose-invert prose-sm max-w-none text-neutral-200 leading-relaxed text-md"
+          dangerouslySetInnerHTML={{
+            __html:
+              HTMLReactParser(task.body) ||
+              '<p class="text-neutral-400 italic">No description provided.</p>',
+          }}
+        />
+      </div>
+
+      {/* Compact Metadata Bar */}
+      <div className="bg-secondary-300/20 rounded-lg p-2 border border-secondary-200/30">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-1.5">
+          <MetadataItem
+            icon={<MdFolder className="text-sm" />}
+            label="Project"
+            value={getProjectName(task.project_id ?? "") ?? "none"}
+          />
+          <MetadataItem
+            icon={<MdAssignment className="text-sm" />}
+            label="Assignee"
+            value={getAssigneeName(task.assignee_id)}
+            onClick={() => setReassignDropDown(true)}
+          />
+          <MetadataItem
+            icon={<MdCode className="text-sm" />}
+            label="Code"
+            value={task.code || "none"}
+            copyable
+            onClick={() => {
+              if (task.code) {
+                navigator.clipboard.writeText(task.code);
+                infoToast("Copied to clipboard!");
+              }
+            }}
+          />
+          <MetadataItem
+            icon={<MdCategory className="text-sm" />}
+            label="Type"
+            value={
+              task.type ? getTaskTypeConfig(task.type as any).label : "none"
+            }
+          />
+          <MetadataItem
+            icon={<MdTimer className="text-sm" />}
+            label="Sprint"
+            value={getSprintName(task.sprint_id)}
+            onClick={() => setAddSprintDropDown(true)}
+          />
+        </div>
+      </div>
+
+      <DropDownList
+        visible={reassignDropDown}
+        onClose={() => setReassignDropDown(false)}
+        className="z-50"
+      >
+        {assignees &&
+          assignees.items.map((assignee) => (
+            <DropDownList.Element
+              key={assignee.id}
+              className="w-full px-4 py-2 bg-secondary-100 cursor-pointer text-neutral-200 hover:bg-accent-500 hover:text-secondary-100 transition-colors"
+              onClick={async () => {
+                try {
+                  if (task.assignee_id) {
+                    await taskAPI.unassign(task.id, task.assignee_id);
+                  }
+                  await taskAPI.assign(task.id, assignee.id);
+                } catch (e) {
+                  console.error(e);
+                } finally {
+                  setReassignDropDown(false);
+                  props.refetchTasks && props.refetchTasks();
+                  setAddSprintDropDown(false);
                 }
               }}
             >
-              {task.code ?? "none"}
-            </span>
-          </div>
-          <div id="body-secondary-sprint">
-            Sprint:{" "}
-            <span
-              className="hover:underline cursor-pointer absolute"
+              {assignee.first_name} {assignee.last_name}
+            </DropDownList.Element>
+          ))}
+      </DropDownList>
+
+      <DropDownList
+        visible={addSprintDropDown}
+        onClose={() => setAddSprintDropDown(false)}
+        className="z-50"
+      >
+        {sprints &&
+          sprints.items.map((sprint) => (
+            <DropDownList.Element
+              key={sprint.id}
               onClick={() => {
-                setAddSprintDropDown(true);
-              }}
-            >
-              {task.sprint_id ? getSprint(task.sprint_id)?.title : "none"}
-            </span>
-            <DropDownList
-              visible={addSprintDropDown}
-              onClose={() => {
+                const updatedTask: Task = JSON.parse(JSON.stringify(task));
+                updatedTask.sprint_id = sprint.id;
+                taskAPI.update(updatedTask.id, updatedTask);
+                refetch();
+                props.refetchTasks && props.refetchTasks();
                 setAddSprintDropDown(false);
               }}
+              className="w-full px-4 py-2 bg-secondary-100 cursor-pointer text-neutral-200 hover:bg-accent-500 hover:text-secondary-100 transition-colors"
             >
-              {sprints &&
-                Object.entries(sprints).map(([string, sprint]) => (
-                  <DropDownList.Element
-                    key={string}
-                    onClick={() => {
-                      console.log(sprint);
-                      const updatedTask: Task = JSON.parse(
-                        JSON.stringify(task)
-                      );
-                      updatedTask.sprint_id = sprint.id;
-                      console.log(JSON.stringify(updatedTask));
-                      taskAPI.update(updatedTask.id, updatedTask);
-                      refetch();
-                      props.refetchTasks && props.refetchTasks();
-                      setAddSprintDropDown(false);
-                    }}
-                    className="w-[10rem] px-4 py-2 bg-secondary-100 cursor-pointer text-neutral-200 hover:bg-accent-500 hover:text-secondary-100"
-                  >
-                    {sprint.title}
-                  </DropDownList.Element>
-                ))}
-            </DropDownList>
-          </div>
-        </div>
-      </div>
-      <div id="comment" className="mt-8">
-        <div id="comment-new" className="flex items-start gap-4 mb-4">
-          <textarea
-            placeholder="Add a comment"
-            value={newComment.body}
-            onChange={(e) => {
-              setNewComment({ ...newComment, body: e.currentTarget.value });
-            }}
-            name="new-comment"
-            id="new-comment"
-            className="px-2 py-1 rounded-md w-full h-[4rem] border border-black"
-          ></textarea>
-          <button className="px-2 py-2 rounded-md group cursor-pointer bg-primary-500 text-accent-500 hover:bg-accent-500 group:transition-all duration-200">
-            <MdOutlineSend
-              className="group-hover:text-primary-500 text-accent-500"
-              onClick={async () => {
-                await taskAPI.createComment(newComment);
-                setNewComment({ ...newComment, body: "" });
-                refetch();
-              }}
-            />
+              {sprint.title}
+            </DropDownList.Element>
+          ))}
+      </DropDownList>
+
+      {/* Comments Section */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between border-b border-secondary-200/20 pb-2">
+          <h3 className="text-base font-semibold text-neutral-200">Comments</h3>
+          <button
+            onClick={() => setShowCommentEditor(!showCommentEditor)}
+            className="px-3 py-1.5 text-xs rounded-lg bg-accent-500 text-secondary-100 hover:bg-accent-400 transition-colors flex items-center gap-1.5"
+          >
+            <MdEdit className="text-sm" />
+            {showCommentEditor ? "Cancel" : "Add Comment"}
           </button>
         </div>
-        <div>
+
+        {/* New Comment Editor (Collapsible) */}
+        {showCommentEditor && (
+          <div className="space-y-2 bg-secondary-300/10 border border-secondary-200/30 rounded-lg p-3">
+            <div className="bg-secondary-400/5 border border-secondary-300/50 rounded-lg overflow-hidden">
+              <Editor
+                content={newComment.body}
+                onChange={(content) =>
+                  setNewComment({ ...newComment, body: content })
+                }
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowCommentEditor(false);
+                  setNewComment({ ...newComment, body: "" });
+                }}
+                className="px-4 py-1.5 text-xs rounded-lg bg-secondary-100 text-neutral-200 hover:bg-secondary-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-1.5 text-xs rounded-lg bg-accent-500 text-secondary-100 hover:bg-accent-400 transition-colors flex items-center gap-1.5"
+                onClick={async () => {
+                  if (!newComment.body.trim()) return;
+                  await taskAPI.createComment(newComment);
+                  setNewComment({ ...newComment, body: "" });
+                  setShowCommentEditor(false);
+                  refetch();
+                }}
+              >
+                <MdOutlineSend className="text-sm" />
+                Post Comment
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Comments List */}
+        <div className="space-y-2">
           {isCommentDataLoading ? (
-            <p>Loading...</p>
-          ) : commentData?.items?.length === 0 ||
-            !commentData ||
-            !commentData.items ? (
-            <p>No comments found</p>
+            <div className="text-center py-6 text-neutral-400">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-accent-500 mx-auto mb-2"></div>
+              Loading comments...
+            </div>
+          ) : !commentData?.items?.length ? (
+            <div className="text-center py-6 text-neutral-400 bg-secondary-400/5 rounded-lg">
+              <div className="text-3xl mb-1">💬</div>
+              <div className="text-sm">No comments yet</div>
+            </div>
           ) : (
-            commentData &&
-            commentData.items
-              .sort((a, b) => b.created_at.seconds - a.created_at.seconds)
-              .map((comment, i) => (
-                <div key={i} className="">
-                  <div className="text-xs flex items-center gap-2  w-fit px-2 py-1 rounded-tr-md rounded-tl-md">
-                    <img
-                      src={`data:image/jpeg;base64,${comment.user.avatar_img}`}
-                      className="w-5 h-5 rounded-full bg-neutral-300"
-                    />
-                    <div>{comment.user.name}</div>
-                  </div>
-                  <div className="text-sm px-2 py-1   rounded-md rounded-tl-none relative mb-4">
-                    <div className="max-w-[80%]">
-                      <span className="">{comment.body}</span>
+            <div className="space-y-2">
+              {commentData.items
+                .sort((a, b) => b.created_at.seconds - a.created_at.seconds)
+                .map((comment, i) => (
+                  <div
+                    key={i}
+                    className="bg-secondary-400/5 border border-secondary-200/20 rounded-lg p-3 hover:bg-secondary-400/10 transition-colors"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <img
+                        src={`data:image/jpeg;base64,${comment.user.avatar_img}`}
+                        alt={`${comment.user.first_name}'s avatar`}
+                        className="w-8 h-8 rounded-full bg-neutral-300 ring-2 ring-secondary-200/30"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-semibold text-neutral-200 truncate">
+                          {comment.user.first_name} {comment.user.last_name}
+                        </div>
+                        <div className="text-xs text-neutral-400">
+                          {formatTime(comment.created_at.seconds)}
+                        </div>
+                      </div>
                     </div>
-                    <div className="absolute top-[0.4rem] right-[0.5rem] text-sm text-gray-500">
-                      {formatTime(comment.created_at.seconds)}
+                    <div className="text-sm text-neutral-200 leading-relaxed ml-10">
+                      {HTMLReactParser(comment.body)}
                     </div>
                   </div>
-                </div>
-              ))
+                ))}
+            </div>
           )}
+
           {commentData && commentData.items && commentData.items.length > 0 && (
-            <Paginator
-              page={filter.page}
-              per_page={filter.per_page}
-              total_items={commentData.total_items}
-              total_pages={commentData.total_pages}
-              onPageChange={(page) => {
-                setFilter({ ...filter, page });
-                refetch();
-              }}
-            />
+            <div className="flex justify-center pt-2">
+              <Paginator
+                page={filter.page}
+                per_page={filter.per_page}
+                total_items={commentData.total_items}
+                total_pages={commentData.total_pages}
+                onPageChange={(page) => {
+                  setFilter({ ...filter, page });
+                  refetch();
+                }}
+              />
+            </div>
           )}
         </div>
       </div>

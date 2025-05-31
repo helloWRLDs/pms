@@ -1,59 +1,85 @@
 import { ObjectWrapper } from "../utils/wrapper";
 
-export const AVAILABLE_PRIORITIES = [1, 2, 3, 4, 5];
+export enum PriorityLevel {
+  ALL = 0,
+  LOWEST = 1,
+  LOW = 2,
+  MEDIUM = 3,
+  HIGH = 4,
+  CRITICAL = 5,
+}
+
+export type PriorityConfig = {
+  label: string;
+  color: string;
+};
+
+const PRIORITY_CONFIG: Record<PriorityLevel, PriorityConfig> = {
+  [PriorityLevel.ALL]: {
+    label: "All",
+    color: "gray",
+  },
+  [PriorityLevel.LOWEST]: {
+    label: "Lowest",
+    color: "red",
+  },
+  [PriorityLevel.LOW]: {
+    label: "Low",
+    color: "orange",
+  },
+  [PriorityLevel.MEDIUM]: {
+    label: "Medium",
+    color: "yellow",
+  },
+  [PriorityLevel.HIGH]: {
+    label: "High",
+    color: "green",
+  },
+  [PriorityLevel.CRITICAL]: {
+    label: "Critical",
+    color: "blue",
+  },
+};
+
+export const AVAILABLE_PRIORITIES = [
+  PriorityLevel.LOWEST,
+  PriorityLevel.LOW,
+  PriorityLevel.MEDIUM,
+  PriorityLevel.HIGH,
+  PriorityLevel.CRITICAL,
+];
 
 export class Priority {
-  priority: number;
-  static availablePriorities = AVAILABLE_PRIORITIES;
+  constructor(private readonly level: PriorityLevel) {}
 
-  constructor(priority: number) {
-    this.priority = priority;
+  static getAvailablePriorities(): PriorityLevel[] {
+    return AVAILABLE_PRIORITIES;
   }
 
   toString(): string {
-    switch (this.priority) {
-      case 1:
-        return "Lowest";
-      case 2:
-        return "Low";
-      case 3:
-        return "Medium";
-      case 4:
-        return "High";
-      case 5:
-        return "Critical";
-      default:
-        return "All";
-    }
+    return PRIORITY_CONFIG[this.level].label;
   }
 
   getColor(): string {
-    switch (this.priority) {
-      case 1:
-        return "red";
-      case 2:
-        return "orange";
-      case 3:
-        return "yellow";
-      case 4:
-        return "green";
-      case 5:
-        return "blue";
-      default:
-        return "gray";
+    return PRIORITY_CONFIG[this.level].color;
+  }
+
+  getLevel(): PriorityLevel {
+    return this.level;
+  }
+
+  static fromNumber(value: number): Priority {
+    if (!(value in PriorityLevel)) {
+      return new Priority(PriorityLevel.ALL);
     }
+    return new Priority(value as PriorityLevel);
   }
 }
 
 export const PriorityFilterValues: ObjectWrapper[] = [
-  0,
+  PriorityLevel.ALL,
   ...AVAILABLE_PRIORITIES,
-].map((priority) => {
-  if (priority === 0) {
-    return { label: "All", value: priority };
-  }
-  return {
-    label: new Priority(priority).toString(),
-    value: priority,
-  };
-});
+].map((level) => ({
+  label: PRIORITY_CONFIG[level].label,
+  value: level,
+}));

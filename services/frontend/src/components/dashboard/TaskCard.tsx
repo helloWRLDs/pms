@@ -3,44 +3,84 @@ import { Icon } from "../ui/Icon";
 import { Task } from "../../lib/task/task";
 import { useCacheStore } from "../../store/cacheStore";
 import { capitalize } from "../../lib/utils/string";
+import { formatTime } from "../../lib/utils/time";
+import { MdAccessTime, MdPerson, MdLabel } from "react-icons/md";
+import { Priority } from "../../lib/task/priority";
+import Badge from "../ui/Badge";
 
 interface Props {
   task: Task;
   onClick?: () => void;
+  isDragging?: boolean;
 }
 
-const TaskCard: FC<Props> = (props: Props) => {
+const TaskCard: FC<Props> = ({ task, onClick, isDragging }) => {
   const { getAssignee } = useCacheStore();
+  const assignee = task.assignee_id ? getAssignee(task.assignee_id) : null;
+  const priority = new Priority(task.priority);
+
   return (
     <div
-      className="bg-primary-100 text-white rounded-md p-2 flex flex-wrap justify-between flex-col min-h-[100px] cursor-grab hover:bg-accent-700 transition-all ease-in-out duration-300 group"
-      onClick={props.onClick}
-      style={{
-        backgroundImage:
-          "repeating-linear-gradient(315deg, oklab(1 0 5.96046e-8 / 0.1) 0px, oklab(1 0 5.96046e-8 / 0.1) 1px, rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 50%)",
-      }}
+      className={`
+        bg-secondary-100 rounded-lg p-4 
+        flex flex-col gap-3
+        cursor-grab active:cursor-grabbing
+        hover:bg-secondary-50 
+        transition-all duration-200
+        border border-secondary-200
+        ${isDragging ? "shadow-lg scale-105" : "hover:shadow-md"}
+      `}
+      onClick={onClick}
     >
-      <h4 className="font-bold text-xl text-muted-700 group-hover:text-secondary-500 transition-all duration-300">
-        {props.task.title}
-      </h4>
-      <div className="flex flex-row justify-between float-end text-xs">
-        <p className="font-normal text-muted-700 group-hover:text-secondary-500 transition-colors">
-          {props.task.assignee_id
-            ? getAssignee(props.task.assignee_id)?.name
-            : "None"}
-        </p>
-        <p className="font-normal text-muted-700 group-hover:text-secondary-500 transition-colors">
-          status: {capitalize(props.task.status).replace("_", " ")}
-        </p>
-        <div className="flex items-center">
-          <Icon
-            name={props.task.project_id ?? ""}
-            size={20}
-            color="white"
-            className="mr-1"
-          />
-          {/* <p>{props.backlog}</p> */}
+      {/* Task Code and Priority */}
+      <div className="flex justify-between items-start">
+        <span className="text-xs font-mono text-neutral-400">{task.code}</span>
+        <Badge className={`text-${priority.getColor()}-500`}>
+          {priority.toString()}
+        </Badge>
+      </div>
+
+      {/* Title */}
+      <h3 className="text-base font-medium text-neutral-100 line-clamp-2">
+        {task.title}
+      </h3>
+
+      {/* Task Info */}
+      <div className="grid grid-cols-2 gap-2 text-xs text-neutral-400">
+        {/* Assignee */}
+        <div className="flex items-center gap-1.5">
+          <MdPerson className="text-accent-500" />
+          <span className="truncate">
+            {assignee
+              ? `${assignee.first_name} ${assignee.last_name}`
+              : "Unassigned"}
+          </span>
         </div>
+
+        {/* Due Date */}
+        <div className="flex items-center gap-1.5">
+          <MdAccessTime className="text-accent-500" />
+          <span className="truncate">{formatTime(task.due_date.seconds)}</span>
+        </div>
+
+        {/* Status */}
+        <div className="flex items-center gap-1.5">
+          <MdLabel className="text-accent-500" />
+          <span className="truncate">
+            {capitalize(task.status.replace("_", " "))}
+          </span>
+        </div>
+
+        {/* Project Icon */}
+        {task.project_id && (
+          <div className="flex items-center gap-1.5">
+            <Icon
+              name={task.project_id}
+              size={16}
+              className="text-accent-500"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -9,10 +9,9 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { ListItems } from "../../lib/utils/list";
-import { Task } from "../../lib/task/task";
 import { getTaskStatuses } from "../../lib/task/status";
 import { capitalize } from "../../lib/utils/string";
+import { UserTaskStats } from "../../api/analyticsAPI";
 
 ChartJS.register(
   RadialLinearScale,
@@ -24,48 +23,63 @@ ChartJS.register(
 );
 
 type Props = {
-  userTasks: Record<string, ListItems<Task>>;
-  userNames: Record<string, string>;
+  userStats: UserTaskStats[];
+  className?: string;
 };
 
-const UserRadarChart: FC<Props> = ({ userTasks, userNames }) => {
-  const labels = getTaskStatuses.map((status) =>
-    capitalize(status.toLowerCase().replace(/_/g, " "))
-  );
-  if (
-    Object.values(userTasks).length === 0 ||
-    !Object.values(userTasks)[0].items
-  ) {
-    return;
-  }
-
-  const datasets = Object.entries(userTasks).map(
-    ([userId, taskList], index) => {
-      const colorBase = 100 + index * 30;
-      return {
-        label: userNames[userId],
-        data: getTaskStatuses.map(
-          (status) =>
-            taskList.items.filter((task) => task.status === status).length
-        ),
-        backgroundColor: `rgba(${colorBase}, 100, 255, 0.2)`,
-        borderColor: `rgba(${colorBase}, 100, 255, 1)`,
-        borderWidth: 1,
-      };
-    }
-  );
-
+const UserRadarChart: FC<Props> = ({ userStats, className }) => {
   const chartData = {
-    labels,
-    datasets,
+    labels: getTaskStatuses.map((status) =>
+      capitalize(status.toLowerCase().replace(/_/g, " "))
+    ),
+    datasets: userStats.map((stat, index) => ({
+      label: `${stat.first_name} ${stat.last_name}`,
+      data: getTaskStatuses.map((status) => stat.tasks_by_status[status] || 0),
+      backgroundColor: `hsla(${
+        (index * 360) / userStats.length
+      }, 70%, 50%, 0.2)`,
+      borderColor: `hsla(${(index * 360) / userStats.length}, 70%, 50%, 1)`,
+      borderWidth: 2,
+    })),
+  };
+
+  const options = {
+    scales: {
+      r: {
+        angleLines: {
+          color: "rgba(255, 255, 255, 0.1)",
+        },
+        grid: {
+          color: "rgba(255, 255, 255, 0.1)",
+        },
+        pointLabels: {
+          color: "rgba(255, 255, 255, 0.7)",
+          font: {
+            size: 12,
+          },
+        },
+        ticks: {
+          color: "rgba(255, 255, 255, 0.7)",
+          backdropColor: "transparent",
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        position: "top" as const,
+        labels: {
+          color: "rgba(255, 255, 255, 0.7)",
+          font: {
+            size: 12,
+          },
+        },
+      },
+    },
   };
 
   return (
-    <div className="bg-neutral-900 p-6 rounded shadow mt-6">
-      <h2 className="text-white text-xl font-semibold mb-4 text-center">
-        Task Status Comparison by User
-      </h2>
-      <Radar data={chartData} />
+    <div className={className}>
+      <Radar data={chartData} options={options} />
     </div>
   );
 };

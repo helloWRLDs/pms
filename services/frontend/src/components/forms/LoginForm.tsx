@@ -36,7 +36,6 @@ const LoginForm: FC<Props> = (props) => {
 
   return (
     <div>
-      {/* Email Input */}
       <div className="relative z-0 mb-4">
         <input
           type="text"
@@ -85,7 +84,6 @@ const LoginForm: FC<Props> = (props) => {
         </button>
       </div>
 
-      {/* Submit Button */}
       <button
         onClick={handleSubmit}
         className="w-full bg-primary-300 hover:bg-accent-200 hover:text-primary-100 text-neutral-100 cursor-pointer font-semibold py-3 rounded-lg transition-all ease-in-out duration-300"

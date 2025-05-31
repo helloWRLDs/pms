@@ -7,6 +7,7 @@ import { Sprint } from "../../lib/sprint/sprint";
 import { Project } from "../../lib/project/project";
 import Input from "../ui/Input";
 import { Priority } from "../../lib/task/priority";
+import { useAssigneeList } from "../../hooks/useSprintList";
 
 type NewTaskFormProps = {
   className?: string;
@@ -36,6 +37,7 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
     },
   };
   const [newTask, setNewTask] = useState<TaskCreation>(NULL_TASK);
+  const { assignees } = useAssigneeList(props.project.company_id ?? "");
 
   useEffect(() => {
     console.log(newTask);
@@ -115,8 +117,8 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
           label="Assignee"
           options={[
             { label: "Unassigned", value: "" },
-            ...(props.assignees?.map((item) => ({
-              label: item.name ?? "",
+            ...(assignees?.items?.map((item) => ({
+              label: `${item.first_name} ${item.last_name}`,
               value: item.id ?? "",
             })) ?? []),
           ]}

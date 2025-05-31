@@ -1,10 +1,9 @@
 import { useState } from "react";
 import Input from "../ui/Input";
 import { DocumentCreation } from "../../lib/document/document";
-import { useCacheStore } from "../../store/cacheStore";
-import { Button } from "../ui/Button";
-import { useProjectStore } from "../../store/selectedProjectStore";
 import { errorToast } from "../../lib/utils/toast";
+import useMetaCache from "../../store/useMetaCache";
+import { useSprintList } from "../../hooks/useSprintList";
 
 type NewDocumentProps = {
   onSubmit: (newDoc: DocumentCreation) => Promise<void>;
@@ -16,15 +15,20 @@ const NewDocumentForm = ({
   onSubmit,
   ...props
 }: NewDocumentProps) => {
-  const { project } = useProjectStore();
+  const metaCache = useMetaCache();
   const NULL_DOCUMENT: DocumentCreation = {
-    project_id: project?.id ?? "",
+    project_id: metaCache.metadata.selectedProject?.id ?? "",
     sprint_id: "",
     title: "",
   };
-  const { sprints } = useCacheStore();
   const [newDocument, setNewDocument] =
     useState<DocumentCreation>(NULL_DOCUMENT);
+
+  // Use the direct sprint list hook instead of cache collections
+  const { sprints } = useSprintList(
+    metaCache.metadata.selectedProject?.id ?? ""
+  );
+
   return (
     <form
       className={className}
@@ -65,13 +69,11 @@ const NewDocumentForm = ({
             });
           }}
           options={[
-            { label: "None", value: "" },
-            ...(sprints
-              ? Object.values(sprints).map((sprint) => ({
-                  label: sprint.title,
-                  value: sprint.id,
-                }))
-              : []),
+            { label: "Unassigned", value: "" },
+            ...(sprints?.items.map((sprint) => ({
+              label: sprint.title ?? `Sprint ${sprint.id}`,
+              value: sprint.id,
+            })) ?? []),
           ]}
         />
       </Input>

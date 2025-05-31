@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { UserFilter } from "../../lib/user/user";
-import authAPI from "../../api/auth";
+import authAPI from "../../api/authAPI";
 import Input from "../ui/Input";
 import { Button } from "../ui/Button";
 

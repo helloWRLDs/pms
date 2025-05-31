@@ -16,6 +16,7 @@ const Editor = ({ content, onChange }: EditorProps) => {
         ref={editor}
         value={content}
         onChange={(newContent) => onChange(newContent)}
+        className="w-full text-black"
       />
     </div>
   );

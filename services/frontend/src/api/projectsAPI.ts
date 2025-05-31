@@ -10,30 +10,35 @@ class ProjectAPI extends API {
   async list(filter: ProjectFilters): Promise<ListItems<Project>> {
     try {
       const res = await this.req.get(
-        buildQuery(`${this.baseURL}/projects`, filter)
+        buildQuery(`/projects`, {
+          ...filter,
+          page: filter.page || 1,
+          per_page: filter.per_page || 10,
+        })
       );
       return res.data;
     } catch (err) {
-      console.log(err);
+      console.error("Failed to list projects:", err);
+      throw err;
     }
-    return {} as ListItems<Project>;
   }
 
   async get(id: string): Promise<Project> {
     try {
-      const res = await this.req.get(`${this.baseURL}/projects/${id}`);
+      const res = await this.req.get(`/projects/${id}`);
       return res.data;
     } catch (err) {
-      console.log(err);
+      console.error("Failed to get project:", err);
+      throw err;
     }
-    return {} as Project;
   }
 
   async create(creation: ProjectCreation): Promise<void> {
     try {
-      await this.req.post(`${this.baseURL}/projects`, creation);
+      await this.req.post(`/projects`, creation);
     } catch (err) {
-      console.log(err);
+      console.error("Failed to create project:", err);
+      throw err;
     }
   }
 }

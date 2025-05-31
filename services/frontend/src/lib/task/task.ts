@@ -1,11 +1,14 @@
 import { DeepPartial } from "../utils/generics";
 import { Pagination } from "../utils/list";
+import { TaskType } from "./tasktype";
 
 export type Task = {
   id: string;
   title: string;
   body: string;
   status: string;
+  task_type?: TaskType;
+  type?: TaskType;
   sprint_id?: string;
   project_id?: string;
   priority: number;
@@ -33,6 +36,7 @@ export type TaskFilter = Pagination & {
   sprint_id?: string;
   sprint_name?: string;
   status?: string;
+  type?: TaskType;
   assignee_id?: string;
   priority?: number;
   title?: string;

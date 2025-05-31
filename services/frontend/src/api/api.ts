@@ -4,6 +4,7 @@ import { ErrorResponse } from "../lib/errors";
 import { toastOpts } from "../lib/utils/toast";
 import { toast } from "react-toastify";
 import { AuthData } from "../lib/user/session";
+import useMetaCache from "../store/useMetaCache";
 
 export class API {
   protected baseURL: string;
@@ -24,6 +25,13 @@ export class API {
       if (auth && auth.state && auth.state.auth) {
         config.headers.Authorization = `Bearer ${auth.state.auth.access_token}`;
       }
+      const metaCache = useMetaCache.getState();
+      if (metaCache.metadata.selectedProject?.id) {
+        config.headers["X-Project-ID"] = metaCache.metadata.selectedProject.id;
+      }
+      if (metaCache.metadata.selectedCompany?.id) {
+        config.headers["X-Company-ID"] = metaCache.metadata.selectedCompany.id;
+      }
       return config;
     });
 
@@ -41,7 +49,6 @@ export class API {
               break;
             case 401:
               toast.error("Unauthorized! Please login.", toastOpts);
-
               break;
             case 404:
               toast.error(resBody?.msg || "Not found", toastOpts);

@@ -1,164 +1,119 @@
-import { GoOrganization, GoRepo } from "react-icons/go";
-import { GiSprint } from "react-icons/gi";
-import SideBar from "../components/ui/SideBar";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import TestPage from "./TestPage";
 import HomePage from "./HomePage";
-import AgileDashboard from "./AgileDashboard";
-import LoginPage from "./LoginPage";
-import RegisterPage from "./RegisterPage";
-import ProfilePage from "./ProfilePage";
-import CompaniesPage from "./CompaniesPage";
+import AgileDashboard from "./sprints/AgileDashboard";
+import LoginPage from "./auth/LoginPage";
+import RegisterPage from "./auth/RegisterPage";
+import ProfilePage from "./auth/ProfilePage";
+import CompaniesPage from "./company/CompaniesPage";
 import BacklogPage from "./BacklogPage";
-import {
-  MdOutlineDashboard,
-  MdOutlineHome,
-  MdOutlineLogin,
-  MdTaskAlt,
-} from "react-icons/md";
+import { MdOutlineLogin } from "react-icons/md";
 import { PiUserCirclePlusLight } from "react-icons/pi";
 import { IoIosLogOut } from "react-icons/io";
 import { useAuthStore } from "../store/authStore";
-import { useCompanyStore } from "../store/selectedCompanyStore";
-import { SideBarItem } from "../lib/ui/sidebar";
-import { useEffect, useState } from "react";
-import CompanyOverviewPage from "./CompanyOverview";
+import { useCallback, useMemo } from "react";
+import CompanyOverviewPage from "./company/CompanyOverview";
 import TestPage1 from "./TestPage1";
-import { IoAnalyticsOutline, IoDocumentOutline } from "react-icons/io5";
-import SprintsPage from "./SprintsPage";
-import DocumentsPage from "./DocumentsPage";
-import DocumentPage from "./DocumentPage";
+import SprintsPage from "./sprints/SprintsPage";
+import DocumentsPage from "./analytics/DocumentsPage";
+import DocumentPage from "./analytics/DocumentPage";
 import { RiProfileLine } from "react-icons/ri";
-import AnalyticsPage from "./AnalyticsPage";
+import TreeView, { TreeNode } from "../components/ui/TreeView";
+import useNavigationTree from "../hooks/useNavigationTree";
+import AnalyticsPage from "./analytics/AnalyticsPage";
 
 const Main = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, clearAuth } = useAuthStore();
-  const { selectCompany } = useCompanyStore();
-  const [sideBarItems, setSideBarItems] = useState<Record<string, SideBarItem>>(
-    {}
-  );
+  const { isAuthenticated, clearAuth, auth } = useAuthStore();
 
-  useEffect(() => {
+  const handleLogout = useCallback(() => {
+    clearAuth();
+    navigate("/login");
+  }, [clearAuth, navigate]);
+
+  const navigationTree = useNavigationTree();
+
+  const profileNodes: TreeNode[] = useMemo(() => {
     const isLoggedIn = isAuthenticated();
 
-    setSideBarItems({
-      Home: {
-        isEnabled: true,
-        label: "Home",
-        icon: MdOutlineHome,
-        onClick: () => navigate("/"),
-      },
-      Companies: {
-        isEnabled: isLoggedIn,
-        label: "Companies",
-        icon: GoOrganization,
-        onClick: () => navigate("/companies"),
-      },
-      Projects: {
-        isEnabled: isLoggedIn && !!selectCompany,
-        label: "Projects",
-        icon: GoRepo,
-        onClick: () => navigate("/projects"),
-      },
-      Tasks: {
-        isEnabled: isLoggedIn,
-        label: "Tasks",
-        icon: MdTaskAlt,
-        onClick: () => navigate("/backlog"),
-      },
-      Sprints: {
-        isEnabled: isLoggedIn,
-        label: "Sprints",
-        icon: GiSprint,
-        onClick: () => navigate("/sprints"),
-      },
-      Analytics: {
-        isEnabled: isLoggedIn,
-        label: "Analytics",
-        icon: IoAnalyticsOutline,
-        onClick: () => navigate("/analytics"),
-      },
-      Documents: {
-        isEnabled: isLoggedIn,
-        label: "Documents",
-        icon: IoDocumentOutline,
-        onClick: () => navigate("/documents"),
-      },
-      AgileDashboard: {
-        isEnabled: isLoggedIn,
-        label: "Agile Dashboard",
-        icon: MdOutlineDashboard,
-        onClick: () => navigate("/agile-dashboard"),
-      },
-      Profile: {
-        isEnabled: isLoggedIn,
+    if (!isLoggedIn || !auth?.user?.id) return [];
+
+    return [
+      {
+        id: "profile",
         label: "Profile",
         icon: RiProfileLine,
         onClick: () => navigate("/profile"),
+        isActive: window.location.pathname === "/profile",
       },
-      Login: {
-        className: "absolute bottom-15",
-        isEnabled: !isLoggedIn,
+    ];
+  }, [isAuthenticated, auth?.user?.id, navigate]);
+
+  const authNodes: TreeNode[] = useMemo(() => {
+    const isLoggedIn = isAuthenticated();
+
+    if (isLoggedIn) {
+      return [
+        {
+          id: "logout",
+          label: "Log out",
+          icon: IoIosLogOut,
+          onClick: handleLogout,
+          className: "text-red-400 hover:text-red-300",
+        },
+      ];
+    }
+
+    return [
+      {
+        id: "login",
         label: "Log in",
         icon: MdOutlineLogin,
         onClick: () => navigate("/login"),
+        isActive: window.location.pathname === "/login",
       },
-      Register: {
-        className: "absolute bottom-5",
-        isEnabled: !isLoggedIn,
+      {
+        id: "register",
         label: "Register",
         icon: PiUserCirclePlusLight,
         onClick: () => navigate("/register"),
+        isActive: window.location.pathname === "/register",
       },
-      Logout: {
-        className: "absolute bottom-5",
-        isEnabled: isLoggedIn,
-        label: "Log out",
-        icon: IoIosLogOut,
-        onClick: () => {
-          clearAuth();
-          navigate("/login");
-        },
-      },
-    });
-  }, [isAuthenticated(), selectCompany]);
+    ];
+  }, [isAuthenticated, handleLogout, navigate]);
 
   return (
     <>
-      <SideBar
-        logo={{
-          href: "/",
-          imgSrc: "https://flowbite.com/docs/images/logo.svg",
-          label: "Taskflow",
-        }}
-      >
-        {Object.values(sideBarItems)
-          .filter((item) => item.isEnabled)
-          .map((barItem, i) => (
-            <SideBar.Element
-              key={i}
-              className={`text-accent-500 hover:bg-accent-500 hover:text-black transition duration-300 ease-in-out ${
-                barItem.className ?? ""
-              }`}
-              onClick={barItem.onClick}
-            >
-              <barItem.icon
-                size="23"
-                className="group-hover:text-black transition ease-in-out duration-300"
-              />
-              <span className="group-hover:text-black transition duration-300 ease-in-out">
-                {barItem.label}
-              </span>
-              {barItem.badge}
-            </SideBar.Element>
-          ))}
-      </SideBar>
-      <div className="md:ml-64">
+      <div className="fixed top-0 left-0 w-72 h-screen bg-[#1a1a1a] border-r border-[#2a2a2a]">
+        <div className="flex items-center gap-3 px-6 py-4 border-b border-[#2a2a2a] bg-[#1a1a1a]">
+          <a href="/" className="flex items-center gap-3">
+            <img
+              src="https://flowbite.com/docs/images/logo.svg"
+              className="h-8"
+              alt="Logo"
+            />
+            <span className="text-xl font-semibold text-white">Taskflow</span>
+          </a>
+        </div>
+
+        <div className="flex flex-col h-[calc(100vh-4rem)] bg-[#1a1a1a]">
+          <div className="flex-grow overflow-y-auto">
+            <TreeView nodes={navigationTree} />
+          </div>
+
+          <div className="border-t border-[#2a2a2a] bg-[#1a1a1a]">
+            <TreeView nodes={profileNodes} />
+            <TreeView nodes={authNodes} />
+          </div>
+        </div>
+      </div>
+
+      <div className="transition-all duration-300 md:ml-72">
         <Routes>
           <Route path="/test1" element={<TestPage1 />} />
           <Route path="/test" element={<TestPage />} />
           <Route path="/" element={<HomePage />} />
+          <Route path="/sprints/:sprintID" element={<AgileDashboard />} />
           <Route path="/agile-dashboard" element={<AgileDashboard />} />
 
           {/* authorization */}
@@ -166,11 +121,12 @@ const Main = () => {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
 
-          <Route path="/analytics" element={<AnalyticsPage />} />
+          {/* <Route path="/analytics" element={<AnalyticsPage />} /> */}
           <Route path="/companies" element={<CompaniesPage />} />
           <Route path="/projects" element={<CompanyOverviewPage />} />
           <Route path="/backlog" element={<BacklogPage />} />
           <Route path="/sprints" element={<SprintsPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/documents/:documentID" element={<DocumentPage />} />
           <Route path="/documents" element={<DocumentsPage />} />
           <Route path="/projects/:projectID/sprints/:sprintID" />

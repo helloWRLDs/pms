@@ -5,6 +5,7 @@ const useWs = (url: string, reconnectInterval = 5000) => {
   const [val, setVal] = useState<string | null>(null);
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
+  const shouldReconnect = useRef<boolean>(true);
 
   const connect = useCallback(() => {
     if (ws.current) {
@@ -22,9 +23,11 @@ const useWs = (url: string, reconnectInterval = 5000) => {
       console.warn("WebSocket disconnected, will retry...");
       setIsReady(false);
 
-      reconnectTimer.current = setTimeout(() => {
-        connect();
-      }, reconnectInterval);
+      if (shouldReconnect.current) {
+        reconnectTimer.current = setTimeout(() => {
+          connect();
+        }, reconnectInterval);
+      }
     };
 
     socket.onmessage = (event) => {
@@ -39,16 +42,26 @@ const useWs = (url: string, reconnectInterval = 5000) => {
     ws.current = socket;
   }, [url, reconnectInterval]);
 
+  const close = useCallback(() => {
+    console.log("Closing WebSocket connection");
+    shouldReconnect.current = false;
+    if (reconnectTimer.current) {
+      clearTimeout(reconnectTimer.current);
+      reconnectTimer.current = null;
+    }
+    if (ws.current) {
+      ws.current.close();
+      ws.current = null;
+    }
+  }, []);
+
   useEffect(() => {
     connect();
 
     return () => {
-      if (reconnectTimer.current) {
-        clearTimeout(reconnectTimer.current);
-      }
-      ws.current?.close();
+      close();
     };
-  }, [connect]);
+  }, [connect, close]);
 
   const send = useCallback((data: any) => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
@@ -58,7 +71,7 @@ const useWs = (url: string, reconnectInterval = 5000) => {
     }
   }, []);
 
-  return { isReady, val, send };
+  return { isReady, val, send, close };
 };
 
 export default useWs;
