@@ -75,6 +75,7 @@ message Task {
     string assignee_id = 10;
     google.protobuf.Timestamp due_date = 11;
     string code = 12;
+    string type = 13;
 }
 
 message Project {
@@ -125,6 +126,21 @@ message DocumentPDF {
     bytes body = 1;
     string title = 2;
     string doc_id = 3;
+}
+
+message TaskStats {
+    int32 total_tasks = 1;
+    int32 done_tasks = 2;
+    int32 in_progress_tasks = 3;
+    int32 to_do_tasks = 4;
+    int32 total_points = 5;
+}
+
+message UserTaskStats {
+    string user_id = 1;
+    string first_name = 2;
+    string last_name = 3;
+    map<string, TaskStats> stats = 4;
 }
 
 // FILTERS

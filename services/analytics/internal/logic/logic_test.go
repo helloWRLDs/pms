@@ -10,6 +10,7 @@ import (
 	"pms.analytics/internal/data"
 	"pms.pkg/datastore/postgres"
 	"pms.pkg/logger"
+	configgrpc "pms.pkg/transport/grpc/config"
 )
 
 var (
@@ -34,7 +35,14 @@ func setup() {
 		print("failed to connect to db", "err", err)
 	}
 
-	logic = New(data.New(db, log), &config.Config{}, log)
+	logic = New(data.New(db, log), &config.Config{
+		Auth: configgrpc.ClientConfig{
+			Host: "127.0.0.1:50051",
+		},
+		Project: configgrpc.ClientConfig{
+			Host: "127.0.0.1:50052",
+		},
+	}, log)
 }
 
 func terminate() {

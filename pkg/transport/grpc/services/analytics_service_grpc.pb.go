@@ -24,6 +24,7 @@ const (
 	AnalyticsService_GetDocument_FullMethodName            = "/analytics.AnalyticsService/GetDocument"
 	AnalyticsService_UpdateDocument_FullMethodName         = "/analytics.AnalyticsService/UpdateDocument"
 	AnalyticsService_DownloadDocument_FullMethodName       = "/analytics.AnalyticsService/DownloadDocument"
+	AnalyticsService_GetUserTaskStats_FullMethodName       = "/analytics.AnalyticsService/GetUserTaskStats"
 )
 
 // AnalyticsServiceClient is the client API for AnalyticsService service.
@@ -35,6 +36,7 @@ type AnalyticsServiceClient interface {
 	GetDocument(ctx context.Context, in *GetDocumentRequest, opts ...grpc.CallOption) (*GetDocumentResponse, error)
 	UpdateDocument(ctx context.Context, in *UpdateDocumentRequest, opts ...grpc.CallOption) (*UpdateDocumentResponse, error)
 	DownloadDocument(ctx context.Context, in *DownloadDocumentRequest, opts ...grpc.CallOption) (*DownloadDocumentResponse, error)
+	GetUserTaskStats(ctx context.Context, in *GetUserTaskStatsRequest, opts ...grpc.CallOption) (*GetUserTaskStatsResponse, error)
 }
 
 type analyticsServiceClient struct {
@@ -95,6 +97,16 @@ func (c *analyticsServiceClient) DownloadDocument(ctx context.Context, in *Downl
 	return out, nil
 }
 
+func (c *analyticsServiceClient) GetUserTaskStats(ctx context.Context, in *GetUserTaskStatsRequest, opts ...grpc.CallOption) (*GetUserTaskStatsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserTaskStatsResponse)
+	err := c.cc.Invoke(ctx, AnalyticsService_GetUserTaskStats_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AnalyticsServiceServer is the server API for AnalyticsService service.
 // All implementations must embed UnimplementedAnalyticsServiceServer
 // for forward compatibility.
@@ -104,6 +116,7 @@ type AnalyticsServiceServer interface {
 	GetDocument(context.Context, *GetDocumentRequest) (*GetDocumentResponse, error)
 	UpdateDocument(context.Context, *UpdateDocumentRequest) (*UpdateDocumentResponse, error)
 	DownloadDocument(context.Context, *DownloadDocumentRequest) (*DownloadDocumentResponse, error)
+	GetUserTaskStats(context.Context, *GetUserTaskStatsRequest) (*GetUserTaskStatsResponse, error)
 	mustEmbedUnimplementedAnalyticsServiceServer()
 }
 
@@ -128,6 +141,9 @@ func (UnimplementedAnalyticsServiceServer) UpdateDocument(context.Context, *Upda
 }
 func (UnimplementedAnalyticsServiceServer) DownloadDocument(context.Context, *DownloadDocumentRequest) (*DownloadDocumentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DownloadDocument not implemented")
+}
+func (UnimplementedAnalyticsServiceServer) GetUserTaskStats(context.Context, *GetUserTaskStatsRequest) (*GetUserTaskStatsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserTaskStats not implemented")
 }
 func (UnimplementedAnalyticsServiceServer) mustEmbedUnimplementedAnalyticsServiceServer() {}
 func (UnimplementedAnalyticsServiceServer) testEmbeddedByValue()                          {}
@@ -240,6 +256,24 @@ func _AnalyticsService_DownloadDocument_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AnalyticsService_GetUserTaskStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserTaskStatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticsServiceServer).GetUserTaskStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticsService_GetUserTaskStats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticsServiceServer).GetUserTaskStats(ctx, req.(*GetUserTaskStatsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AnalyticsService_ServiceDesc is the grpc.ServiceDesc for AnalyticsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -266,6 +300,10 @@ var AnalyticsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DownloadDocument",
 			Handler:    _AnalyticsService_DownloadDocument_Handler,
+		},
+		{
+			MethodName: "GetUserTaskStats",
+			Handler:    _AnalyticsService_GetUserTaskStats_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -5,20 +5,111 @@
 {{end}}
 
 {{define "content"}}
-    <h1>{{ .Content.Title}}</h1>
-    <p>Sprint Duration: {{.Content.StartDate}} - {{.Content.EndDate}}</p>
-    <p>Sprint Goal: {{ .Content.Description }}</p>
-    
-    <br>
-    <h2>Result</h2>
-    <ul>
-        <li>Done Tasks: {{ .Content.DoneTasks }}</li>
-        <li>Undone Taks: {{ .Content.UndoneTasks }}</li>
-    </ul>
-    <br>
+<h1>{{.Content.Title}} - Sprint Report</h1>
 
-    <h2>What Went Well?</h2>
-    <ul>
-        <li></li>
-    </ul>
+<p><strong>Sprint Duration:</strong> {{.Content.StartDate}} → {{.Content.EndDate}}</p>
+<p><strong>Sprint Goal:</strong> {{.Content.Description}}</p>
+
+<hr>
+
+<h2>📊 Sprint Overview</h2>
+
+<ul>
+    <li><strong>Tasks Completed:</strong> {{.Content.DoneTasks}}/{{.Content.TotalTasks}} ({{printf "%.1f" .Content.CompletionRate}}%)</li>
+    <li><strong>Total Points Delivered:</strong> {{.Content.TotalPoints}}</li>
+    <li><strong>Average Points per Task:</strong> {{printf "%.1f" .Content.TaskInsights.AveragePointsPerTask}}</li>
+    <li><strong>Remaining Tasks:</strong> {{.Content.UndoneTasks}}</li>
+</ul>
+
+<h2>📋 Task Analysis</h2>
+
+<h3>Task Types Distribution</h3>
+<ul>
+{{range $type, $count := .Content.TasksByType}}
+    <li><strong>{{$type}}:</strong> {{$count}} tasks</li>
+{{end}}
+</ul>
+
+<h3>Priority Breakdown</h3>
+<ul>
+{{range $priority, $count := .Content.TasksByPriority}}
+    <li><strong>{{$priority}}:</strong> {{$count}} tasks</li>
+{{end}}
+</ul>
+
+<h3>Key Insights</h3>
+<ul>
+    <li><strong>Most Common Task Type:</strong> {{.Content.TaskInsights.MostCommonType}}</li>
+    <li><strong>Most Common Priority:</strong> {{.Content.TaskInsights.MostCommonPriority}}</li>
+    <li><strong>Highest Value Task:</strong> {{.Content.TaskInsights.HighestValueTask}}</li>
+</ul>
+
+{{if .Content.TopPerformers}}
+<h2>🏆 Top Performers</h2>
+<ol>
+{{range $index, $user := .Content.TopPerformers}}
+    <li><strong>{{$user.FullName}}</strong> - {{$user.DoneTasks}}/{{$user.TotalTasks}} tasks ({{printf "%.1f" $user.CompletionRate}}%) - {{$user.TotalPoints}} points</li>
+{{end}}
+</ol>
+{{end}}
+
+{{if .Content.UserPerformance}}
+<h2>👥 Team Performance</h2>
+<table border="1" style="border-collapse: collapse; width: 100%;">
+    <thead>
+        <tr>
+            <th style="padding: 8px; text-align: left;">Team Member</th>
+            <th style="padding: 8px; text-align: left;">Tasks Completed</th>
+            <th style="padding: 8px; text-align: left;">Completion Rate</th>
+            <th style="padding: 8px; text-align: left;">Points Earned</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Content.UserPerformance}}
+        <tr>
+            <td style="padding: 8px;"><strong>{{.FullName}}</strong></td>
+            <td style="padding: 8px;">{{.DoneTasks}}/{{.TotalTasks}}</td>
+            <td style="padding: 8px;">{{printf "%.1f" .CompletionRate}}%</td>
+            <td style="padding: 8px;"><strong>{{.TotalPoints}}</strong></td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{end}}
+
+<h2>🔄 Sprint Retrospective</h2>
+
+<h3>✅ What Went Well?</h3>
+<ul>
+    {{if ge .Content.CompletionRate 80.0}}
+    <li>High completion rate of {{printf "%.1f" .Content.CompletionRate}}%</li>
+    {{end}}
+    {{if .Content.TopPerformers}}
+    <li>Strong individual performances from {{len .Content.TopPerformers}} team members</li>
+    {{end}}
+    <li>Delivered {{.Content.TotalPoints}} story points</li>
+    <li><em>Add specific achievements here...</em></li>
+</ul>
+
+<h3>🔧 What Could Be Improved?</h3>
+<ul>
+    {{if lt .Content.CompletionRate 80.0}}
+    <li>Completion rate of {{printf "%.1f" .Content.CompletionRate}}% could be higher</li>
+    {{end}}
+    {{if gt .Content.UndoneTasks 0}}
+    <li>{{.Content.UndoneTasks}} tasks remained incomplete</li>
+    {{end}}
+    <li><em>Add specific improvement areas here...</em></li>
+</ul>
+
+<h3>🎯 Action Items</h3>
+<ul>
+    <li><em>Define specific action items for next sprint...</em></li>
+    <li><em>Address any blockers or issues...</em></li>
+    <li><em>Team capacity planning adjustments...</em></li>
+</ul>
+
+<hr>
+
+<p><em>Report generated automatically from sprint data</em></p>
 {{end}}

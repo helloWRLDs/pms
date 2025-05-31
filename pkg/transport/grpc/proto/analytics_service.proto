@@ -13,6 +13,7 @@ service AnalyticsService {
     rpc GetDocument(GetDocumentRequest) returns (GetDocumentResponse);
     rpc UpdateDocument (UpdateDocumentRequest) returns (UpdateDocumentResponse);
     rpc DownloadDocument (DownloadDocumentRequest) returns (DownloadDocumentResponse);
+    rpc GetUserTaskStats(GetUserTaskStatsRequest) returns (GetUserTaskStatsResponse);
 }
 
 message CreateDocumentTemplateRequest {
@@ -59,4 +60,14 @@ message DownloadDocumentRequest {
 message DownloadDocumentResponse {
     bool success = 1;
     models.DocumentPDF document = 2;
+}
+
+message GetUserTaskStatsRequest {
+    string company_id = 1;
+}
+
+
+message GetUserTaskStatsResponse {
+    bool success = 1;
+    repeated models.UserTaskStats stats = 2;
 }

@@ -10,5 +10,6 @@ type Config struct {
 	Host    string                  `env:"HOST"`
 	DB      postgres.Config         `envPrefix:"POSTGRES_"`
 	Log     logger.Config           `envPrefix:"LOG_"`
+	Auth    configgrpc.ClientConfig `envPrefix:"AUTH_"`
 	Project configgrpc.ClientConfig `envPrefix:"PROJECT_"`
 }

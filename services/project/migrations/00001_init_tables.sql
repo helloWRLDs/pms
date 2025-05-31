@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS "Task" (
     "status" TEXT,
     "priority" INTEGER DEFAULT 1,
     "due_date" DATE,
+    "type" VARCHAR(60),
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY ("project_id") REFERENCES "Project"("id"),

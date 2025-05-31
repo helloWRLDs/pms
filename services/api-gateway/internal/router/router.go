@@ -43,6 +43,7 @@ func (s *Server) SetupREST() {
 		comp.Get("/", s.ListCompanies)
 		comp.Get("/:companyID", s.GetCompany)
 		comp.Post("/", s.CreateCompany)
+		comp.Get("/:companyID/stats", s.GetCompanyStats)
 
 		comp.Route("/:companyID/participants", func(participants fiber.Router) {
 			participants.Use(s.Authorize(), s.RequireCompany())
@@ -71,7 +72,7 @@ func (s *Server) SetupREST() {
 		tasks.Put("/:taskID", s.UpdateTask)
 		tasks.Delete("/:taskID", s.DeleteTask)
 
-		tasks.Route("/:taskID/assignment", func(assignment fiber.Router) {
+		tasks.Route("/:taskID/assignments", func(assignment fiber.Router) {
 			assignment.Post("/:userID", s.CreateTaskAssignment)
 			assignment.Delete("/:userID", s.DeleteTaskAssignment)
 		})
@@ -85,7 +86,7 @@ func (s *Server) SetupREST() {
 	v1.Route("/sprints", func(sprints fiber.Router) {
 		sprints.Use(s.Authorize())
 		sprints.Use(s.RequireProjectService())
-		sprints.Use(s.RequireCompany())
+		sprints.Use(s.RequireCompany(), s.RequireProject())
 
 		sprints.Post("/", s.CreateSprint)
 		sprints.Get("/", s.ListSprints)

@@ -14,6 +14,7 @@ type Task struct {
 	Title     string            `db:"title"`
 	Body      string            `db:"body"`
 	Status    consts.TaskStatus `db:"status"`
+	Type      consts.TaskType   `db:"type"`
 	Priority  *int              `db:"priority"`
 	ProjectID string            `db:"project_id"`
 	SprintID  *string           `db:"sprint_id"`
@@ -32,6 +33,7 @@ func (t Task) DTO() *dto.Task {
 		SprintId:  utils.Value(t.SprintID),
 		Code:      t.Code,
 		ProjectId: t.ProjectID,
+		Type:      t.Type.String(),
 		Priority:  int32(utils.Value(t.Priority)),
 		CreatedAt: timestamppb.New(t.Created),
 		UpdatedAt: timestamppb.New(utils.Value(t.Updated)),
@@ -52,5 +54,6 @@ func Entity(dto *dto.Task) *Task {
 		Created:   dto.CreatedAt.AsTime(),
 		Updated:   utils.Ptr(dto.UpdatedAt.AsTime()),
 		DueDate:   utils.Ptr(dto.DueDate.AsTime()),
+		Type:      consts.TaskType(dto.Type),
 	}
 }

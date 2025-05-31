@@ -16,6 +16,5 @@ func (s *Server) SetupWS() {
 	})
 
 	s.Get("/ws/docs/:docID", websocket.New(s.StreamDocument))
-	s.Get("/ws/projects/:projectID/sprints/:sprintID", websocket.New(s.StreamSprint))
-
+	s.Get("/ws/sprints/:sprintID", websocket.New(s.StreamSprint))
 }

@@ -15,7 +15,7 @@ func (s *ServerGRPC) TaskAssign(ctx context.Context, req *pb.TaskAssignRequest) 
 	res = new(pb.TaskAssignResponse)
 	res.Success = false
 
-	if err := s.logic.AssginTask(ctx, req.UserId, req.TaskId); err != nil {
+	if err := s.logic.AssignTask(ctx, req.UserId, req.TaskId); err != nil {
 		return res, err
 	}
 	res.Success = true
