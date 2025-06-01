@@ -4,6 +4,22 @@ import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-toastify";
 import { toastOpts } from "../../lib/utils/toast";
 
+// Helper function to properly decode base64 with Unicode support
+function decodeBase64(str: string): string {
+  // First, we need to handle the base64 padding
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  // Add padding if needed
+  while (str.length % 4) str += '=';
+  
+  // Use TextDecoder to properly handle Unicode
+  const binary = atob(str);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return new TextDecoder().decode(bytes);
+}
+
 const OAuthCallback: FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -30,11 +46,12 @@ const OAuthCallback: FC = () => {
         try {
           console.log("📦 Processing auth data from backend...");
 
-          // Decode base64 auth data
-          const decodedData = atob(decodeURIComponent(authData));
+          // Decode base64 auth data with proper Unicode handling
+          const decodedData = decodeBase64(decodeURIComponent(authData));
+          console.log("🔑 Decoded auth data:", decodedData);
           const authResponse = JSON.parse(decodedData);
 
-          console.log("✅ Auth response decoded:", authResponse);
+          console.log("✅ Auth response decoded:", JSON.stringify(authResponse));
 
           if (authResponse.payload) {
             // Set authentication data in store
