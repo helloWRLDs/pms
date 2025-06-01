@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ProjectCreation } from "../../lib/project/project";
 import { useCompanyStore } from "../../store/selectedCompanyStore";
+import useMetaCache from "../../store/useMetaCache";
 
 type NewProjectFormProps = React.HTMLAttributes<HTMLFormElement> & {
   onSubmit?: (data: ProjectCreation) => void;
@@ -12,18 +13,21 @@ const NewProjectForm = ({
   className,
   ...props
 }: NewProjectFormProps) => {
+  const metaCache = useMetaCache();
   const NULL_PROJECT: ProjectCreation = {
     title: "",
     description: "",
     code_name: "",
-    company_id: "",
+    company_id: metaCache.metadata.selectedCompany?.id ?? "",
   };
   const [newProject, setNewProject] = useState<ProjectCreation>(NULL_PROJECT);
-  const { selectedCompany } = useCompanyStore();
+
   useEffect(() => {
-    setNewProject({ ...newProject, company_id: selectedCompany?.id ?? "" });
-    NULL_PROJECT.company_id = selectedCompany?.id ?? "";
-  }, [selectedCompany]);
+    setNewProject({
+      ...newProject,
+      company_id: metaCache.metadata.selectedCompany?.id ?? "",
+    });
+  }, [metaCache.metadata.selectedCompany?.id]);
 
   return (
     <form
@@ -38,7 +42,7 @@ const NewProjectForm = ({
       <div className="relative z-0 mb-4 mt-8">
         <input
           type="text"
-          value={selectedCompany?.name}
+          value={metaCache.metadata.selectedCompany?.name}
           id="new-project-description"
           className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
           placeholder=" "

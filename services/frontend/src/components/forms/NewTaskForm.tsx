@@ -8,6 +8,7 @@ import { Project } from "../../lib/project/project";
 import Input from "../ui/Input";
 import { Priority } from "../../lib/task/priority";
 import { useAssigneeList } from "../../hooks/useSprintList";
+import { getTaskTypes } from "../../lib/task/tasktype";
 
 type NewTaskFormProps = {
   className?: string;
@@ -83,6 +84,18 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
         />
       </Input>
 
+      <Input>
+        <Input.Element
+          type="select"
+          label="Type"
+          options={getTaskTypes.map((item) => {
+            return { label: capitalize(item.replace("_", " ")), value: item };
+          })}
+          value={newTask.type}
+          onChange={(e) => handleChange("type", e.currentTarget.value)}
+        />
+      </Input>
+      
       <Input>
         <Input.Element
           type="select"

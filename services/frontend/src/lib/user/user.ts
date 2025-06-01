@@ -29,7 +29,7 @@ export type UserNew = Pick<
 export type UserOptional = DeepPartial<User>;
 export type UserFilter = Pagination & {
   company_id: string;
-  email?: string;
+  user_email?: string;
 };
 
 export interface AuthData {

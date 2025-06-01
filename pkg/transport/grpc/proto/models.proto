@@ -342,6 +342,7 @@ message TaskCreation {
     int32 priority = 6;
     string assignee_id = 7;
     google.protobuf.Timestamp due_date = 8;
+    string type = 9;
 }
 
 message SprintCreation {

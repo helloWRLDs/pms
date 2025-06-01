@@ -21,7 +21,10 @@ func (l *Logic) ListUsers(ctx context.Context, filter *dto.UserFilter) (result l
 		log.Errorw("failed to list users", "err", err)
 		return list.List[*dto.User]{}, err
 	}
-	// log.Infow("users found", "users", entities)
+	result.Page = entities.Page
+	result.PerPage = entities.PerPage
+	result.TotalPages = entities.TotalPages
+	result.TotalItems = entities.TotalItems
 
 	for _, usr := range entities.Items {
 		result.Items = append(result.Items, func() (u *dto.User) {
@@ -31,13 +34,12 @@ func (l *Logic) ListUsers(ctx context.Context, filter *dto.UserFilter) (result l
 				PerPage: 1000,
 				UserId:  usr.ID,
 			})
-			if err != nil {
-				return
+			if err == nil {
+				for _, p := range participantList.Items {
+					u.Participants = append(u.Participants, p.DTO())
+				}
 			}
-			for _, p := range participantList.Items {
-				u.Participants = append(u.Participants, p.DTO())
-			}
-			return
+			return u
 		}())
 	}
 
@@ -81,8 +83,8 @@ func (l *Logic) UpdateUser(ctx context.Context, id string, user *dto.User) (upda
 			existing.FirstName = user.FirstName
 			isChanged = true
 		}
-		if existing.LastName != user.LastName {
-			existing.LastName = user.LastName
+		if existing.LastName != utils.Ptr(user.LastName) {
+			existing.LastName = utils.Ptr(user.LastName)
 			isChanged = true
 		}
 		if existing.Email != user.Email {

@@ -57,3 +57,12 @@ func Test_ListTasks(t *testing.T) {
 	assert.NoError(t, err)
 	t.Log(utils.JSON(list))
 }
+func Test_ReassignTask(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	taskID := "02aa2692-3ea4-4bb9-8185-8cf7fd0dd466"
+	userID := "f3cef382-559d-4248-9b02-9c0038725ab7"
+	err := logic.AssignTask(ctx, userID, taskID)
+	assert.NoError(t, err)
+}

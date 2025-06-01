@@ -5,7 +5,7 @@ import { usePageSettings } from "../../hooks/usePageSettings";
 import { useAuthStore } from "../../store/authStore";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { ListItems, Pagination } from "../../lib/utils/list";
+import { ListItems} from "../../lib/utils/list";
 import Paginator from "../../components/ui/Paginator";
 import companyAPI from "../../api/company";
 import Table, { TableColumn } from "../../components/ui/Table";
@@ -37,9 +37,11 @@ const CompaniesPage: FC = () => {
     per_page: 10,
   });
 
-  const { data: companyList, isLoading: isCompanyListLoading } = useQuery<
-    ListItems<Company>
-  >({
+  const {
+    data: companyList,
+    isLoading: isCompanyListLoading,
+    refetch: refetchCompanyList,
+  } = useQuery<ListItems<Company>>({
     queryKey: ["companies", filter.page, filter.per_page, filter.company_name],
     queryFn: async () => {
       try {
@@ -137,8 +139,9 @@ const CompaniesPage: FC = () => {
           className="w-[50%] mx-auto bg-primary-300 text-white"
         >
           <NewCompanyForm
-            onFinish={(data) => {
-              companyAPI.create(data);
+            onFinish={async (data) => {
+              await companyAPI.create(data);
+              await refetchCompanyList();
               setNewCompanyModal(false);
             }}
           />

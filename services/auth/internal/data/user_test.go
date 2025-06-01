@@ -40,7 +40,7 @@ func Test_CreateUser(t *testing.T) {
 	user := userdata.User{
 		ID:        id,
 		FirstName: "admin",
-		LastName:  "admin",
+		LastName:  utils.Ptr("admin"),
 		Email:     "admin@example.com",
 		Password:  utils.Ptr(string(hashed)),
 	}

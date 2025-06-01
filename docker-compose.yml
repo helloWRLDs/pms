@@ -1,22 +1,22 @@
 version: "3.9"
 
 services:
-  frontend:
-    container_name: frontend
-    build:
-      context: ./services/frontend
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    networks:
-      - webnet
-    depends_on:
-      - api-gateway
-    restart: unless-stopped
+  # frontend:
+  #   container_name: frontend
+  #   build:
+  #     context: ./services/frontend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "80:80"
+  #   networks:
+  #     - webnet
+  #   depends_on:
+  #     - api-gateway
+  #   restart: unless-stopped
 
   auth-service:
     container_name: auth-service
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
       target: auth-service
@@ -124,7 +124,7 @@ services:
       dockerfile: Dockerfile
       target: notifier-service
     ports:
-      - "50052:50052"
+      - "50055:50055"
     networks:
       - webnet
     depends_on:
@@ -145,7 +145,7 @@ services:
       - "5432:5432"
     networks:
       - webnet
-      
+
   redis-pms:
     image: redis:7.0.8
     container_name: "redis-pms"

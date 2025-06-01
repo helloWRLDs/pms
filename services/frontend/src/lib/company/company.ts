@@ -13,9 +13,12 @@ export type Company = {
     seconds: number;
   };
   projects?: ListItems<Project>;
+  bin?: string;
+  address?: string;
+  description?: string;
 };
 
-export type CompanyCreation = Pick<Company, "name" | "codename">;
+export type CompanyCreation = Pick<Company, "name" | "codename" | "bin" | "address" | "description">;
 
 export type CompanyFilters = Pagination & {
   user_id?: string;

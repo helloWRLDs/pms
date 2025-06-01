@@ -20,14 +20,9 @@ class CompanyAPI extends API {
   }
 
   async addParticipant(companyID: string, userID: string): Promise<void> {
-    try {
-      await this.req.post(
-        `${this.baseURL}/companies/${companyID}/participants/${userID}`
-      );
-      return;
-    } catch (e) {
-      throw e;
-    }
+    await this.req.post(
+      `${this.baseURL}/companies/${companyID}/participants/${userID}`
+    );
   }
 
   async create(creation: CompanyCreation): Promise<void> {

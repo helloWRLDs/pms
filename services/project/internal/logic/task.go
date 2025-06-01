@@ -64,6 +64,7 @@ func (l *Logic) CreateTask(ctx context.Context, creation *dto.TaskCreation) (id 
 		DueDate:   utils.Ptr(creation.GetDueDate().AsTime()),
 		Created:   time.Now(),
 		Code:      l.Repo.Project.GetCode(ctx, creation.ProjectId),
+		Type:      consts.TaskType(creation.GetType()),
 	}
 
 	if err = l.Repo.Task.Create(tx, newTask); err != nil {

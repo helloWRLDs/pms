@@ -111,7 +111,7 @@ func (l *Logic) CreateCompany(ctx context.Context, userID string, newCompany *dt
 	created.Bin = company.BIN
 	created.Address = company.Address
 	created.Description = company.Description
-	created, err = l.GetCompany(ctx, company.ID)
+	created, err = l.GetCompany(tx, company.ID)
 	if err != nil {
 		return nil, err
 	}

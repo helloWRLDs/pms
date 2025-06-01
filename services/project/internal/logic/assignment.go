@@ -8,7 +8,7 @@ import (
 	assignmentdata "pms.project/internal/data/assignment"
 )
 
-func (l *Logic) AssignTask(ctx context.Context, userID, taskID string) error {
+func (l *Logic) AssignTask(ctx context.Context, userID, taskID string) (err error) {
 	log := l.log.Named("AssignTask").With(
 		zap.String("user_id", userID),
 		zap.String("task_id", taskID),
@@ -27,39 +27,57 @@ func (l *Logic) AssignTask(ctx context.Context, userID, taskID string) error {
 		}
 	}
 
-	existing, err := l.Repo.TaskAssignment.Get(ctx, userID, taskID)
-	if err == nil {
-		if existing != nil {
-			return errs.ErrConflict{
-				Reason: "task already assigned",
-			}
-		}
+	tx, err := l.Repo.StartTx(ctx)
+	if err != nil {
+		return err
 	}
+	defer func() {
+		l.Repo.EndTx(ctx, err)
+	}()
+	// Check if the task is already assigned to the user
 
+	existing, _ := l.Repo.TaskAssignment.GetByTask(tx, taskID)
+
+	if existing != nil {
+		l.Repo.TaskAssignment.Delete(tx, assignmentdata.AssignmentData{
+			TaskID: taskID,
+			UserID: existing.UserID,
+		})
+	}
 	newAssignment := assignmentdata.AssignmentData{
 		TaskID: taskID,
 		UserID: userID,
 	}
-	err = l.Repo.TaskAssignment.Create(ctx, newAssignment)
+	err = l.Repo.TaskAssignment.Create(tx, newAssignment)
 	if err != nil {
 		return err
 	}
+
 	return nil
+
 }
 
-func (l *Logic) UnassignTask(ctx context.Context, userID, taskID string) error {
+func (l *Logic) UnassignTask(ctx context.Context, userID, taskID string) (err error) {
 	log := l.log.Named("UnassignTask").With(
 		zap.String("user_id", userID),
 		zap.String("task_id", taskID),
 	)
 	log.Debug("UnassignTask called")
 
-	existing, _ := l.Repo.TaskAssignment.Get(ctx, userID, taskID)
+	tx, err := l.Repo.StartTx(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		l.Repo.EndTx(ctx, err)
+	}()
+
+	existing, _ := l.Repo.TaskAssignment.Get(tx, userID, taskID)
 	if existing == nil {
 		return nil
 	}
 
-	if err := l.Repo.TaskAssignment.Delete(ctx, assignmentdata.AssignmentData{
+	if err := l.Repo.TaskAssignment.Delete(tx, assignmentdata.AssignmentData{
 		UserID: userID,
 		TaskID: taskID,
 	}); err != nil {

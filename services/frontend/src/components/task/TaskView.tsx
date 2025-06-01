@@ -182,9 +182,7 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
               className="w-full px-4 py-2 bg-secondary-100 cursor-pointer text-neutral-200 hover:bg-accent-500 hover:text-secondary-100 transition-colors"
               onClick={async () => {
                 try {
-                  if (task.assignee_id) {
-                    await taskAPI.unassign(task.id, task.assignee_id);
-                  }
+                  
                   await taskAPI.assign(task.id, assignee.id);
                 } catch (e) {
                   console.error(e);
@@ -205,7 +203,7 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
         onClose={() => setAddSprintDropDown(false)}
         className="z-50"
       >
-        {sprints &&
+        {sprints && sprints.items && sprints.items.length > 0 && 
           sprints.items.map((sprint) => (
             <DropDownList.Element
               key={sprint.id}

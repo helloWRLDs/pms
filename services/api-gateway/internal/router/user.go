@@ -71,6 +71,7 @@ func (s *Server) ListUsers(c *fiber.Ctx) error {
 		Page:      int32(c.QueryInt("page", 1)),
 		PerPage:   int32(c.QueryInt("per_page", 10)),
 		CompanyId: c.Query("company_id", ""),
+		UserEmail: c.Query("user_email", ""),
 	}
 
 	userList, err := s.Logic.ListUsers(c.UserContext(), filter)

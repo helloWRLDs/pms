@@ -1,21 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
-import { useCompanyStore } from "../../store/selectedCompanyStore";
 import companyAPI from "../../api/company";
 import { useEffect, useState } from "react";
-import { IoMdAdd } from "react-icons/io";
 import { capitalize } from "../../lib/utils/string";
 import ProjectCardWrapper from "../../components/prioject/ProjectCard";
 import { Modal } from "../../components/ui/Modal";
 import NewProjectForm from "../../components/forms/NewProjectForm";
-import { useProjectStore } from "../../store/selectedProjectStore";
 import { useNavigate } from "react-router-dom";
 import { usePageSettings } from "../../hooks/usePageSettings";
-import { Layouts } from "../../lib/layout/layout";
+import { Layouts } from "../../lib/layout/layout";    
 import authAPI from "../../api/authAPI";
 import Paginator from "../../components/ui/Paginator";
 import { BsFillPlusCircleFill } from "react-icons/bs";
 import projectAPI from "../../api/projectsAPI";
-import Table, { TableColumn } from "../../components/ui/Table";
+import Table from "../../components/ui/Table";
 import { UserFilter, User } from "../../lib/user/user";
 import AddParticipantForm from "../../components/forms/AddParticipantForm";
 import { infoToast } from "../../lib/utils/toast";
@@ -41,11 +38,25 @@ const CompanyOverviewPage = () => {
 
   const {
     data: company,
-    isLoading: isCompanyLoading,
-    refetch: companyRefetch,
+    
   } = useQuery({
     queryKey: ["company", metaCache.metadata.selectedCompany?.id],
     queryFn: () => companyAPI.get(metaCache.metadata.selectedCompany?.id ?? ""),
+    enabled: !!metaCache.metadata.selectedCompany?.id,
+  });
+
+  const {
+    data: projects,
+    isLoading: isProjectsLoading,
+    refetch: projectsRefetch,
+  } = useQuery({
+    queryKey: ["projects", metaCache.metadata.selectedCompany?.id],
+    queryFn: () =>
+      projectAPI.list({
+        page: 1,
+        per_page: 1000,
+        company_id: metaCache.metadata.selectedCompany?.id ?? "",
+      }),
     enabled: !!metaCache.metadata.selectedCompany?.id,
   });
 
@@ -58,7 +69,7 @@ const CompanyOverviewPage = () => {
 
   const {
     data: users,
-    isLoading: isUsersLoading,
+   
     refetch: usersRefetch,
   } = useQuery({
     queryKey: [
@@ -98,7 +109,7 @@ const CompanyOverviewPage = () => {
                 console.error(e);
               } finally {
                 setNewProjectModal(false);
-                companyRefetch();
+                await projectsRefetch();
               }
             }}
           />
@@ -163,12 +174,12 @@ const CompanyOverviewPage = () => {
         <div className="container mx-auto">
           <h2 className="text-2xl font-semibold mb-5">Projects</h2>
           <ProjectCardWrapper className="w-full flex-wrap">
-            {isCompanyLoading ? (
+            {isProjectsLoading ? (
               <p>Loading...</p>
-            ) : company?.projects?.total_items === 0 ? (
+            ) : projects?.total_items === 0 ? (
               <p>No projects found.</p>
             ) : (
-              company?.projects?.items?.map((project, i) => (
+              projects?.items?.map((project, i) => (
                 <ProjectCardWrapper.Card
                   className="min-w-[30%] px-4 py-6 bg-secondary-200 hover:bg-secondary-100 text-neutral-200 cursor-pointer transition-all duration-300"
                   project={project}
@@ -208,7 +219,7 @@ const CompanyOverviewPage = () => {
               <Table.HeadCell>№</Table.HeadCell>
               <Table.HeadCell>Name</Table.HeadCell>
               <Table.HeadCell>Email</Table.HeadCell>
-              <Table.HeadCell>Role</Table.HeadCell>
+              <Table.HeadCell>Joined</Table.HeadCell>
             </Table.Head>
             <Table.Body>
               {assignees?.items?.map((assignee, index) => (

@@ -43,12 +43,14 @@ func (l *Logic) CompleteOAuth2(ctx context.Context, provider string, code string
 	case consts.ProviderGoogle:
 		// set token
 		if err := l.googleClient.SetToken(code); err != nil {
+			log.Errorw("failed to set token", "err", err)
 			return nil, nil, err
 		}
 
 		// get user data from google
 		googleUser, err := l.googleClient.GetUserData()
 		if err != nil {
+			log.Errorw("failed to get user data", "err", err)
 			return nil, nil, err
 		}
 
@@ -56,17 +58,20 @@ func (l *Logic) CompleteOAuth2(ctx context.Context, provider string, code string
 			user := userdata.User{
 				ID:        uuid.NewString(),
 				FirstName: googleUser.GivenName,
-				LastName:  googleUser.FamilyName,
+				LastName:  utils.Ptr(googleUser.FamilyName),
 				Email:     googleUser.Email,
 				AvatarURL: utils.Ptr(googleUser.Picture),
 			}
+			log.Debug("user created", zap.Any("user", user))
 			if err := l.Repo.User.Create(ctx, user); err != nil {
+				log.Errorw("failed to create user", "err", err)
 				return nil, nil, err
 			}
 		}
 
 		user, err := l.Repo.User.GetByEmail(ctx, googleUser.Email)
 		if err != nil {
+			log.Errorw("failed to get user by email", "err", err)
 			return nil, nil, err
 		}
 
@@ -75,6 +80,7 @@ func (l *Logic) CompleteOAuth2(ctx context.Context, provider string, code string
 			Password: "",
 		})
 		if err != nil {
+			log.Errorw("failed to login user", "err", err)
 			return nil, nil, err
 		}
 

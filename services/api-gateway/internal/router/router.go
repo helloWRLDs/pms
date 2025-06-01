@@ -51,7 +51,7 @@ func (s *Server) SetupREST() {
 		comp.Route("/:companyID/participants", func(participants fiber.Router) {
 			participants.Use(s.Authorize(), s.RequireCompany())
 
-			participants.Post("/", s.CompanyAddParticipant)
+			participants.Post("/:userID", s.CompanyAddParticipant)
 			participants.Delete("/:userID", s.CompanyRemoveParticipant)
 		})
 	})

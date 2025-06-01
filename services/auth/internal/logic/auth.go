@@ -122,7 +122,7 @@ func (l *Logic) RegisterUser(ctx context.Context, newUser *dto.NewUser) (created
 	user := userdata.User{
 		ID:        uuid.NewString(),
 		FirstName: newUser.GetFirstName(),
-		LastName:  newUser.GetLastName(),
+		LastName:  utils.Ptr(newUser.GetLastName()),
 		Email:     newUser.GetEmail(),
 		Password:  utils.Ptr(string(hashedPassword)),
 		AvatarURL: utils.Ptr(newUser.GetAvatarUrl()),

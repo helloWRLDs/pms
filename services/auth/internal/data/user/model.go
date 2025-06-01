@@ -11,7 +11,7 @@ import (
 type User struct {
 	ID        string    `db:"id"`
 	FirstName string    `db:"first_name"`
-	LastName  string    `db:"last_name"`
+	LastName  *string   `db:"last_name"`
 	Email     string    `db:"email"`
 	Password  *string   `db:"password"`
 	AvatarIMG *[]byte   `db:"avatar_img"`
@@ -30,7 +30,7 @@ func (u *User) DTO() *dto.User {
 	return &dto.User{
 		Id:        u.ID,
 		FirstName: u.FirstName,
-		LastName:  u.LastName,
+		LastName:  utils.Value(u.LastName),
 		Email:     u.Email,
 		AvatarImg: avatarIMG,
 		AvatarUrl: utils.Value(u.AvatarURL),
@@ -49,7 +49,7 @@ func Entity(dto *dto.User) *User {
 	return &User{
 		ID:        dto.Id,
 		FirstName: dto.FirstName,
-		LastName:  dto.LastName,
+		LastName:  utils.Ptr(dto.LastName),
 		Email:     dto.Email,
 		AvatarIMG: avatarIMG,
 		AvatarURL: utils.Ptr(dto.AvatarUrl),

@@ -118,6 +118,68 @@ const NewCompanyForm = ({ onFinish, ...props }: NewCompanyFormProps) => {
         </label>
       </div>
 
+      {/* Bin Field */}
+      <div className="relative z-0">
+        <input
+          type="text"
+          value={newCompany.bin}
+          id="new-company-bin"
+          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
+          placeholder=" "
+          required={true}
+          onChange={(e) => {
+            setNewCompany({ ...newCompany, bin: e.target.value });
+          }}
+        />
+        <label
+          htmlFor="new-company-bin"
+          className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-accent-600 peer-focus:dark:text-accent-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
+        >
+          Bin
+        </label>
+      </div>
+
+      {/* Address Field */}
+      <div className="relative z-0">
+        <input
+          type="text"
+          value={newCompany.address}
+          id="new-company-address"
+          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
+          placeholder=" "
+          required={true}
+          onChange={(e) => {
+            setNewCompany({ ...newCompany, address: e.target.value });
+          }}
+        />
+        <label
+          htmlFor="new-company-address"
+          className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-accent-600 peer-focus:dark:text-accent-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
+        >
+          Address
+        </label>
+      </div>
+
+      {/* Description Field */}
+      <div className="relative z-0">
+        <textarea
+          value={newCompany.description}
+          id="new-company-description"
+          className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-accent-500 focus:outline-none focus:ring-0 focus:border-accent-600 peer"
+          placeholder=" "
+          required={true}
+          onChange={(e) => {
+            setNewCompany({ ...newCompany, description: e.target.value });
+          }}
+        />
+        <label
+          htmlFor="new-company-description"
+          className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-accent-600 peer-focus:dark:text-accent-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
+        >
+          Description
+        </label>
+      </div>
+
       {/* Code Name Field with Dropdown */}
       <div className="relative z-10">
         <div className="relative">
