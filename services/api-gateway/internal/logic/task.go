@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	"pms.pkg/transport/grpc/dto"
 	pb "pms.pkg/transport/grpc/services"
+	notifiermq "pms.pkg/transport/mq/notifier"
 	"pms.pkg/type/list"
 )
 
@@ -119,14 +120,52 @@ func (l *Logic) TaskAssign(ctx context.Context, taskID, userID string) error {
 		zap.String("user_id", userID),
 	)
 	log.Debug("TaskAssign called")
-
 	assignRes, err := l.projectClient.TaskAssign(ctx, &pb.TaskAssignRequest{
 		TaskId: taskID,
 		UserId: userID,
 	})
-	log.Info("task assignment result", "res", assignRes)
 	if err != nil {
 		return err
+	}
+	log.Info("task assignment result", "res", assignRes)
+
+	// Get task details
+	taskRes, err := l.projectClient.GetTask(ctx, &pb.GetTaskRequest{Id: taskID})
+	if err != nil {
+		log.Errorw("failed to get task details", "err", err)
+		return err
+	}
+
+	// Get user details
+	userRes, err := l.authClient.GetUser(ctx, &pb.GetUserRequest{UserID: userID})
+	if err != nil {
+		log.Errorw("failed to get user details", "err", err)
+		return err
+	}
+
+	// Get project details
+	projectRes, err := l.projectClient.GetProject(ctx, &pb.GetProjectRequest{Id: taskRes.Task.ProjectId})
+	if err != nil {
+		log.Errorw("failed to get project details", "err", err)
+		return err
+	}
+
+	// Assign task
+
+	// Send notification
+	err = l.notificationMQ.Publish(ctx, notifiermq.TaskAssignmentMessage{
+		MetaData: notifiermq.MetaData{
+			ToEmail: userRes.User.Email,
+		},
+		AssigneeName: userRes.User.FirstName + " " + userRes.User.LastName,
+		TaskName:     taskRes.Task.Title,
+		TaskId:       taskID,
+		ProjectName:  projectRes.Project.Title,
+	})
+	if err != nil {
+		log.Errorw("failed to send task assignment notification", "err", err)
+		// Don't fail the assignment if notification fails
+		return nil
 	}
 
 	return nil

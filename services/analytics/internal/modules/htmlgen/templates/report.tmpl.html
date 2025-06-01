@@ -12,7 +12,7 @@
 
 <hr>
 
-<h2>📊 Sprint Overview</h2>
+<h2>Sprint Overview</h2>
 
 <ul>
     <li><strong>Tasks Completed:</strong> {{.Content.DoneTasks}}/{{.Content.TotalTasks}} ({{printf "%.1f" .Content.CompletionRate}}%)</li>
@@ -21,7 +21,7 @@
     <li><strong>Remaining Tasks:</strong> {{.Content.UndoneTasks}}</li>
 </ul>
 
-<h2>📋 Task Analysis</h2>
+<h2>Task Analysis</h2>
 
 <h3>Task Types Distribution</h3>
 <ul>
@@ -45,7 +45,7 @@
 </ul>
 
 {{if .Content.TopPerformers}}
-<h2>🏆 Top Performers</h2>
+<h2>Top Performers</h2>
 <ol>
 {{range $index, $user := .Content.TopPerformers}}
     <li><strong>{{$user.FullName}}</strong> - {{$user.DoneTasks}}/{{$user.TotalTasks}} tasks ({{printf "%.1f" $user.CompletionRate}}%) - {{$user.TotalPoints}} points</li>
@@ -54,7 +54,7 @@
 {{end}}
 
 {{if .Content.UserPerformance}}
-<h2>👥 Team Performance</h2>
+<h2>Team Performance</h2>
 <table border="1" style="border-collapse: collapse; width: 100%;">
     <thead>
         <tr>
@@ -77,9 +77,9 @@
 </table>
 {{end}}
 
-<h2>🔄 Sprint Retrospective</h2>
+<h2>Sprint Retrospective</h2>
 
-<h3>✅ What Went Well?</h3>
+<h3>What Went Well?</h3>
 <ul>
     {{if ge .Content.CompletionRate 80.0}}
     <li>High completion rate of {{printf "%.1f" .Content.CompletionRate}}%</li>
@@ -91,7 +91,7 @@
     <li><em>Add specific achievements here...</em></li>
 </ul>
 
-<h3>🔧 What Could Be Improved?</h3>
+<h3>What Could Be Improved?</h3>
 <ul>
     {{if lt .Content.CompletionRate 80.0}}
     <li>Completion rate of {{printf "%.1f" .Content.CompletionRate}}% could be higher</li>
@@ -102,7 +102,7 @@
     <li><em>Add specific improvement areas here...</em></li>
 </ul>
 
-<h3>🎯 Action Items</h3>
+<h3>Action Items</h3>
 <ul>
     <li><em>Define specific action items for next sprint...</em></li>
     <li><em>Address any blockers or issues...</em></li>

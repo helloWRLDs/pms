@@ -10,7 +10,18 @@ import (
 var (
 	//go:embed docs/*.html
 	htmlTemplates embed.FS
+
+	//go:embed docs/greet.html
+	greetTemplate string
+
+	//go:embed docs/task_assignment.html
+	taskAssignmentTemplate string
 )
+
+var templates = map[string]string{
+	"greet.html":           greetTemplate,
+	"task_assignment.html": taskAssignmentTemplate,
+}
 
 func getTemplate(template string) ([]byte, error) {
 	data, err := htmlTemplates.ReadFile(fmt.Sprintf("docs/%s", template))

@@ -22,3 +22,19 @@ func (m *MessageQueueHandler) HandleGreetEvent(ctx context.Context, event notifi
 	log.Debug("greet email sent")
 	return nil
 }
+
+func (m *MessageQueueHandler) HandleTaskAssignmentEvent(ctx context.Context, event notifiermq.TaskAssignmentMessage) error {
+	log := m.log.With(
+		zap.String("func", "mq.HandleTaskAssignmentEvent"),
+		zap.String("email", event.MetaData.ToEmail),
+		zap.String("task_id", event.TaskId),
+	)
+	log.Debug("mq.HandleTaskAssignmentEvent called")
+
+	if err := m.service.NotifyTaskAssignment(ctx, event.AssigneeName, event.ToEmail, event.TaskName, event.TaskId, event.ProjectName); err != nil {
+		log.Errorw("failed to send task assignment email", "err", err)
+		return err
+	}
+	log.Debug("task assignment email sent")
+	return nil
+}
