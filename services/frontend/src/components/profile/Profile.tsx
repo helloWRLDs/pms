@@ -10,6 +10,7 @@ interface ProfileProps {
   isEditable?: boolean;
   onClose?: () => void;
   onUpdate?: () => void;
+  setAvatarModal?: (show: boolean) => void;
   className?: string;
   variant?: "page" | "modal";
 }
@@ -19,6 +20,7 @@ export const Profile: FC<ProfileProps> = ({
   isEditable = true,
   onClose,
   onUpdate,
+  setAvatarModal,
   className = "",
   variant = "page",
 }) => {
@@ -59,6 +61,12 @@ export const Profile: FC<ProfileProps> = ({
                       alt="Profile"
                       className="w-full h-full object-cover"
                     />
+                  ) : userProfile.avatar_url ? (
+                    <img
+                      src={userProfile.avatar_url}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <span className="text-4xl text-accent-500">
                       {userProfile.first_name?.[0]?.toUpperCase() || "U"}
@@ -66,7 +74,10 @@ export const Profile: FC<ProfileProps> = ({
                   )}
                 </div>
                 {isEditable && (
-                  <button className="absolute bottom-0 right-0 bg-accent-500 text-white rounded-full p-2 hover:bg-accent-600 transition-colors duration-200">
+                  <button
+                    className="absolute bottom-0 right-0 bg-accent-500 text-white rounded-full p-2 hover:bg-accent-600 transition-colors duration-200 cursor-pointer"
+                    onClick={() => setAvatarModal?.(true)}
+                  >
                     <svg
                       className="w-5 h-5"
                       fill="none"

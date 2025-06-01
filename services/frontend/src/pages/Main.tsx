@@ -11,7 +11,7 @@ import { MdOutlineLogin } from "react-icons/md";
 import { PiUserCirclePlusLight } from "react-icons/pi";
 import { IoIosLogOut } from "react-icons/io";
 import { useAuthStore } from "../store/authStore";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useEffect } from "react";
 import CompanyOverviewPage from "./company/CompanyOverview";
 import TestPage1 from "./TestPage1";
 import SprintsPage from "./sprints/SprintsPage";
@@ -27,11 +27,59 @@ import useMetaCache from "../store/useMetaCache";
 const Main = () => {
   const navigate = useNavigate();
   const { isAuthenticated, clearAuth, auth } = useAuthStore();
+  const metaCache = useMetaCache();
+
+  // Check for user changes on auth state update
+  useEffect(() => {
+    if (auth?.user?.id) {
+      metaCache.checkUserAndClearIfDifferent(auth.user.id);
+    }
+  }, [auth?.user?.id]);
 
   const handleLogout = useCallback(() => {
+    console.log("🚪 Logging out user:", auth?.user?.email);
+
+    // Clear authentication state
     clearAuth();
+
+    // Clear meta cache
+    metaCache.clearCache();
+
+    // Clear all localStorage data
+    try {
+      // Clear specific application keys
+      const keysToRemove = [
+        "auth-store",
+        "meta-cache",
+        "selected-company",
+        "selected-project",
+        "user-session",
+        "access-token",
+        "refresh-token",
+      ];
+
+      keysToRemove.forEach((key) => {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
+      });
+
+      // Clear all localStorage and sessionStorage as fallback
+      localStorage.clear();
+      sessionStorage.clear();
+
+      console.log("🧹 Storage cleared successfully");
+    } catch (error) {
+      console.error("❌ Error clearing storage:", error);
+    }
+
+    // Navigate to login page
     navigate("/login");
-  }, [clearAuth, navigate]);
+
+    // Force page reload to ensure clean state
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
+  }, [clearAuth, navigate, metaCache, auth?.user?.email]);
 
   const navigationTree = useNavigationTree();
 
@@ -42,7 +90,7 @@ const Main = () => {
 
     return [
       {
-        id: "profile",
+        id: `profile-${auth.user.id}`,
         label: "Profile",
         icon: RiProfileLine,
         onClick: () => navigate("/profile"),
@@ -55,10 +103,12 @@ const Main = () => {
     const isLoggedIn = isAuthenticated();
 
     if (isLoggedIn) {
+      const userEmail = auth?.user?.email || "Unknown User";
+
       return [
         {
-          id: "logout",
-          label: "Log out",
+          id: `logout-${auth?.user?.id}`,
+          label: `Log out (${userEmail})`,
           icon: IoIosLogOut,
           onClick: handleLogout,
           className: "text-red-400 hover:text-red-300",
@@ -82,7 +132,7 @@ const Main = () => {
         isActive: window.location.pathname === "/register",
       },
     ];
-  }, [isAuthenticated, handleLogout, navigate]);
+  }, [isAuthenticated, handleLogout, navigate, auth?.user]);
 
   return (
     <>
@@ -124,7 +174,7 @@ const Main = () => {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/auth/callback" element={<OAuthCallback />} />
 
-          {/* <Route path="/analytics" element={<AnalyticsPage />} /> */}
+          {/* application routes */}
           <Route path="/companies" element={<CompaniesPage />} />
           <Route path="/projects" element={<CompanyOverviewPage />} />
           <Route path="/backlog" element={<BacklogPage />} />

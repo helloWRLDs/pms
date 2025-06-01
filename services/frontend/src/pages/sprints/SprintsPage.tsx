@@ -150,7 +150,9 @@ const SprintsPage = () => {
             <div className="col-span-full text-center text-red-500 bg-primary-400 rounded-lg p-4">
               Failed to load sprints. Please try again.
             </div>
-          ) : sprintList?.items.length === 0 ? (
+          ) : !sprintList ||
+            !sprintList.items ||
+            sprintList.items.length === 0 ? (
             <div className="col-span-full text-center text-neutral-400 bg-primary-400 rounded-lg p-8">
               <div className="flex flex-col items-center gap-4">
                 <BsCalendarEvent className="text-4xl" />

@@ -23,7 +23,14 @@ func (s *Server) UpdateUser(c *fiber.Ctx) error {
 		}
 	}
 
-	err := s.Logic.UpdateUser(c.UserContext(), userID, c.Body())
+	var user dto.User
+	if err := c.BodyParser(&user); err != nil {
+		return errs.ErrBadGateway{
+			Object: "user",
+		}
+	}
+
+	err := s.Logic.UpdateUser(c.UserContext(), userID, &user)
 	if err != nil {
 		return err
 	}

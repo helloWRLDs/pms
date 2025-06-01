@@ -2,6 +2,44 @@ import { useQuery } from "@tanstack/react-query";
 import sprintAPI from "../api/sprintAPI";
 import authAPI from "../api/authAPI";
 import projectAPI from "../api/projectsAPI";
+import companyAPI from "../api/company";
+import { Company } from "../lib/company/company";
+
+const useCompanyList = () => {
+  const {
+    data: companies,
+    isLoading: isLoadingCompanies,
+    error: errorCompanies,
+    refetch: refetchCompanies,
+  } = useQuery({
+    queryKey: ["companies"],
+    queryFn: () =>
+      companyAPI.list({
+        page: 1,
+        per_page: 1000,
+      }),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
+
+  const getCompanyName = (companyID: string | undefined) => {
+    if (!companyID) return "none";
+    return (
+      companies?.items?.find((company: Company) => company.id === companyID)
+        ?.name ?? "none"
+    );
+  };
+
+  return {
+    companies,
+    isLoadingCompanies,
+    errorCompanies,
+    refetchCompanies,
+    getCompanyName,
+  };
+};
 
 const useProjectList = (companyID: string) => {
   const {
@@ -113,4 +151,4 @@ const useAssigneeList = (companyID: string) => {
   };
 };
 
-export { useSprintList, useAssigneeList, useProjectList };
+export { useCompanyList, useSprintList, useAssigneeList, useProjectList };

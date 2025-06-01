@@ -21,6 +21,8 @@ import AddParticipantForm from "../../components/forms/AddParticipantForm";
 import { infoToast } from "../../lib/utils/toast";
 import useMetaCache from "../../store/useMetaCache";
 import { Profile } from "../../components/profile/Profile";
+import { useAssigneeList } from "../../hooks/useSprintList";
+import { formatTime } from "../../lib/utils/time";
 
 const CompanyOverviewPage = () => {
   usePageSettings({
@@ -75,32 +77,9 @@ const CompanyOverviewPage = () => {
     }
   }, [metaCache.metadata.selectedCompany?.id]);
 
-  const userColumns: TableColumn<User>[] = [
-    {
-      header: "",
-      accessor: (user) => (
-        <div className="aspect-square w-[2rem]">
-          <img
-            src={`data:image/jpeg;base64,${user?.avatar_img}`}
-            alt={`${user.first_name}'s avatar`}
-          />
-        </div>
-      ),
-      className: "w-[4rem]",
-    },
-    {
-      header: "№",
-      accessor: (user: User, index?: number) => (index ?? 0) + 1,
-    },
-    {
-      header: "Name",
-      accessor: (user) => `${user.first_name} ${user.last_name}`,
-    },
-    {
-      header: "Email",
-      accessor: "email",
-    },
-  ];
+  const { assignees } = useAssigneeList(
+    metaCache.metadata.selectedCompany?.id ?? ""
+  );
 
   return (
     <div className="w-full h-[100lvh] px-5 py-10 bg-primary-600 text-neutral-100 ">
@@ -223,17 +202,48 @@ const CompanyOverviewPage = () => {
       <section>
         <div className="container mx-auto">
           <h2 className="text-2xl font-semibold mb-5">People</h2>
-          <Table
-            data={users?.items}
-            columns={userColumns}
-            isLoading={isUsersLoading}
-            emptyMessage="No users found"
-            className="rounded-lg overflow-hidden"
-            onRowClick={(user) => {
-              setSelectedUser(user);
-              setShowProfileModal(true);
-            }}
-          />
+          <table className="w-full">
+            <Table.Head>
+              <Table.HeadCell></Table.HeadCell>
+              <Table.HeadCell>№</Table.HeadCell>
+              <Table.HeadCell>Name</Table.HeadCell>
+              <Table.HeadCell>Email</Table.HeadCell>
+              <Table.HeadCell>Role</Table.HeadCell>
+            </Table.Head>
+            <Table.Body>
+              {assignees?.items?.map((assignee, index) => (
+                <Table.Row key={assignee.id}>
+                  <Table.Cell>
+                    <div className="aspect-square w-[2rem]">
+                      {assignee.avatar_url ? (
+                        <img
+                          src={assignee.avatar_url}
+                          alt={`${assignee.first_name}'s avatar`}
+                          className="rounded-full"
+                        />
+                      ) : assignee.avatar_img ? (
+                        <img
+                          src={`data:image/jpeg;base64,${assignee.avatar_img}`}
+                          alt={`${assignee.first_name}'s avatar`}
+                        />
+                      ) : (
+                        <div className="aspect-square w-[2rem] bg-secondary-200 rounded-full"></div>
+                      )}
+                    </div>
+                  </Table.Cell>
+                  <Table.Cell>{index + 1}</Table.Cell>
+                  <Table.Cell>
+                    {assignee.first_name} {assignee.last_name}
+                  </Table.Cell>
+
+                  <Table.Cell>{assignee.email}</Table.Cell>
+                  <Table.Cell>
+                    {formatTime(assignee.created_at.seconds)}
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </table>
           <button
             className="w-full cursor-pointer group hover:bg-secondary-100 py-4 group:transition-all duration-300"
             onClick={() => {

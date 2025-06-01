@@ -11,8 +11,14 @@ export type User = {
   avatar_img: string;
   avatar_url: string;
   bio: string;
-  created_at: number;
-  updated_at: number;
+  created_at: {
+    seconds: number;
+    nanos: number;
+  };
+  updated_at: {
+    seconds: number;
+    nanos: number;
+  };
 };
 
 export type UserCredentials = Pick<User, "email" | "password">;
@@ -25,3 +31,11 @@ export type UserFilter = Pagination & {
   company_id: string;
   email?: string;
 };
+
+export interface AuthData {
+  session_id?: string;
+  access_token?: string;
+  user?: User;
+  exp?: number;
+  selected_company_id?: string;
+}
