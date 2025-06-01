@@ -4,6 +4,7 @@ import (
 	"go.uber.org/zap"
 	"pms.auth/internal/config"
 	"pms.auth/internal/data"
+	"pms.pkg/api/github"
 	"pms.pkg/api/google"
 )
 
@@ -14,6 +15,7 @@ type Logic struct {
 	log *zap.SugaredLogger
 
 	googleClient *google.Client
+	githubClient *github.Client
 }
 
 func New(repo *data.Repository, conf *config.Config, log *zap.SugaredLogger) *Logic {
@@ -26,5 +28,6 @@ func New(repo *data.Repository, conf *config.Config, log *zap.SugaredLogger) *Lo
 		conf:         conf,
 		log:          log,
 		googleClient: google.New(conf.GoogleConfig, log),
+		githubClient: github.New(conf.GitHubConfig, log),
 	}
 }

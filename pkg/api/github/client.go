@@ -9,8 +9,7 @@ import (
 type Client struct {
 	conf        Config
 	accessToken string
-
-	log *zap.SugaredLogger
+	log         *zap.SugaredLogger
 }
 
 func New(conf Config, log *zap.SugaredLogger) *Client {

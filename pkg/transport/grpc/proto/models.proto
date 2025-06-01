@@ -27,9 +27,12 @@ message Company {
     string name = 2;
     string codename = 3;
     int64 people_count = 4;
-    google.protobuf.Timestamp created_at = 5;
-    google.protobuf.Timestamp updated_at = 6;
-    ProjectList projects = 7;
+    string bin = 5;
+    string address = 6;
+    string description = 7;
+    google.protobuf.Timestamp created_at = 8;
+    google.protobuf.Timestamp updated_at = 9;
+    ProjectList projects = 10;
 }
 
 message Role {
@@ -375,6 +378,9 @@ message NewUser {
 message NewCompany {
     string name = 1;
     string codename = 2;
+    string bin = 3;
+    string address = 4;
+    string description = 5;
 }
 
 message NewRole {

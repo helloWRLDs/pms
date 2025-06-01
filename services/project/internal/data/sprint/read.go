@@ -5,7 +5,9 @@ import (
 	"strings"
 
 	"github.com/Masterminds/squirrel"
+	sq "github.com/Masterminds/squirrel"
 	"go.uber.org/zap"
+
 	"pms.pkg/errs"
 	"pms.pkg/transport/grpc/dto"
 	"pms.pkg/type/list"
@@ -29,7 +31,7 @@ func (r *Repository) GetByID(ctx context.Context, id string) (sprint Sprint, err
 	q, a, _ := r.gen.
 		Select("*").
 		From(r.tableName).
-		Where(squirrel.Eq{"id": id}).ToSql()
+		Where(sq.Eq{"id": id}).ToSql()
 
 	if err = r.DB.QueryRowx(q, a...).StructScan(&sprint); err != nil {
 		log.Errorw("failed to fetch sprint", "err", err)

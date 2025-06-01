@@ -29,6 +29,7 @@ type Logic struct {
 	Sessions       *redis.Client[models.Session]
 	DocumentsCache *redis.Client[models.DocumentBody]
 	Tasks          map[string]*scheduler.Task
+	CompanyContext *redis.Client[models.CompanyContext]
 
 	WsHubs map[string]*ws.Hub
 
@@ -71,6 +72,7 @@ func New(config config.Config, log *zap.SugaredLogger) *Logic {
 		Sessions:       redis.New(&config.Redis, models.Session{}),
 		DocumentsCache: redis.New(&config.Redis, models.DocumentBody{}),
 		TaskQueue:      redis.New(&config.Redis, models.TaskQueueElement{}),
+		CompanyContext: redis.New(&config.Redis, models.CompanyContext{}),
 		WsHubs:         make(map[string]*ws.Hub),
 	}
 	l.InitTasks()
