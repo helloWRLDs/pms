@@ -21,6 +21,8 @@ import { RiProfileLine } from "react-icons/ri";
 import TreeView, { TreeNode } from "../components/ui/TreeView";
 import useNavigationTree from "../hooks/useNavigationTree";
 import AnalyticsPage from "./analytics/AnalyticsPage";
+import OAuthCallback from "../components/auth/OAuthCallback";
+import useMetaCache from "../store/useMetaCache";
 
 const Main = () => {
   const navigate = useNavigate();
@@ -120,6 +122,7 @@ const Main = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/auth/callback" element={<OAuthCallback />} />
 
           {/* <Route path="/analytics" element={<AnalyticsPage />} /> */}
           <Route path="/companies" element={<CompaniesPage />} />

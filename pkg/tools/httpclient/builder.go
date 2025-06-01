@@ -122,10 +122,9 @@ func (rb *RequestBuilder) build() error {
 		return fmt.Errorf("failed to build request: %w", err)
 	}
 
-	req.Header.Add("Content-Type", "application/json")
 	for k, v := range rb.headers {
 		if k != "" && v != "" {
-			req.Header.Add(k, v)
+			req.Header.Set(k, v)
 		}
 	}
 	rb.req = req

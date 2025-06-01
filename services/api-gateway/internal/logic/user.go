@@ -8,6 +8,24 @@ import (
 	pb "pms.pkg/transport/grpc/services"
 )
 
+func (l *Logic) UpdateUser(ctx context.Context, userID string, user *dto.User) error {
+	log := l.log.With(
+		zap.String("func", "UpdateUser"),
+	)
+	log.Debug("UpdateUser called")
+
+	userRes, err := l.authClient.UpdateUser(ctx, &pb.UpdateUserRequest{
+		Id:          userID,
+		UpdatedUser: user,
+	})
+	if err != nil {
+		return err
+	}
+	log.Infow("User updated", "user", userRes)
+
+	return nil
+}
+
 func (l *Logic) GetUserProfile(ctx context.Context, userID string) (*dto.User, error) {
 	log := l.log.With(
 		zap.String("func", "ListCompanies"),

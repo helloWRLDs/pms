@@ -18,7 +18,7 @@ import (
 	"pms.pkg/utils/validators"
 )
 
-func (l *Logic) LoginUser(ctx context.Context, creds *dto.UserCredentials) (payload *dto.AuthPayload, err error) {
+func (l *Logic) LoginUser(ctx context.Context, provider *string, creds *dto.UserCredentials) (payload *dto.AuthPayload, err error) {
 	log := l.log.With(
 		zap.String("func", "LoginUser"),
 		zap.String("email", creds.Email),
@@ -36,7 +36,7 @@ func (l *Logic) LoginUser(ctx context.Context, creds *dto.UserCredentials) (payl
 	if err != nil {
 		return nil, err
 	}
-	if existingUser.Password == nil {
+	if provider == nil {
 		if creds.Password == "" {
 			return nil, errs.ErrInvalidInput{
 				Object: "password",

@@ -3,6 +3,8 @@ package logic
 import (
 	"context"
 
+	"github.com/google/uuid"
+	"go.uber.org/zap"
 	userdata "pms.auth/internal/data/user"
 	"pms.pkg/consts"
 	"pms.pkg/errs"
@@ -29,7 +31,10 @@ func (l *Logic) InitiateOAuth2(provider string) (authURL string, err error) {
 }
 
 func (l *Logic) CompleteOAuth2(ctx context.Context, provider string, code string) (*dto.User, *dto.AuthPayload, error) {
-	log := l.log.Named("CompleteOAuth2")
+	log := l.log.Named("CompleteOAuth2").With(
+		zap.String("provider", provider),
+		zap.String("code", code),
+	)
 	log.Debug("CompleteOAuth2 called")
 
 	switch consts.Provider(provider) {
@@ -47,7 +52,7 @@ func (l *Logic) CompleteOAuth2(ctx context.Context, provider string, code string
 
 		if exists := l.Repo.User.Exists(ctx, "email", googleUser.Email); !exists {
 			user := userdata.User{
-				ID:        googleUser.ID,
+				ID:        uuid.NewString(),
 				FirstName: googleUser.GivenName,
 				LastName:  googleUser.FamilyName,
 				Email:     googleUser.Email,
@@ -63,7 +68,7 @@ func (l *Logic) CompleteOAuth2(ctx context.Context, provider string, code string
 			return nil, nil, err
 		}
 
-		payload, err := l.LoginUser(ctx, &dto.UserCredentials{
+		payload, err := l.LoginUser(ctx, &provider, &dto.UserCredentials{
 			Email:    googleUser.Email,
 			Password: "",
 		})

@@ -18,6 +18,8 @@ func (s *Server) SetupREST() {
 
 		auth.Post("/login", s.LoginUser)
 		auth.Post("/register", s.RegisterUser)
+		auth.Get("/oauth2/:provider", s.InitiateOAuth2)
+		auth.Get("/oauth2/:provider/callback", s.OAuth2Callback)
 	})
 
 	v1.Route("/session", func(session fiber.Router) {
@@ -34,6 +36,7 @@ func (s *Server) SetupREST() {
 
 		user.Get("/:id", s.GetUser)
 		user.Get("/", s.ListUsers)
+		user.Put("/:id", s.UpdateUser)
 	})
 
 	v1.Route("/companies", func(comp fiber.Router) {

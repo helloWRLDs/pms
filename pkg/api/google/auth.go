@@ -29,15 +29,15 @@ func (c *Client) AuthURL(state string) string {
 
 // exchange the authorization code for an access token
 func (c *Client) SetToken(code string) error {
-	log := c.log.With("func", "SetToken")
+	log := c.log.With("func", "SetToken").With(
+		zap.String("code", code),
+		zap.String("client_id", c.Conf.ClientID),
+		zap.String("redirect_uri", c.Conf.RedirectURL),
+		zap.String("scopes", strings.Join(c.Conf.Scopes, " ")),
+		zap.String("token_endpoint", TokenEndpoint),
+		zap.String("client_secret", c.Conf.ClientSecret),
+	)
 	log.Debug("Set token called")
-
-	data := url.Values{}
-	data.Set("client_id", c.Conf.ClientID)
-	data.Set("client_secret", c.Conf.ClientSecret)
-	data.Set("code", code)
-	data.Set("redirect_uri", c.Conf.RedirectURL)
-	data.Set("grant_type", "authorization_code")
 
 	res, err := httpclient.New().
 		Method("POST").
@@ -46,7 +46,13 @@ func (c *Client) SetToken(code string) error {
 			"Content-Type", "application/x-www-form-urlencoded",
 			"Accept", "application/json",
 		).
-		Body(data.Encode()).
+		Query(
+			"grant_type", "authorization_code",
+			"client_id", c.Conf.ClientID,
+			"client_secret", c.Conf.ClientSecret,
+			"code", code,
+			"redirect_uri", c.Conf.RedirectURL,
+		).
 		Do()
 
 	if err != nil {
@@ -55,7 +61,10 @@ func (c *Client) SetToken(code string) error {
 	}
 
 	if res.Status >= 400 {
-		log.Error("Google OAuth request failed", zap.Int("status", res.Status))
+		log.Errorw("Google OAuth request failed",
+			"status", res.Status,
+			"response_body", string(res.Data),
+		)
 		return errors.New("google OAuth request failed")
 	}
 

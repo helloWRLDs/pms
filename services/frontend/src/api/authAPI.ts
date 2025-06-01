@@ -4,6 +4,16 @@ import { buildQuery, ListItems } from "../lib/utils/list";
 import { API } from "./api";
 
 class AuthAPI extends API {
+  async initiateGoogleOAuth(): Promise<{ auth_url: string }> {
+    const endpoint = `${this.baseURL}/auth/oauth2/google`;
+    try {
+      const res = await this.req.get<{ auth_url: string }>(endpoint);
+      return res.data;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async login(creds: UserCredentials) {
     console.log(this.baseURL);
     try {

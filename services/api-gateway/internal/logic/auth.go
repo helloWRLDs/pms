@@ -10,6 +10,76 @@ import (
 	pb "pms.pkg/transport/grpc/services"
 )
 
+func (l *Logic) CompleteOAuth2(ctx context.Context, provider string, code string) (*dto.User, *dto.AuthPayload, error) {
+	log := l.log.Named("CompleteOAuth2").With(
+		zap.String("provider", provider),
+		zap.String("code", code),
+	)
+	log.Debug("CompleteOAuth2 called")
+
+	req := pb.CompleteOAuth2Request{
+		Provider: provider,
+		Code:     code,
+	}
+	oauthRes, err := l.authClient.CompleteOAuth2(ctx, &req)
+	if err != nil {
+		log.Errorw("failed to complete oauth2", "err", err)
+		return nil, nil, err
+	}
+	payload := oauthRes.Payload
+
+	compRes, err := l.authClient.ListCompanies(ctx, &pb.ListCompaniesRequest{
+		Filter: &dto.CompanyFilter{
+			Page:    1,
+			PerPage: 1000,
+			UserId:  payload.User.Id,
+		},
+	})
+	if err != nil {
+		log.Errorw("failed to list companies", "err", err)
+	}
+	session := models.Session{
+		ID:           payload.SessionId,
+		UserID:       payload.User.Id,
+		AccessToken:  payload.AccessToken,
+		RefreshToken: payload.RefreshToken,
+		Expires:      time.Unix(payload.Exp, 0),
+		Companies: func() (compList []string) {
+			compList = make([]string, 0)
+			if compRes == nil {
+				return
+			}
+			for _, comp := range compRes.Companies.Items {
+				compList = append(compList, comp.Id)
+			}
+			return
+		}(),
+	}
+	if err := l.Sessions.Set(ctx, session.ID, session, 24); err != nil {
+		log.Errorw("failed to setup session", "err", err)
+		return nil, nil, err
+	}
+	return oauthRes.User, oauthRes.Payload, nil
+}
+
+func (l *Logic) InitiateOAuth2(ctx context.Context, provider string) (string, error) {
+	log := l.log.Named("InitiateOAuth2").With(
+		zap.String("provider", provider),
+	)
+	log.Debug("InitiateOAuth2 called")
+
+	req := pb.InitiateOAuth2Request{
+		Provider: provider,
+	}
+	oauthRes, err := l.authClient.InitiateOAuth2(ctx, &req)
+	if err != nil {
+		log.Errorw("failed to initiate oauth2", "err", err)
+		return "", err
+	}
+
+	return oauthRes.AuthUrl, nil
+}
+
 func (l *Logic) RegisterUser(ctx context.Context, newUser *dto.NewUser) (*dto.User, error) {
 	log := l.log.Named("RegisterUser").With(
 		zap.Any("new_user", newUser),

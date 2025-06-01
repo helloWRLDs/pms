@@ -9,6 +9,7 @@ interface AuthStore {
   isAuthenticated: () => boolean;
   setAuth: (auth: AuthData) => void;
   clearAuth: () => void;
+  getAuth: () => AuthData | null;
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -33,6 +34,7 @@ export const useAuthStore = create<AuthStore>()(
       },
       setAuth: (auth: AuthData) => set({ auth }),
       clearAuth: () => set({ auth: null }),
+      getAuth: () => get().auth,
     }),
     {
       name: LocalStorageKeysMap.AUTH,

@@ -17,6 +17,10 @@ type Logic struct {
 }
 
 func New(repo *data.Repository, conf *config.Config, log *zap.SugaredLogger) *Logic {
+	conf.GoogleConfig.Scopes = []string{
+		"https://www.googleapis.com/auth/userinfo.email",
+		"https://www.googleapis.com/auth/userinfo.profile",
+	}
 	return &Logic{
 		Repo:         repo,
 		conf:         conf,

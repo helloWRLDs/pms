@@ -9,6 +9,30 @@ import (
 	"pms.pkg/transport/grpc/dto"
 )
 
+func (s *Server) UpdateUser(c *fiber.Ctx) error {
+	log := s.log.With(
+		zap.String("func", "UpdateUser"),
+		zap.String("ip", c.IP()),
+	)
+	log.Debug("UpdateUser called")
+
+	userID := c.Params("id", "")
+	if strings.Trim(userID, " ") == "" {
+		return errs.ErrBadGateway{
+			Object: "user_id",
+		}
+	}
+
+	err := s.Logic.UpdateUser(c.UserContext(), userID, c.Body())
+	if err != nil {
+		return err
+	}
+
+	return c.Status(200).JSON(fiber.Map{
+		"message": "User updated successfully",
+	})
+}
+
 func (s *Server) GetUser(c *fiber.Ctx) error {
 	log := s.log.With(
 		zap.String("func", "GetUserProfile"),

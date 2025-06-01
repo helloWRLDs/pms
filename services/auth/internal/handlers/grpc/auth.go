@@ -13,7 +13,7 @@ func (s *ServerGRPC) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (r
 		err = errs.WrapGRPC(err)
 	}()
 
-	payload, err := s.logic.LoginUser(ctx, req.Credentials)
+	payload, err := s.logic.LoginUser(ctx, nil, req.Credentials)
 	if err != nil {
 		log.Errorw("failed to login user", "err", err)
 		return nil, err
