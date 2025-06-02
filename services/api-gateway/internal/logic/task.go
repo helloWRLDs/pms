@@ -129,30 +129,24 @@ func (l *Logic) TaskAssign(ctx context.Context, taskID, userID string) error {
 	}
 	log.Info("task assignment result", "res", assignRes)
 
-	// Get task details
 	taskRes, err := l.projectClient.GetTask(ctx, &pb.GetTaskRequest{Id: taskID})
 	if err != nil {
 		log.Errorw("failed to get task details", "err", err)
 		return err
 	}
 
-	// Get user details
 	userRes, err := l.authClient.GetUser(ctx, &pb.GetUserRequest{UserID: userID})
 	if err != nil {
 		log.Errorw("failed to get user details", "err", err)
 		return err
 	}
 
-	// Get project details
 	projectRes, err := l.projectClient.GetProject(ctx, &pb.GetProjectRequest{Id: taskRes.Task.ProjectId})
 	if err != nil {
 		log.Errorw("failed to get project details", "err", err)
 		return err
 	}
 
-	// Assign task
-
-	// Send notification
 	err = l.notificationMQ.Publish(ctx, notifiermq.TaskAssignmentMessage{
 		MetaData: notifiermq.MetaData{
 			ToEmail: userRes.User.Email,
@@ -164,7 +158,6 @@ func (l *Logic) TaskAssign(ctx context.Context, taskID, userID string) error {
 	})
 	if err != nil {
 		log.Errorw("failed to send task assignment notification", "err", err)
-		// Don't fail the assignment if notification fails
 		return nil
 	}
 
