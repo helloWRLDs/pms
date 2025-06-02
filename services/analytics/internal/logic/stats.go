@@ -22,7 +22,6 @@ func (l *Logic) GetUserTaskStats(ctx context.Context, companyID string) (result 
 		sprints  []*dto.Sprint  = make([]*dto.Sprint, 0)
 	)
 
-	// Get all users in the company from auth service
 	usersResp, err := l.authClient.ListUsers(ctx, &pb.ListUsersRequest{
 		Filter: &dto.UserFilter{
 			CompanyId: companyID,
@@ -63,7 +62,6 @@ func (l *Logic) GetUserTaskStats(ctx context.Context, companyID string) (result 
 	}
 	log.Info("total sprints", zap.Int("count", len(sprints)))
 
-	// For each user, get their tasks and calculate sophisticated points
 	for _, user := range users {
 		userStats := &dto.UserTaskStats{
 			UserId:    user.Id,
@@ -99,7 +97,6 @@ func (l *Logic) GetUserTaskStats(ctx context.Context, companyID string) (result 
 			var totalPoints int32 = 0
 
 			for _, task := range tasksResp.Tasks.Items {
-				// Count tasks by status
 				if task.Status == string(consts.TASK_STATUS_DONE) {
 					userStats.Stats[sprint.Id].DoneTasks++
 				} else if task.Status == string(consts.TASK_STATUS_IN_PROGRESS) {
@@ -108,7 +105,6 @@ func (l *Logic) GetUserTaskStats(ctx context.Context, companyID string) (result 
 					userStats.Stats[sprint.Id].ToDoTasks++
 				}
 
-				// Calculate points for each task based on sophisticated algorithm
 				taskPoints := utils.CalculateTaskPoints(task)
 				totalPoints += taskPoints
 
@@ -129,7 +125,6 @@ func (l *Logic) GetUserTaskStats(ctx context.Context, companyID string) (result 
 			}()
 		}()
 
-		// calculate overall stats
 		tasksResp, err := l.projectClient.ListTasks(ctx, &pb.ListTasksRequest{
 			Filter: &dto.TaskFilter{
 				AssigneeId: user.Id,
@@ -152,7 +147,6 @@ func (l *Logic) GetUserTaskStats(ctx context.Context, companyID string) (result 
 			TotalPoints:     0,
 		}
 		for _, task := range tasksResp.Tasks.Items {
-			// Count tasks by status
 			if task.Status == string(consts.TASK_STATUS_DONE) {
 				userStats.Stats["overall"].DoneTasks++
 			} else if task.Status == string(consts.TASK_STATUS_IN_PROGRESS) {
@@ -161,7 +155,6 @@ func (l *Logic) GetUserTaskStats(ctx context.Context, companyID string) (result 
 				userStats.Stats["overall"].ToDoTasks++
 			}
 
-			// Calculate points for each task based on sophisticated algorithm
 			taskPoints := utils.CalculateTaskPoints(task)
 			userStats.Stats["overall"].TotalPoints += taskPoints
 

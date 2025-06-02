@@ -13,9 +13,6 @@ func TestGenerateSprintReport(t *testing.T) {
 	projectID := "fc6ba40d-8d0a-48b1-a84d-e358f6438aa1"
 	sprintID := "f46ecc84-09cb-47b8-b8f5-b9c1198bc4d9"
 
-	// This would require a properly initialized Logic instance with all dependencies
-	// For now, just testing the template compilation would be sufficient
-
 	report, err := logic.CreateReportTemplate(context.Background(), &dto.DocumentCreation{
 		Title:     "Sprint Report",
 		ProjectId: projectID,
@@ -28,7 +25,6 @@ func TestGenerateSprintReport(t *testing.T) {
 }
 
 func TestSprintReportTemplate(t *testing.T) {
-	// Test the template compilation with sample data
 	sprintSummary := models.SprintSummary{
 		Title:           "Test Sprint",
 		Description:     "Test sprint description",
@@ -199,7 +195,6 @@ func contains(s, substr string) bool {
 func TestPrintSampleReport(t *testing.T) {
 	t.Skip("Run manually to see sample report output")
 
-	// Create a comprehensive sample report
 	sprintSummary := models.SprintSummary{
 		Title:           "Q4 Sprint 3",
 		Description:     "Focus on user authentication and payment integration",

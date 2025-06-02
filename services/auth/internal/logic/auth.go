@@ -24,7 +24,7 @@ func (l *Logic) LoginUser(ctx context.Context, provider *string, creds *dto.User
 		zap.String("email", creds.Email),
 		zap.String("password", creds.Password),
 	)
-	log.Debug("LoginUser called")
+	log.Debug("LoginUser was called")
 	payload = new(dto.AuthPayload)
 	if creds.Email == "" {
 		return nil, errs.ErrInvalidInput{

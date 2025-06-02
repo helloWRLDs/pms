@@ -30,7 +30,7 @@ func (s *Server) OAuth2Callback(c *fiber.Ctx) error {
 
 	user, payload, err := s.Logic.CompleteOAuth2(c.UserContext(), provider, code)
 	if err != nil {
-		// Redirect to frontend with error
+
 		errorURL := fmt.Sprintf("%s/auth/callback?error=%s",
 			s.Logic.Config.FrontendURL,
 			url.QueryEscape(err.Error()))
@@ -39,13 +39,11 @@ func (s *Server) OAuth2Callback(c *fiber.Ctx) error {
 
 	log.Infow("user logged in", "user", user, "payload", payload)
 
-	// Create response data
 	authResponse := map[string]interface{}{
 		"user":    user,
 		"payload": payload,
 	}
 
-	// Encode auth data as base64 JSON for URL safety
 	authJSON, err := json.Marshal(authResponse)
 	if err != nil {
 		log.Errorw("failed to marshal auth response", "error", err)
@@ -55,7 +53,6 @@ func (s *Server) OAuth2Callback(c *fiber.Ctx) error {
 
 	authData := base64.URLEncoding.EncodeToString(authJSON)
 
-	// Redirect to frontend callback with auth data
 	callbackURL := fmt.Sprintf("%s/auth/callback?success=true&data=%s",
 		s.Logic.Config.FrontendURL,
 		url.QueryEscape(authData))

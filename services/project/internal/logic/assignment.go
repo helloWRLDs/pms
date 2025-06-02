@@ -34,7 +34,6 @@ func (l *Logic) AssignTask(ctx context.Context, userID, taskID string) (err erro
 	defer func() {
 		l.Repo.EndTx(ctx, err)
 	}()
-	// Check if the task is already assigned to the user
 
 	existing, _ := l.Repo.TaskAssignment.GetByTask(tx, taskID)
 

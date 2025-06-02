@@ -5,7 +5,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Config parser
 func LoadConfig[T any](path string) (T, error) {
 	var t T
 	err := godotenv.Load(path)

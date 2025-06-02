@@ -3,6 +3,8 @@ package render
 import (
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_Render(t *testing.T) {
@@ -26,4 +28,269 @@ func mqTable(data interface{}) (table map[string]interface{}) {
 		table[field.Name] = value.Interface()
 	}
 	return
+}
+
+func TestRender(t *testing.T) {
+	tests := []struct {
+		name    string
+		content TaskAssignmentContent
+		wantErr bool
+	}{
+		{
+			name: "valid task assignment content",
+			content: TaskAssignmentContent{
+				AssigneeName: "John Doe",
+				TaskName:     "Implement Login Feature",
+				TaskId:       "task-123",
+				ProjectName:  "Project X",
+				CompanyName:  "TaskFlow",
+			},
+			wantErr: false,
+		},
+		{
+			name: "empty content",
+			content: TaskAssignmentContent{
+				AssigneeName: "",
+				TaskName:     "",
+				TaskId:       "",
+				ProjectName:  "",
+				CompanyName:  "TaskFlow",
+			},
+			wantErr: false,
+		},
+		{
+			name: "missing company name",
+			content: TaskAssignmentContent{
+				AssigneeName: "John Doe",
+				TaskName:     "Implement Login Feature",
+				TaskId:       "task-123",
+				ProjectName:  "Project X",
+				CompanyName:  "",
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data, err := Render(tt.content)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.NotEmpty(t, data)
+
+			content := string(data)
+			if tt.content.AssigneeName != "" {
+				assert.Contains(t, content, tt.content.AssigneeName)
+			}
+			if tt.content.TaskName != "" {
+				assert.Contains(t, content, tt.content.TaskName)
+			}
+			if tt.content.TaskId != "" {
+				assert.Contains(t, content, tt.content.TaskId)
+			}
+			if tt.content.ProjectName != "" {
+				assert.Contains(t, content, tt.content.ProjectName)
+			}
+			if tt.content.CompanyName != "" {
+				assert.Contains(t, content, tt.content.CompanyName)
+			}
+		})
+	}
+}
+
+func TestRenderWithInvalidTemplate(t *testing.T) {
+
+	content := TaskAssignmentContent{
+		AssigneeName: "{{.InvalidField}}",
+		TaskName:     "Test Task",
+		TaskId:       "task-123",
+		ProjectName:  "Project X",
+		CompanyName:  "TaskFlow",
+	}
+
+	data, err := Render(content)
+	assert.Error(t, err)
+	assert.Empty(t, data)
+}
+
+func TestGreetContent(t *testing.T) {
+	tests := []struct {
+		name    string
+		content GreetContent
+		wantErr bool
+	}{
+		{
+			name: "valid greet content",
+			content: GreetContent{
+				Name: "John Doe",
+			},
+			wantErr: false,
+		},
+		{
+			name: "empty greet content",
+			content: GreetContent{
+				Name: "",
+			},
+			wantErr: false,
+		},
+		{
+			name: "missing company name",
+			content: GreetContent{
+				Name: "John Doe",
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data, err := Render(tt.content)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.NotEmpty(t, data)
+
+			content := string(data)
+			if tt.content.Name != "" {
+				assert.Contains(t, content, tt.content.Name)
+			}
+
+		})
+	}
+}
+
+func TestRenderWithSpecialCharacters(t *testing.T) {
+	tests := []struct {
+		name    string
+		content TaskAssignmentContent
+		wantErr bool
+	}{
+		{
+			name: "content with HTML characters",
+			content: TaskAssignmentContent{
+				AssigneeName: "<script>alert('test')</script>",
+				TaskName:     "Fix <b>HTML</b> rendering",
+				TaskId:       "task-123",
+				ProjectName:  "Project & Company",
+				CompanyName:  "TaskFlow & Co.",
+			},
+			wantErr: false,
+		},
+		{
+			name: "content with emojis",
+			content: TaskAssignmentContent{
+				AssigneeName: "John 😊 Doe",
+				TaskName:     "Implement 🎨 UI",
+				TaskId:       "task-123",
+				ProjectName:  "Project 🚀",
+				CompanyName:  "TaskFlow ⭐",
+			},
+			wantErr: false,
+		},
+		{
+			name: "content with newlines",
+			content: TaskAssignmentContent{
+				AssigneeName: "John\nDoe",
+				TaskName:     "Implement\nLogin",
+				TaskId:       "task-123",
+				ProjectName:  "Project\nX",
+				CompanyName:  "TaskFlow\nInc",
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data, err := Render(tt.content)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.NotEmpty(t, data)
+
+			content := string(data)
+			assert.Contains(t, content, tt.content.AssigneeName)
+			assert.Contains(t, content, tt.content.TaskName)
+			assert.Contains(t, content, tt.content.TaskId)
+			assert.Contains(t, content, tt.content.ProjectName)
+			assert.Contains(t, content, tt.content.CompanyName)
+		})
+	}
+}
+
+func TestRenderWithLongContent(t *testing.T) {
+	longString := "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
+		"Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
+		"Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris " +
+		"nisi ut aliquip ex ea commodo consequat."
+
+	tests := []struct {
+		name    string
+		content TaskAssignmentContent
+		wantErr bool
+	}{
+		{
+			name: "long task name",
+			content: TaskAssignmentContent{
+				AssigneeName: "John Doe",
+				TaskName:     longString,
+				TaskId:       "task-123",
+				ProjectName:  "Project X",
+				CompanyName:  "TaskFlow",
+			},
+			wantErr: false,
+		},
+		{
+			name: "long project name",
+			content: TaskAssignmentContent{
+				AssigneeName: "John Doe",
+				TaskName:     "Implement Login",
+				TaskId:       "task-123",
+				ProjectName:  longString,
+				CompanyName:  "TaskFlow",
+			},
+			wantErr: false,
+		},
+		{
+			name: "long assignee name",
+			content: TaskAssignmentContent{
+				AssigneeName: longString,
+				TaskName:     "Implement Login",
+				TaskId:       "task-123",
+				ProjectName:  "Project X",
+				CompanyName:  "TaskFlow",
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data, err := Render(tt.content)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.NotEmpty(t, data)
+
+			content := string(data)
+			assert.Contains(t, content, tt.content.AssigneeName)
+			assert.Contains(t, content, tt.content.TaskName)
+			assert.Contains(t, content, tt.content.TaskId)
+			assert.Contains(t, content, tt.content.ProjectName)
+			assert.Contains(t, content, tt.content.CompanyName)
+		})
+	}
 }

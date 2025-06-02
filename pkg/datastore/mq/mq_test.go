@@ -23,7 +23,6 @@ const (
 	testQueue    = "test-queue"
 )
 
-// Struct implementing Queueable
 type TestMessage struct {
 	Content string
 }
@@ -44,7 +43,6 @@ func TestRabbitMQIntegration(t *testing.T) {
 	log, _ := zap.NewDevelopment()
 	sugar := log.Sugar()
 
-	// Step 1: Setup Subscriber
 	subscriber, err := NewSubscriber(ctx, SubscriberOpts{
 		Queue:  testQueue,
 		Routes: []mqtp.QueueRoute{testRouting},
@@ -53,7 +51,6 @@ func TestRabbitMQIntegration(t *testing.T) {
 	})
 	assert.NoError(t, err, "failed to create subscriber")
 
-	// Step 2: Start Consumer in a Goroutine
 	msgs, err := subscriber.Consume(ctx)
 	assert.NoError(t, err, "failed to start consumer")
 
@@ -69,11 +66,10 @@ func TestRabbitMQIntegration(t *testing.T) {
 				t.Log("received msg", receivedMsg)
 				received <- receivedMsg
 			}
-			msg.Ack(false) // Acknowledge the message
+			msg.Ack(false)
 		}
 	}()
 
-	// Step 3: Setup Publisher
 	publisher, err := NewPublisher(ctx, PublisherOpts{
 		Queue:  "test-queue",
 		Config: conf,
@@ -81,12 +77,10 @@ func TestRabbitMQIntegration(t *testing.T) {
 	})
 	assert.NoError(t, err, "failed to create publisher")
 
-	// Step 4: Publish Message
 	testMsg := TestMessage{Content: "Hello, RabbitMQ!"}
 	err = publisher.Publish(ctx, testMsg)
 	assert.NoError(t, err, "failed to publish message")
 
-	// Step 5: Verify Message Reception
 	select {
 	case msg := <-received:
 		t.Log(utils.JSON(msg))
@@ -94,7 +88,6 @@ func TestRabbitMQIntegration(t *testing.T) {
 		t.Fatal("timeout: no message received")
 	}
 
-	// Cleanup
 	publisher.Close()
 	subscriber.Close()
 }

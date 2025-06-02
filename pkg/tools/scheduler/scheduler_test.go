@@ -66,7 +66,6 @@ func TestPingGoogleUsingScheduler(t *testing.T) {
 
 	Run(context.Background(), task)
 
-	// Poll for status up to 10s
 	deadline := time.Now().Add(10 * time.Second)
 LOOP:
 	for time.Now().Before(deadline) {
@@ -77,12 +76,10 @@ LOOP:
 		case TASK_STATUS_FAILED:
 			t.Fatal("Task failed.")
 		default:
-			// Sleep a bit, keep waiting
 			time.Sleep(500 * time.Millisecond)
 		}
 	}
 
-	// After 10s, if still not done/failed, we fail:
 	if task.Status() != TASK_STATUS_DONE {
 		t.Fatalf("Task did not complete by the deadline. Final status: %v", task.Status())
 	}

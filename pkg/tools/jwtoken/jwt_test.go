@@ -11,7 +11,6 @@ import (
 	"pms.pkg/utils"
 )
 
-// CustomClaims is a generic struct for JWT claims
 type CustomClaims struct {
 	UserID    string `json:"user_id"`
 	Email     string `json:"email"`

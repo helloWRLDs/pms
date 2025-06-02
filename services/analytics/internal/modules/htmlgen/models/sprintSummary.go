@@ -9,7 +9,6 @@ type SprintSummary struct {
 	DoneTasks   int
 	UndoneTasks int
 
-	// Enhanced metrics
 	TotalPoints     int32
 	CompletionRate  float64
 	TasksByType     map[string]int

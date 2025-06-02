@@ -12,7 +12,7 @@ import (
 )
 
 func (l *Logic) DownloadDocument(ctx context.Context, docID string) (pdf *dto.DocumentPDF, err error) {
-	log := l.log.Named("DownloadDocument").With(
+	log := l.log.Named("DownloadDocumment").With(
 		zap.String("id", docID),
 	)
 	log.Debug("DownloadDocument called")

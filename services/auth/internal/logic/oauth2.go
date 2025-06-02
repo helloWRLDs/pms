@@ -33,7 +33,7 @@ func (l *Logic) InitiateOAuth2(provider string) (authURL string, err error) {
 }
 
 func (l *Logic) CompleteOAuth2(ctx context.Context, provider string, code string) (*dto.User, *dto.AuthPayload, error) {
-	log := l.log.Named("CompleteOAuth2").With(
+	log := l.log.Named("CompleteOAuth2 function").With(
 		zap.String("provider", provider),
 		zap.String("code", code),
 	)
@@ -41,13 +41,12 @@ func (l *Logic) CompleteOAuth2(ctx context.Context, provider string, code string
 
 	switch consts.Provider(provider) {
 	case consts.ProviderGoogle:
-		// set token
+
 		if err := l.googleClient.SetToken(code); err != nil {
 			log.Errorw("failed to set token", "err", err)
 			return nil, nil, err
 		}
 
-		// get user data from google
 		googleUser, err := l.googleClient.GetUserData()
 		if err != nil {
 			log.Errorw("failed to get user data", "err", err)

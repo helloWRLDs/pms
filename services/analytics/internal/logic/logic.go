@@ -34,7 +34,6 @@ func New(repo *data.Repository, conf *config.Config, log *zap.SugaredLogger) *Lo
 		Repo:  repo,
 	}
 
-	// Initialize auth client
 	authClient, err := authclient.New(conf.Auth, log)
 	if err != nil {
 		log.Errorw("failed to create auth client", "err", err)
@@ -42,7 +41,6 @@ func New(repo *data.Repository, conf *config.Config, log *zap.SugaredLogger) *Lo
 		l.authClient = authClient
 	}
 
-	// Initialize project client
 	projectClient, err := projectclient.New(conf.Project, log)
 	if err != nil {
 		log.Errorw("failed to create project client", "err", err)

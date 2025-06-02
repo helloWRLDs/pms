@@ -99,8 +99,6 @@ func (l *Logic) GetTask(ctx context.Context, id string) (task *dto.Task, err err
 		task = t.DTO()
 	}
 
-	// TODO: Get AssigneeID, etc..
-
 	return
 }
 

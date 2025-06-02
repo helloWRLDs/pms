@@ -21,7 +21,7 @@ func (l *Logic) CreateReportTemplate(ctx context.Context, creation *dto.Document
 	log := l.log.Named("CreateReportTemplate").With(
 		zap.Any("sprint_id", creation.SprintId),
 	)
-	log.Info("CreateReportTemplate called")
+	log.Info("CreateReportTemplate was called")
 
 	newDoc := documentdata.Document{
 		ID:        uuid.NewString(),
@@ -34,7 +34,6 @@ func (l *Logic) CreateReportTemplate(ctx context.Context, creation *dto.Document
 	if creation.SprintId != "" {
 		sprint, err := l.getSprint(ctx, creation.SprintId)
 		if err == nil {
-			// Generate comprehensive sprint summary
 			sprintSummary, err := l.generateSprintSummary(ctx, sprint)
 			if err != nil {
 				log.Errorw("failed to generate sprint summary", "err", err)
@@ -92,14 +91,11 @@ func (l *Logic) generateSprintSummary(ctx context.Context, sprint *dto.Sprint) (
 		pointsSum     int32 = 0
 	)
 
-	// Analyze each task
 	for _, task := range sprint.Tasks {
-		// Count by status
 		if task.Status == string(consts.TASK_STATUS_DONE) {
 			doneTasks++
 		}
 
-		// Count by type and priority
 		if task.Type != "" {
 			summary.TasksByType[task.Type]++
 			typeCount[task.Type]++
@@ -109,18 +105,15 @@ func (l *Logic) generateSprintSummary(ctx context.Context, sprint *dto.Sprint) (
 		summary.TasksByPriority[priorityName]++
 		priorityCount[priorityName]++
 
-		// Calculate task points
 		taskPoints := utils.CalculateTaskPoints(task)
 		totalPoints += taskPoints
 		pointsSum += taskPoints
 
-		// Track highest value task
 		if taskPoints > highestPoints {
 			highestPoints = taskPoints
 			taskInsights.HighestValueTask = task.Title
 		}
 
-		// Track user performance
 		if task.AssigneeId != "" {
 			if userPerf, exists := userTaskMap[task.AssigneeId]; exists {
 				userPerf.TotalTasks++
@@ -129,7 +122,6 @@ func (l *Logic) generateSprintSummary(ctx context.Context, sprint *dto.Sprint) (
 					userPerf.DoneTasks++
 				}
 			} else {
-				// Get user details
 				userResp, err := l.authClient.GetUser(ctx, &pb.GetUserRequest{UserID: task.AssigneeId})
 				if err == nil {
 					user := userResp.User
@@ -152,7 +144,6 @@ func (l *Logic) generateSprintSummary(ctx context.Context, sprint *dto.Sprint) (
 		}
 	}
 
-	// Calculate metrics
 	summary.DoneTasks = doneTasks
 	summary.UndoneTasks = summary.TotalTasks - doneTasks
 	summary.TotalPoints = totalPoints
@@ -163,11 +154,9 @@ func (l *Logic) generateSprintSummary(ctx context.Context, sprint *dto.Sprint) (
 		taskInsights.AveragePointsPerTask = float64(pointsSum) / float64(summary.TotalTasks)
 	}
 
-	// Find most common type and priority
 	taskInsights.MostCommonType = l.findMostCommon(typeCount)
 	taskInsights.MostCommonPriority = l.findMostCommon(priorityCount)
 
-	// Calculate user completion rates and convert to slice
 	for _, userPerf := range userTaskMap {
 		if userPerf.TotalTasks > 0 {
 			userPerf.CompletionRate = float64(userPerf.DoneTasks) / float64(userPerf.TotalTasks) * 100
@@ -175,12 +164,10 @@ func (l *Logic) generateSprintSummary(ctx context.Context, sprint *dto.Sprint) (
 		summary.UserPerformance = append(summary.UserPerformance, *userPerf)
 	}
 
-	// Sort users by points for top performers
 	sort.Slice(summary.UserPerformance, func(i, j int) bool {
 		return summary.UserPerformance[i].TotalPoints > summary.UserPerformance[j].TotalPoints
 	})
 
-	// Get top 3 performers
 	topCount := 3
 	if len(summary.UserPerformance) < topCount {
 		topCount = len(summary.UserPerformance)

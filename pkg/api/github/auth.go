@@ -22,7 +22,6 @@ func (c *Client) AuthURL(state string) string {
 	)
 }
 
-// exchange the authorization code for an access token
 func (c *Client) SetToken(code string) error {
 	log := c.log.With("func", "SetToken")
 

@@ -1,5 +1,12 @@
 package logic
 
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"pms.pkg/consts"
+)
+
 // func setupTest(t *testing.T) (*data.Repository, *config.Config) {
 // 	logger, _ := zap.NewDevelopment()
 // 	sugar := logger.Sugar()
@@ -25,47 +32,37 @@ package logic
 // 	return repo, cfg
 // }
 
-// func TestInitiateOAuth2(t *testing.T) {
-// 	repo, cfg := setupTest(t)
-// 	l := New(repo, cfg, nil)
+func TestInitiateOAuth2(t *testing.T) {
+	tests := []struct {
+		name     string
+		provider string
+		wantErr  bool
+	}{
+		{
+			name:     "Google OAuth2 initiation",
+			provider: string(consts.ProviderGoogle),
+			wantErr:  false,
+		},
+		{
+			name:     "Invalid provider",
+			provider: "invalid",
+			wantErr:  true,
+		},
+	}
 
-// 	tests := []struct {
-// 		name     string
-// 		provider string
-// 		wantErr  bool
-// 	}{
-// 		{
-// 			name:     "Google OAuth2 initiation",
-// 			provider: string(consts.ProviderGoogle),
-// 			wantErr:  false,
-// 		},
-// 		{
-// 			name:     "GitHub OAuth2 initiation",
-// 			provider: string(consts.ProviderGitHub),
-// 			wantErr:  false,
-// 		},
-// 		{
-// 			name:     "Invalid provider",
-// 			provider: "invalid",
-// 			wantErr:  true,
-// 		},
-// 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			authURL, err := logic.InitiateOAuth2(tt.provider)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
 
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			authURL, state, err := l.InitiateOAuth2(tt.provider)
-// 			if tt.wantErr {
-// 				assert.Error(t, err)
-// 				return
-// 			}
-
-// 			assert.NoError(t, err)
-// 			assert.NotEmpty(t, state)
-// 			assert.NotEmpty(t, authURL)
-// 			assert.Contains(t, authURL, "state="+state)
-// 		})
-// 	}
-// }
+			assert.NoError(t, err)
+			assert.NotEmpty(t, authURL)
+		})
+	}
+}
 
 // func TestCompleteOAuth2(t *testing.T) {
 // 	repo, cfg := setupTest(t)

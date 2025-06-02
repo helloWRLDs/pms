@@ -71,7 +71,7 @@ func (r *Repository) List(ctx context.Context, filter *dto.DocumentFilter) (res 
 	if filter.Title != "" {
 		builder = builder.Where(sq.Eq{"d.title": filter.Title})
 	}
-	{ // build pagination info
+	{
 		filter.Page = utils.If(filter.Page <= 0, 1, filter.Page)
 		filter.PerPage = utils.If(filter.PerPage <= 0, 10, filter.PerPage)
 
