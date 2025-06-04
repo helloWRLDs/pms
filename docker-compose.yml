@@ -31,8 +31,6 @@ services:
       - POSTGRES_SSL_MODE=disable
     networks:
       - webnet
-    depends_on:
-      - redis-pms
     restart: unless-stopped
 
   analytics-service:
@@ -56,8 +54,6 @@ services:
       - PROJECT_DISABLE_LOG=true
     networks:
       - webnet
-    depends_on:
-      - pg-pms
     restart: unless-stopped
 
   project-service:
@@ -77,8 +73,6 @@ services:
       - POSTGRES_SSL_MODE=disable
     networks:
       - webnet
-    depends_on:
-      - pg-pms
     restart: unless-stopped
 
   api-gateway:
@@ -90,7 +84,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - HOST=:8080
+      - HOST=0.0.0.0:8080
       - LOG_DEV=true
       - LOG_LEVEL=info
       - LOG_FILE_OUTPUT=false
@@ -127,12 +121,10 @@ services:
       - "50055:50055"
     networks:
       - webnet
-    depends_on:
-      - rabbitmq
     restart: unless-stopped
 
   pg-pms:
-    container_name: postgres
+    container_name: pg-pms
     image: postgres:16.4
     restart: unless-stopped
     environment:
@@ -148,7 +140,7 @@ services:
 
   redis-pms:
     image: redis:7.0.8
-    container_name: "redis-pms"
+    container_name: redis-pms
     restart: unless-stopped
     ports:
       - 6379:6379

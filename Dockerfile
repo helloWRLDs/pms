@@ -16,6 +16,8 @@ COPY services/api-gateway/.env /app/api-gateway/.env
 COPY services/analytics/.env /app/analytics/.env
 COPY services/project/.env /app/project/.env
 
+FROM ghcr.io/surnet/alpine-wkhtmltopdf:3.21.3-0.12.6-full AS wkhtmltopdf
+
 FROM golang:1.23.2-alpine AS auth-service
 WORKDIR /app
 RUN go install github.com/pressly/goose/v3/cmd/goose@v3.14.0
@@ -29,9 +31,25 @@ CMD ["./auth", "--path", ".env"]
 FROM golang:1.23.2-alpine AS analytics-service
 WORKDIR /app
 RUN mkdir -p /app/bin
+RUN apk add --no-cache \
+    libstdc++ \
+    libx11 \
+    libxrender \
+    libxext \
+    libssl3 \
+    ca-certificates \
+    fontconfig \
+    freetype \
+    ttf-dejavu \
+    ttf-droid \
+    ttf-freefont \
+    && rm -rf /var/cache/apk/*
+
+COPY --from=wkhtmltopdf /bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
 COPY --from=backend-builder /app/analytics/analytics /app/bin/
 RUN chmod +x /app/bin/analytics
 COPY --from=backend-builder /app/analytics/.env .
+RUN wkhtmltopdf --version
 EXPOSE 50054
 CMD ["/app/bin/analytics", "--path", ".env"]
 
