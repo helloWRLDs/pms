@@ -45,3 +45,10 @@ func setupDB() {
 func Test_Test(t *testing.T) {
 	t.Log("migrate test")
 }
+
+func Test_MigrateAdminRole(t *testing.T) {
+	err := repo.MigrateAdminRole()
+	if err != nil {
+		t.Fatal(err)
+	}
+}

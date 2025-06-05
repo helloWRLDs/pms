@@ -29,10 +29,11 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=auth
       - POSTGRES_SSL_MODE=disable
+      - GOOGLE_CLIENT_ID=
+      - GOOGLE_CLIENT_SECRET=
+      - GOOGLE_REDIRECT_URL=http://localhost:8080/api/v1/auth/oauth2/google/callback
     networks:
       - webnet
-    depends_on:
-      - redis-pms
     restart: unless-stopped
 
   analytics-service:
@@ -44,7 +45,7 @@ services:
     ports:
       - "50054:50054"
     environment:
-      - HOST=:50054
+      - HOST=0.0.0.0:50054
       - POSTGRES_HOST=pg-pms
       - POSTGRES_PORT=5432
       - POSTGRES_USER=postgres
@@ -52,12 +53,12 @@ services:
       - POSTGRES_DB=analytics
       - POSTGRES_SSL_MODE=disable
       - LOG_LEVEL=debug
-      - PROJECT_HOST=project-service:50053
+      - PROJECT_HOST=project-service:50052
       - PROJECT_DISABLE_LOG=true
+      - AUTH_HOST=auth-service:50051
+      - AUTH_DISABLE_LOG=true
     networks:
       - webnet
-    depends_on:
-      - pg-pms
     restart: unless-stopped
 
   project-service:
@@ -77,8 +78,6 @@ services:
       - POSTGRES_SSL_MODE=disable
     networks:
       - webnet
-    depends_on:
-      - pg-pms
     restart: unless-stopped
 
   api-gateway:
@@ -90,7 +89,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - HOST=:8080
+      - HOST=0.0.0.0:8080
       - LOG_DEV=true
       - LOG_LEVEL=info
       - LOG_FILE_OUTPUT=false
@@ -110,7 +109,7 @@ services:
       - ANALYTICS_DISABLE_LOG=true
       - NOTIFICATION_DSN=amqp://guest:guest@rabbitmq:5672/
       - NOTIFICATION_EXCHANGE=direct-exchange
-      - NOTIFICATION_DISABLE_LOG=true
+      - NOTIFICATION_DISABLE_LOG=false
       - JWT_TTL=24
       - JWT_SECRET=secret
     networks:
@@ -125,14 +124,26 @@ services:
       target: notifier-service
     ports:
       - "50055:50055"
+    environment:
+      - HOST=:50055
+      - GMAIL_HOST=smtp.gmail.com
+      - GMAIL_USERNAME=
+      - GMAIL_PASSWORD=
+      - GMAIL_PORT=587
+      - MQ_DSN=amqp://guest:guest@rabbitmq:5672/
+      - MQ_EXCHANGE=direct-exchange
+      - LOG_DEV=true
+      - LOG_LEVEL=debug
+      - LOG_FILE_OUTPUT=false
+      - LOG_FILE_PATH=
+      - LOG_STACKTRACE=true
+      - LOG_CALLER=true
     networks:
       - webnet
-    depends_on:
-      - rabbitmq
     restart: unless-stopped
 
   pg-pms:
-    container_name: postgres
+    container_name: pg-pms
     image: postgres:16.4
     restart: unless-stopped
     environment:
@@ -148,7 +159,7 @@ services:
 
   redis-pms:
     image: redis:7.0.8
-    container_name: "redis-pms"
+    container_name: redis-pms
     restart: unless-stopped
     ports:
       - 6379:6379
@@ -175,4 +186,3 @@ networks:
 
 volumes:
   pg_data:
-    driver: local

@@ -15,6 +15,10 @@ COPY services/notifier/.env /app/notifier/.env
 COPY services/api-gateway/.env /app/api-gateway/.env
 COPY services/analytics/.env /app/analytics/.env
 COPY services/project/.env /app/project/.env
+COPY services/project/migrations /app/project/migrations
+COPY services/analytics/migrations /app/analytics/migrations
+
+FROM ghcr.io/surnet/alpine-wkhtmltopdf:3.21.3-0.12.6-full AS wkhtmltopdf
 
 FROM golang:1.23.2-alpine AS auth-service
 WORKDIR /app
@@ -29,9 +33,26 @@ CMD ["./auth", "--path", ".env"]
 FROM golang:1.23.2-alpine AS analytics-service
 WORKDIR /app
 RUN mkdir -p /app/bin
+RUN apk add --no-cache \
+    libstdc++ \
+    libx11 \
+    libxrender \
+    libxext \
+    libssl3 \
+    ca-certificates \
+    fontconfig \
+    freetype \
+    ttf-dejavu \
+    ttf-droid \
+    ttf-freefont \
+    && rm -rf /var/cache/apk/*
+
+COPY --from=wkhtmltopdf /bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
 COPY --from=backend-builder /app/analytics/analytics /app/bin/
-RUN chmod +x /app/bin/analytics
 COPY --from=backend-builder /app/analytics/.env .
+COPY --from=backend-builder /app/analytics/migrations /app/migrations
+RUN chmod +x /app/bin/analytics
+RUN wkhtmltopdf --version
 EXPOSE 50054
 CMD ["/app/bin/analytics", "--path", ".env"]
 
@@ -47,6 +68,7 @@ FROM golang:1.23.2-alpine AS project-service
 WORKDIR /app
 COPY --from=backend-builder /app/project/project .
 COPY --from=backend-builder /app/project/.env .
+COPY --from=backend-builder /app/project/migrations /app/migrations
 RUN chmod +x /app/project
 EXPOSE 50053
 CMD ["./project", "--path", ".env"]

@@ -26,3 +26,8 @@ protoc:
 run:
 	@echo "Running service: $(service)"
 	go run ./services/$(service)/cmd/app --path=./services/$(service)/.env
+
+migrate.up:
+	goose -dir ./services/analytics/migrations postgres "postgres://postgres:postgres@localhost:5432/analytics?sslmode=disable" up
+	goose -dir ./services/project/migrations postgres "postgres://postgres:postgres@localhost:5432/project?sslmode=disable" up
+	goose -dir ./services/auth/migrations postgres "postgres://postgres:postgres@localhost:5432/auth?sslmode=disable" up
