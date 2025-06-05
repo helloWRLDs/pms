@@ -45,21 +45,25 @@ const MetadataItem: React.FC<{
   value: string;
   onClick?: () => void;
   copyable?: boolean;
-}> = ({ icon, label, value, onClick, copyable }) => (
-  <div className="flex items-center gap-1.5 px-2 py-1.5 bg-secondary-400/5 rounded text-xs min-w-0">
-    <span className="text-accent-500 flex-shrink-0">{icon}</span>
-    <span className="text-neutral-400 font-medium flex-shrink-0">{label}:</span>
-    <span
-      className={`text-neutral-200 truncate min-w-0 ${
-        onClick || copyable
-          ? "cursor-pointer hover:text-accent-500 transition-colors"
-          : ""
-      }`}
-      onClick={onClick}
-      title={value}
-    >
-      {value || "none"}
-    </span>
+  children?: React.ReactNode;
+}> = ({ icon, label, value, onClick, copyable, children }) => (
+  <div className="relative">
+    <div className="flex items-center gap-1.5 px-2 py-1.5 bg-secondary-400/5 rounded text-xs min-w-0">
+      <span className="text-accent-500 flex-shrink-0">{icon}</span>
+      <span className="text-neutral-400 font-medium flex-shrink-0">{label}:</span>
+      <span
+        className={`text-neutral-200 truncate min-w-0 ${
+          onClick || copyable
+            ? "cursor-pointer hover:text-accent-500 transition-colors"
+            : ""
+        }`}
+        onClick={onClick}
+        title={value}
+      >
+        {value || "none"}
+      </span>
+    </div>
+    {children}
   </div>
 );
 
@@ -141,7 +145,33 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
             label="Assignee"
             value={getAssigneeName(task.assignee_id)}
             onClick={() => setReassignDropDown(true)}
-          />
+          >
+            <DropDownList
+              visible={reassignDropDown}
+              onClose={() => setReassignDropDown(false)}
+              className="absolute top-full left-0 mt-1 w-48 z-50"
+            >
+              {assignees &&
+                assignees.items.map((assignee) => (
+                  <DropDownList.Element
+                    key={assignee.id}
+                    className="w-full px-4 py-2 bg-secondary-100 cursor-pointer text-neutral-200 hover:bg-accent-500 hover:text-secondary-100 transition-colors"
+                    onClick={async () => {
+                      try {
+                        await taskAPI.assign(task.id, assignee.id);
+                      } catch (e) {
+                        console.error(e);
+                      } finally {
+                        setReassignDropDown(false);
+                        props.refetchTasks && props.refetchTasks();
+                      }
+                    }}
+                  >
+                    {assignee.first_name} {assignee.last_name}
+                  </DropDownList.Element>
+                ))}
+            </DropDownList>
+          </MetadataItem>
           <MetadataItem
             icon={<MdCode className="text-sm" />}
             label="Code"
@@ -166,61 +196,33 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
             label="Sprint"
             value={getSprintName(task.sprint_id)}
             onClick={() => setAddSprintDropDown(true)}
-          />
+          >
+            <DropDownList
+              visible={addSprintDropDown}
+              onClose={() => setAddSprintDropDown(false)}
+              className="absolute top-full left-0 mt-1 w-48 z-50"
+            >
+              {sprints && sprints.items && sprints.items.length > 0 && 
+                sprints.items.map((sprint) => (
+                  <DropDownList.Element
+                    key={sprint.id}
+                    onClick={() => {
+                      const updatedTask: Task = JSON.parse(JSON.stringify(task));
+                      updatedTask.sprint_id = sprint.id;
+                      taskAPI.update(updatedTask.id, updatedTask);
+                      refetch();
+                      props.refetchTasks && props.refetchTasks();
+                      setAddSprintDropDown(false);
+                    }}
+                    className="w-full px-4 py-2 bg-secondary-100 cursor-pointer text-neutral-200 hover:bg-accent-500 hover:text-secondary-100 transition-colors"
+                  >
+                    {sprint.title}
+                  </DropDownList.Element>
+                ))}
+            </DropDownList>
+          </MetadataItem>
         </div>
       </div>
-
-      <DropDownList
-        visible={reassignDropDown}
-        onClose={() => setReassignDropDown(false)}
-        className="z-50"
-      >
-        {assignees &&
-          assignees.items.map((assignee) => (
-            <DropDownList.Element
-              key={assignee.id}
-              className="w-full px-4 py-2 bg-secondary-100 cursor-pointer text-neutral-200 hover:bg-accent-500 hover:text-secondary-100 transition-colors"
-              onClick={async () => {
-                try {
-                  
-                  await taskAPI.assign(task.id, assignee.id);
-                } catch (e) {
-                  console.error(e);
-                } finally {
-                  setReassignDropDown(false);
-                  props.refetchTasks && props.refetchTasks();
-                  setAddSprintDropDown(false);
-                }
-              }}
-            >
-              {assignee.first_name} {assignee.last_name}
-            </DropDownList.Element>
-          ))}
-      </DropDownList>
-
-      <DropDownList
-        visible={addSprintDropDown}
-        onClose={() => setAddSprintDropDown(false)}
-        className="z-50"
-      >
-        {sprints && sprints.items && sprints.items.length > 0 && 
-          sprints.items.map((sprint) => (
-            <DropDownList.Element
-              key={sprint.id}
-              onClick={() => {
-                const updatedTask: Task = JSON.parse(JSON.stringify(task));
-                updatedTask.sprint_id = sprint.id;
-                taskAPI.update(updatedTask.id, updatedTask);
-                refetch();
-                props.refetchTasks && props.refetchTasks();
-                setAddSprintDropDown(false);
-              }}
-              className="w-full px-4 py-2 bg-secondary-100 cursor-pointer text-neutral-200 hover:bg-accent-500 hover:text-secondary-100 transition-colors"
-            >
-              {sprint.title}
-            </DropDownList.Element>
-          ))}
-      </DropDownList>
 
       {/* Comments Section */}
       <div className="space-y-3">
