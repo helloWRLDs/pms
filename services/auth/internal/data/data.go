@@ -19,11 +19,13 @@ type Repository struct {
 }
 
 func New(db *sqlx.DB, log *zap.SugaredLogger) *Repository {
-	return &Repository{
+	repo := &Repository{
 		db:          db,
 		User:        userdata.New(db, log),
 		Company:     companydata.New(db, log),
 		Role:        roledata.New(db, log),
 		Participant: participantdata.New(db, log),
 	}
+	repo.MigrateUp()
+	return repo
 }
