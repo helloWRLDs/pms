@@ -75,6 +75,7 @@ func TestRabbitMQIntegration(t *testing.T) {
 		Config: conf,
 		Logger: sugar,
 	})
+	t.Log("publisher state: ", publisher.ConnState())
 	assert.NoError(t, err, "failed to create publisher")
 
 	testMsg := TestMessage{Content: "Hello, RabbitMQ!"}

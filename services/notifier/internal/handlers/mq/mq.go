@@ -57,7 +57,7 @@ func (m *MessageQueueHandler) Listen(ctx context.Context) error {
 	log := m.log.With(
 		zap.String("func", "mq.Listen"),
 	)
-	log.Debug("mq.Listen called")
+	log.Info("mq.Listen called")
 
 	msgs, err := m.Sub.Consume(ctx)
 	if err != nil {
@@ -74,12 +74,13 @@ func (m *MessageQueueHandler) Listen(ctx context.Context) error {
 					log.Warn("msg channel is closed")
 					return
 				}
+				log.Infow("received message", "routing_key", msg.RoutingKey, "body", string(msg.Body))
 				if err := m.HandleMessage(context.Background(), &msg); err != nil {
 					log.Errorw("failed to process message", "err", err)
-					_ = msg.Nack(false, true)
+					// _ = msg.Nack(false, true)
 				} else {
 					log.Debugw("message processed successfully")
-					_ = msg.Ack(false)
+					// _ = msg.Ack(false)
 				}
 			case <-ctx.Done():
 				log.Warn("stopping message queue consumption")

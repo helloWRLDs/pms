@@ -25,6 +25,13 @@ func (m *MessageQueueHandler) HandleMessage(ctx context.Context, msg *amqp.Deliv
 			return err
 		}
 		return m.HandleGreetEvent(ctx, event)
+	case (notifiermq.TaskAssignmentMessage{}).RoutingKey():
+		var event notifiermq.TaskAssignmentMessage
+		if err := json.Unmarshal(msg.Body, &event); err != nil {
+			log.Errorw("failed to unmarshal message", "err", err)
+			return err
+		}
+		return m.HandleTaskAssignmentEvent(ctx, event)
 	default:
 		log.Warnw("unhandled routing key", "key", msg.RoutingKey)
 		return nil

@@ -5,5 +5,8 @@ import (
 )
 
 var (
-	Routes = []mqtp.QueueRoute{"greet"}
+	Routes = []mqtp.QueueRoute{
+		GreetMessage{}.RoutingKey(),
+		TaskAssignmentMessage{}.RoutingKey(),
+	}
 )

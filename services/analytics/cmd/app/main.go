@@ -4,6 +4,7 @@ import (
 	"flag"
 	"net"
 	"os"
+	"os/exec"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -35,6 +36,11 @@ func main() {
 	log := logger.Log.With(
 		zap.String("func", "main"),
 	)
+	wt, err := exec.Command("wkhtmltopdf", "--version").Output()
+	if err != nil {
+		log.Errorw("failed to check wkhtmltopdf", "err", err)
+	}
+	log.Infow("check wkhtmltopdf", "version", string(wt))
 	log.Infow("check dsn", "dsn", conf.DB.DSN())
 	db, err := postgres.Open(conf.DB.DSN())
 	if err != nil {
