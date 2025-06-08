@@ -47,3 +47,35 @@ func (s *ServerGRPC) RegisterUser(ctx context.Context, req *pb.RegisterUserReque
 	res.User = created
 	return res, nil
 }
+
+func (s *ServerGRPC) GetUserRole(ctx context.Context, req *pb.GetUserRoleRequest) (res *pb.GetUserRoleResponse, err error) {
+	log := s.log.Named("GetUserRole")
+	log.Debug("GetUserRole called")
+
+	defer func() {
+		err = errs.WrapGRPC(err)
+	}()
+
+	res = &pb.GetUserRoleResponse{
+		Success: false,
+	}
+
+	// Get participant to find role name
+	participant, err := s.logic.Repo.Participant.GetByUserAndCompany(ctx, req.UserId, req.CompanyId)
+	if err != nil {
+		log.Errorw("failed to get participant", "err", err)
+		return nil, err
+	}
+
+	// Get role by name
+	role, err := s.logic.Repo.Role.GetByName(ctx, participant.Role)
+	if err != nil {
+		log.Errorw("failed to get role", "err", err)
+		return nil, err
+	}
+
+	res.Success = true
+	res.Role = role.DTO()
+
+	return res, nil
+}

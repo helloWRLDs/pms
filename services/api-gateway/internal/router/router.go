@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"pms.pkg/consts"
 )
 
 func (s *Server) SetupREST() {
@@ -34,9 +35,9 @@ func (s *Server) SetupREST() {
 		user.Use(s.RequireAuthService())
 		user.Use(s.Authorize())
 
-		user.Get("/:id", s.GetUser)
-		user.Get("/", s.ListUsers)
-		user.Put("/:id", s.UpdateUser)
+		user.Get("/:id", s.RequirePermission(consts.USER_READ_PERMISSION), s.GetUser)
+		user.Get("/", s.RequirePermission(consts.USER_READ_PERMISSION), s.ListUsers)
+		user.Put("/:id", s.RequirePermission(consts.USER_WRITE_PERMISSION), s.UpdateUser)
 	})
 
 	v1.Route("/companies", func(comp fiber.Router) {
@@ -49,7 +50,6 @@ func (s *Server) SetupREST() {
 		comp.Get("/:companyID/stats", s.GetCompanyStats)
 
 		comp.Route("/:companyID/participants", func(participants fiber.Router) {
-			participants.Use(s.Authorize(), s.RequireCompany())
 
 			participants.Post("/:userID", s.CompanyAddParticipant)
 			participants.Delete("/:userID", s.CompanyRemoveParticipant)
@@ -67,22 +67,22 @@ func (s *Server) SetupREST() {
 	v1.Route("/tasks", func(tasks fiber.Router) {
 		tasks.Use(s.RequireAuthService(), s.RequireProjectService())
 		tasks.Use(s.Authorize())
-		tasks.Use(s.RequireCompany(), s.RequireProject()) // X-Company-ID, X-Project-ID
+		tasks.Use(s.RequireCompany(), s.RequireProject())
 
-		tasks.Post("/", s.CreateTask)
-		tasks.Get("/", s.ListTasks)
-		tasks.Get("/:taskID", s.GetTask)
-		tasks.Put("/:taskID", s.UpdateTask)
-		tasks.Delete("/:taskID", s.DeleteTask)
+		tasks.Post("/", s.RequirePermission(consts.TASK_WRITE_PERMISSION), s.CreateTask)
+		tasks.Get("/", s.RequirePermission(consts.TASK_READ_PERMISSION), s.ListTasks)
+		tasks.Get("/:taskID", s.RequirePermission(consts.TASK_READ_PERMISSION), s.GetTask)
+		tasks.Put("/:taskID", s.RequirePermission(consts.TASK_WRITE_PERMISSION), s.UpdateTask)
+		tasks.Delete("/:taskID", s.RequirePermission(consts.TASK_DELETE_PERMISSION), s.DeleteTask)
 
 		tasks.Route("/:taskID/assignments", func(assignment fiber.Router) {
-			assignment.Post("/:userID", s.CreateTaskAssignment)
-			assignment.Delete("/:userID", s.DeleteTaskAssignment)
+			assignment.Post("/:userID", s.RequirePermission(consts.TASK_ADD_PERMISSION), s.CreateTaskAssignment)
+			assignment.Delete("/:userID", s.RequirePermission(consts.TASK_ADD_PERMISSION), s.DeleteTaskAssignment)
 		})
 
 		tasks.Route("/:taskID/comments", func(comment fiber.Router) {
-			comment.Get("/", s.ListTaskComments)
-			comment.Post("/", s.CreateTaskComments)
+			comment.Get("/", s.RequirePermission(consts.TASK_READ_PERMISSION), s.ListTaskComments)
+			comment.Post("/", s.RequirePermission(consts.TASK_WRITE_PERMISSION), s.CreateTaskComments)
 		})
 	})
 
@@ -91,10 +91,10 @@ func (s *Server) SetupREST() {
 		sprints.Use(s.RequireProjectService())
 		sprints.Use(s.RequireCompany(), s.RequireProject())
 
-		sprints.Post("/", s.CreateSprint)
-		sprints.Get("/", s.ListSprints)
-		sprints.Get("/:sprintID", s.GetSprint)
-		sprints.Put("/:sprintID", s.UpdateSprint)
+		sprints.Post("/", s.RequirePermission(consts.SPRINT_WRITE_PERMISSION), s.CreateSprint)
+		sprints.Get("/", s.RequirePermission(consts.SPRINT_READ_PERMISSION), s.ListSprints)
+		sprints.Get("/:sprintID", s.RequirePermission(consts.SPRINT_READ_PERMISSION), s.GetSprint)
+		sprints.Put("/:sprintID", s.RequirePermission(consts.SPRINT_WRITE_PERMISSION), s.UpdateSprint)
 	})
 
 	v1.Route("/projects", func(proj fiber.Router) {
@@ -102,9 +102,9 @@ func (s *Server) SetupREST() {
 		proj.Use(s.RequireAuthService(), s.RequireProjectService())
 		proj.Use(s.RequireCompany())
 
-		proj.Post("/", s.CreateProject)
-		proj.Get("/", s.ListProjects)
-		proj.Get("/:projectID", s.GetProject)
+		proj.Post("/", s.RequirePermission(consts.PROJECT_WRITE_PERMISSION), s.CreateProject)
+		proj.Get("/", s.RequirePermission(consts.PROJECT_READ_PERMISSION), s.ListProjects)
+		proj.Get("/:projectID", s.RequirePermission(consts.PROJECT_READ_PERMISSION), s.GetProject)
 	})
 
 	v1.Route("/background-tasks", func(tasks fiber.Router) {

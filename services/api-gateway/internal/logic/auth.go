@@ -6,6 +6,7 @@ import (
 
 	"go.uber.org/zap"
 	"pms.api-gateway/internal/models"
+	"pms.pkg/consts"
 	"pms.pkg/transport/grpc/dto"
 	pb "pms.pkg/transport/grpc/services"
 )
@@ -43,7 +44,17 @@ func (l *Logic) CompleteOAuth2(ctx context.Context, provider string, code string
 		UserID:       payload.User.Id,
 		AccessToken:  payload.AccessToken,
 		RefreshToken: payload.RefreshToken,
-		Expires:      time.Unix(payload.Exp, 0),
+		Permissions: func() (perm map[string][]consts.Permission) {
+			perm = make(map[string][]consts.Permission)
+			for companyID, permissions := range payload.User.Permissions {
+				perm[companyID] = make([]consts.Permission, len(permissions.Values))
+				for i, value := range permissions.Values {
+					perm[companyID][i] = consts.Permission(value)
+				}
+			}
+			return
+		}(),
+		Expires: time.Unix(payload.Exp, 0),
 		Companies: func() (compList []string) {
 			compList = make([]string, 0)
 			if compRes == nil {
@@ -126,7 +137,17 @@ func (l *Logic) LoginUser(ctx context.Context, creds *dto.UserCredentials) (*dto
 		UserID:       loginRes.Payload.User.Id,
 		AccessToken:  loginRes.Payload.AccessToken,
 		RefreshToken: loginRes.Payload.RefreshToken,
-		Expires:      time.Unix(loginRes.Payload.Exp, 0),
+		Permissions: func() (perm map[string][]consts.Permission) {
+			perm = make(map[string][]consts.Permission)
+			for companyID, permissions := range loginRes.Payload.User.Permissions {
+				perm[companyID] = make([]consts.Permission, len(permissions.Values))
+				for i, value := range permissions.Values {
+					perm[companyID][i] = consts.Permission(value)
+				}
+			}
+			return
+		}(),
+		Expires: time.Unix(loginRes.Payload.Exp, 0),
 		Companies: func() (compList []string) {
 			compList = make([]string, 0)
 			if compRes == nil {
@@ -143,4 +164,23 @@ func (l *Logic) LoginUser(ctx context.Context, creds *dto.UserCredentials) (*dto
 		return nil, err
 	}
 	return loginRes.Payload, nil
+}
+
+func (l *Logic) GetUserRole(ctx context.Context, userID string, companyID string) (*dto.Role, error) {
+	log := l.log.Named("GetUserRole").With(
+		zap.String("user_id", userID),
+		zap.String("company_id", companyID),
+	)
+	log.Debug("GetUserRole called")
+
+	req := pb.GetUserRoleRequest{
+		UserId:    userID,
+		CompanyId: companyID,
+	}
+	role, err := l.authClient.GetUserRole(ctx, &req)
+	if err != nil {
+		log.Errorw("failed to get user role", "err", err)
+		return nil, err
+	}
+	return role.Role, nil
 }

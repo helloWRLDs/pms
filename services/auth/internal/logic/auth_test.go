@@ -345,3 +345,13 @@ func TestListCompanies(t *testing.T) {
 		})
 	}
 }
+func Test_Login(t *testing.T) {
+	loginRes, err := logic.LoginUser(context.Background(), nil, &dto.UserCredentials{
+		Email:    "IvanIvanov@gmail.com",
+		Password: "IvanIvanov1",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(utils.JSON(loginRes))
+}

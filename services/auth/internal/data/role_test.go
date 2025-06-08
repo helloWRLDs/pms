@@ -15,7 +15,7 @@ import (
 func Test_CreateRole(t *testing.T) {
 	role := roledata.Role{
 		Name: "admin",
-		Persmissions: pq.StringArray{
+		Permissions: pq.StringArray{
 			string(consts.ORG_READ_PERMISSION),
 			string(consts.ORG_WRITE_PERMISSION),
 			string(consts.USER_DELETE_PERMISSION),
@@ -30,7 +30,7 @@ func Test_CreateRole(t *testing.T) {
 func Test_UpdateRole(t *testing.T) {
 	role := roledata.Role{
 		Name: "admin-1",
-		Persmissions: pq.StringArray{
+		Permissions: pq.StringArray{
 			string(consts.ORG_READ_PERMISSION),
 			string(consts.ORG_WRITE_PERMISSION),
 			string(consts.USER_DELETE_PERMISSION),

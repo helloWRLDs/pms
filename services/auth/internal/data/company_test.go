@@ -15,7 +15,7 @@ func Test_ListCompanies(t *testing.T) {
 	list, err := repo.Company.List(context.Background(), &dto.CompanyFilter{
 		Page:        1,
 		PerPage:     10,
-		CompanyName: "AITU",
+		CompanyName: "TEst",
 	})
 	assert.NoError(t, err)
 	t.Log(utils.JSON(list))

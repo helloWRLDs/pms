@@ -163,3 +163,32 @@ func (r *Repository) GetByUserID(ctx context.Context, userID string) (participat
 	}
 	return participations, nil
 }
+
+func (r *Repository) GetByUserAndCompany(ctx context.Context, userID string, companyID string) (participant Participant, err error) {
+	log := r.log.With(
+		zap.String("func", "GetByUserAndCompany"),
+		zap.String("user_id", userID),
+		zap.String("company_id", companyID),
+	)
+	log.Debug("GetByUserAndCompany called")
+
+	defer func() {
+		err = r.errctx.MapSQL(err,
+			errs.WithOperation("get"),
+			errs.WithObject("participant"),
+			errs.WithField("user_id", userID),
+			errs.WithField("company_id", companyID),
+		)
+	}()
+
+	q := `
+	SELECT * FROM "Participant" 
+	WHERE user_id = $1 AND company_id = $2
+	`
+	if err = r.DB.GetContext(ctx, &participant, q, userID, companyID); err != nil {
+		log.Errorw("failed to get participant", "err", err)
+		return Participant{}, err
+	}
+
+	return participant, nil
+}
