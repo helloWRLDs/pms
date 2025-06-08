@@ -28,6 +28,12 @@ service AuthService {
     rpc CompleteOAuth2(CompleteOAuth2Request) returns (CompleteOAuth2Response);
 
     rpc GetUserRole(GetUserRoleRequest) returns (GetUserRoleResponse);
+
+    rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse);
+    rpc GetRole(GetRoleRequest) returns (GetRoleResponse);
+    rpc ListRoles(ListRolesRequest) returns (ListRolesResponse);
+    rpc UpdateRole(UpdateRoleRequest) returns (UpdateRoleResponse);
+    rpc DeleteRole(DeleteRoleRequest) returns (DeleteRoleResponse);
 }
 
 // Company request/response messages
@@ -178,4 +184,53 @@ message GetUserRoleRequest {
 message GetUserRoleResponse {
     bool success = 1;
     models.Role role = 2;
+}
+
+// Role request/response messages
+message CreateRoleRequest {
+    models.NewRole role = 1;
+}
+
+message CreateRoleResponse {
+    bool success = 1;
+    models.Role role = 2;
+}
+
+message GetRoleRequest {
+    string name = 1;
+    string company_id = 2;
+}
+
+message GetRoleResponse {
+    bool success = 1;
+    models.Role role = 2;
+}
+
+message ListRolesRequest {
+    string company_id = 1;
+}
+
+message ListRolesResponse {
+    bool success = 1;
+    repeated models.Role roles = 2;
+}
+
+message UpdateRoleRequest {
+    string name = 1;
+    string company_id = 2;
+    models.Role role = 3;
+}
+
+message UpdateRoleResponse {
+    bool success = 1;
+    models.Role role = 2;
+}
+
+message DeleteRoleRequest {
+    string name = 1;
+    string company_id = 2;
+}
+
+message DeleteRoleResponse {
+    bool success = 1;
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	roledata "pms.auth/internal/data/role"
 	"pms.pkg/consts"
+	"pms.pkg/transport/grpc/dto"
 	"pms.pkg/type/list"
 	"pms.pkg/utils"
 )
@@ -57,12 +58,10 @@ func Test_Count(t *testing.T) {
 }
 
 func Test_ListRoles(t *testing.T) {
-	roles, err := repo.Role.List(context.Background(), roledata.RoleFilter{
-		Pagination: list.Pagination{
-			Page:    1,
-			PerPage: 10,
-		},
-		CompanyID: "8f557202-0853-4672-aafb-a0b6cae7067a",
+	roles, err := repo.Role.List(context.Background(), &dto.RoleFilter{
+		Page:      1,
+		PerPage:   10,
+		CompanyId: "8f557202-0853-4672-aafb-a0b6cae7067a",
 	})
 	assert.NoError(t, err)
 	t.Log(utils.JSON(roles))

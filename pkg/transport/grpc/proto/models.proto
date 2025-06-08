@@ -264,6 +264,17 @@ message ParticipantFilter {
     string order_direction = 9;
 }
 
+message RoleFilter {
+    int32 page = 1;
+    int32 per_page = 2;
+    string company_id = 3;
+    string company_name = 4;
+    string name = 5;
+    string date_from = 6;
+    string date_to = 7;
+    string order_by = 8;
+    string order_direction = 9;
+}
 
 // LISTS
 
