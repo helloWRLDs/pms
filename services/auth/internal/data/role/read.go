@@ -8,6 +8,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"go.uber.org/zap"
 	"pms.pkg/errs"
+	"pms.pkg/transport/grpc/dto"
 	"pms.pkg/type/list"
 )
 
@@ -55,7 +56,7 @@ func (r *Repository) Count(ctx context.Context, filter list.Filters) (count int6
 	return count
 }
 
-func (r *Repository) List(ctx context.Context, filter RoleFilter) (res list.List[Role], err error) {
+func (r *Repository) List(ctx context.Context, filter *dto.RoleFilter) (res list.List[Role], err error) {
 	log := r.log.With(
 		zap.String("func", "List"),
 		zap.Any("filters", filter),
@@ -79,15 +80,21 @@ func (r *Repository) List(ctx context.Context, filter RoleFilter) (res list.List
 		builder = builder.Where(sq.Eq{"c.name": filter.CompanyName})
 	}
 
-	if filter.Date.From != "" {
-		builder = builder.Where(sq.GtOrEq{"c.created_at": filter.Date.From})
+	if filter.DateFrom != "" {
+		builder = builder.Where(sq.GtOrEq{"r.created_at": filter.DateFrom})
 	}
-	if filter.Date.To != "" {
-		builder = builder.Where(sq.LtOrEq{"c.created_at": filter.Date.To})
+	if filter.DateTo != "" {
+		builder = builder.Where(sq.LtOrEq{"r.created_at": filter.DateTo})
 	}
 
-	if filter.CompanyID != "" {
-		builder = builder.Where(sq.Eq{"c.id": filter.CompanyID})
+	if filter.OrderBy != "" {
+		builder = builder.OrderBy(filter.OrderBy)
+	} else {
+		builder = builder.OrderBy("r.created_at DESC")
+	}
+
+	if filter.CompanyId != "" {
+		builder = builder.Where(sq.Eq{"c.id": filter.CompanyId})
 	}
 	if filter.Name != "" {
 		builder = builder.Where(sq.Eq{"r.name": filter.Name})
@@ -99,15 +106,9 @@ func (r *Repository) List(ctx context.Context, filter RoleFilter) (res list.List
 			log.Errorw("failed to count roles", "err", err)
 			return list.List[Role]{}, err
 		}
-		res.Page = filter.Page
-		res.PerPage = filter.PerPage
-		res.TotalPages = (res.TotalItems + filter.PerPage - 1) / filter.PerPage
-	}
-
-	if filter.Order.By != "" {
-		builder = builder.OrderBy(filter.Order.String())
-	} else {
-		builder = builder.OrderBy("c.created_at DESC")
+		res.Page = int(filter.Page)
+		res.PerPage = int(filter.PerPage)
+		res.TotalPages = (res.TotalItems + int(filter.PerPage) - 1) / int(filter.PerPage)
 	}
 
 	if filter.Page <= 0 {
@@ -116,6 +117,7 @@ func (r *Repository) List(ctx context.Context, filter RoleFilter) (res list.List
 	if filter.PerPage <= 0 {
 		filter.PerPage = 10
 	}
+
 	builder = builder.Limit(uint64(filter.PerPage)).Offset(uint64((filter.Page - 1) * filter.PerPage))
 
 	query, args, _ := builder.ToSql()

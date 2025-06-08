@@ -6,7 +6,6 @@ import (
 	"github.com/lib/pq"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"pms.pkg/transport/grpc/dto"
-	"pms.pkg/type/list"
 	"pms.pkg/utils"
 )
 
@@ -28,11 +27,11 @@ func (r *Role) DTO() *dto.Role {
 	}
 }
 
-type RoleFilter struct {
-	list.Pagination
-	list.Date
-	list.Order
-	CompanyID   string `json:"company_id"`
-	CompanyName string `json:"company_name"`
-	Name        string `json:"name"`
-}
+// type RoleFilter struct {
+// 	list.Pagination
+// 	list.Date
+// 	list.Order
+// 	CompanyID   string `json:"company_id"`
+// 	CompanyName string `json:"company_name"`
+// 	Name        string `json:"name"`
+// }

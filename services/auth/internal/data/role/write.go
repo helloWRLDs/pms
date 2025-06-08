@@ -95,3 +95,39 @@ func (r *Repository) Update(ctx context.Context, name string, updated Role) (err
 	}
 	return nil
 }
+
+func (r *Repository) Delete(ctx context.Context, name string) (err error) {
+	log := r.log.With(
+		zap.String("func", "DeleteRole"),
+		zap.String("name", name),
+	)
+	log.Debug("DeleteRole called")
+
+	defer func() {
+		err = r.errctx.MapSQL(err,
+			errs.WithOperation("delete"),
+			errs.WithObject("role"),
+			errs.WithField("name", name),
+		)
+	}()
+
+	tx := transaction.Retrieve(ctx)
+	if tx == nil {
+		ctx, err := transaction.Start(ctx, r.DB)
+		if err != nil {
+			return err
+		}
+		tx = transaction.Retrieve(ctx)
+		defer func() {
+			transaction.End(ctx, err)
+		}()
+	}
+
+	q, a, _ := r.gen.Delete(r.tableName).Where(sq.Eq{"name": name}).ToSql()
+	_, err = tx.Exec(q, a...)
+	if err != nil {
+		log.Errorw("failed to delete role", "err", err)
+		return err
+	}
+	return nil
+}
