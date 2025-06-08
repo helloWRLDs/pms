@@ -21,8 +21,8 @@ func (r *Repository) Count(ctx context.Context, filter list.Filters) (count int6
 
 	builder := r.gen.
 		Select("COUNT(*)").
-		From("Role r").
-		LeftJoin("Company c ON c.id = r.company_id")
+		From("\"Role\" r").
+		LeftJoin("\"Company\" c ON c.id = r.company_id")
 
 	if filter.Date.From != "" {
 		builder = builder.Where(sq.GtOrEq{"r.created_at": filter.Date.From})
@@ -168,7 +168,7 @@ func (r *Repository) GetByName(ctx context.Context, name string) (role Role, err
 		}()
 	}
 
-	q, a, _ := r.gen.Select("*").From("Role").Where(sq.Eq{"name": name}).ToSql()
+	q, a, _ := r.gen.Select("*").From("\"Role\"").Where(sq.Eq{"name": name}).ToSql()
 	if err = tx.QueryRowx(q, a...).StructScan(&role); err != nil {
 		log.Errorw("failed to get role", "err", err)
 		return Role{}, err

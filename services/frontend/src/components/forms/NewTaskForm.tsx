@@ -44,7 +44,7 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
     console.log(newTask);
   }, [newTask]);
 
-  const handleChange = (field: keyof TaskCreation, value: any) => {
+  const handleChange = (field: keyof TaskCreation, value: string | number | { seconds: number }) => {
     setNewTask({ ...newTask, [field]: value });
   };
 
@@ -167,6 +167,8 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
                 value: item.id ?? "",
               })) ?? []),
             ]}
+            value={newTask.sprint_id}
+            onChange={(e) => handleChange("sprint_id", e.currentTarget.value)}
           />
         </Input>
       )}

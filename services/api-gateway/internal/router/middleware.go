@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
+	"pms.pkg/consts"
 	"pms.pkg/errs"
 	"pms.pkg/tools/jwtoken"
 	"pms.pkg/type/claims"
@@ -184,6 +185,61 @@ func (s *Server) SecureHeaders() fiber.Handler {
 		c.Set("X-Frame-Options", "deny")
 		c.Set("X-Content-Type-Options", "nosniff")
 		// c.Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		return c.Next()
+	}
+}
+
+func (s *Server) RequirePermission(permission consts.Permission) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		log := s.log.With(
+			zap.String("func", "RequirePermission"),
+			zap.String("permission", string(permission)),
+		)
+		log.Debug("RequirePermission called")
+
+		session, err := s.Logic.GetSessionInfo(c.UserContext())
+		if err != nil {
+			log.Errorw("failed to get session info", "err", err)
+			return errs.ErrUnauthorized{
+				Reason: "session not found",
+			}
+		}
+
+		companyID := c.Get("X-Company-ID")
+		if companyID == "" {
+			return errs.ErrBadGateway{
+				Object: "company_id",
+			}
+		}
+
+		// Get user's role for this company
+		role, err := s.Logic.GetUserRole(c.UserContext(), session.UserID, companyID)
+		if err != nil {
+			log.Errorw("failed to get user role", "err", err)
+			return errs.ErrUnauthorized{
+				Reason: "failed to get user role",
+			}
+		}
+
+		// Check if role has required permission
+		hasPermission := false
+		for _, p := range role.Permissions {
+			if p == string(permission) {
+				hasPermission = true
+				break
+			}
+		}
+
+		if !hasPermission {
+			log.Errorw("user does not have required permission",
+				"user_id", session.UserID,
+				"role", role.Name,
+				"permission", permission)
+			return errs.ErrUnauthorized{
+				Reason: "insufficient permissions",
+			}
+		}
+
 		return c.Next()
 	}
 }

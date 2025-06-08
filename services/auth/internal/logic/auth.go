@@ -51,6 +51,21 @@ func (l *Logic) LoginUser(ctx context.Context, provider *string, creds *dto.User
 			return nil, err
 		}
 	}
+	payload.User = existingUser.DTO()
+	participations, err := l.Repo.Participant.GetByUserID(ctx, existingUser.ID)
+	if err == nil {
+		payload.User.Permissions = make(map[string]*dto.StringArray)
+		for _, participation := range participations {
+			role, err := l.Repo.Role.GetByName(ctx, participation.Role)
+			if err != nil {
+				continue
+
+			}
+			payload.User.Permissions[participation.CompanyID] = &dto.StringArray{
+				Values: role.Permissions,
+			}
+		}
+	}
 
 	sessionID := uuid.NewString()
 
@@ -71,7 +86,6 @@ func (l *Logic) LoginUser(ctx context.Context, provider *string, creds *dto.User
 	}
 
 	payload.SessionId = sessionID
-	payload.User = existingUser.DTO()
 	payload.AccessToken = accessToken
 	payload.Exp = claims.ExpiresAt.Time.Unix()
 

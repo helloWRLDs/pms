@@ -27,6 +27,10 @@ const (
 	ROLE_WRITE_PERMISSION     Permission = "role:write"
 	ROLE_DELETE_PERMISSION    Permission = "role:delete"
 	ROLE_ADD_PERMISSION       Permission = "role:invite"
+	SPRINT_READ_PERMISSION    Permission = "sprint:read"
+	SPRINT_WRITE_PERMISSION   Permission = "sprint:write"
+	SPRINT_DELETE_PERMISSION  Permission = "sprint:delete"
+	SPRINT_ADD_PERMISSION     Permission = "sprint:invite"
 )
 
 type PermissionSet []Permission

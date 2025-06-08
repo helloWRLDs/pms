@@ -11,17 +11,17 @@ import (
 )
 
 type Role struct {
-	Name         string         `db:"name"`
-	Persmissions pq.StringArray `db:"permissions"`
-	CreatedAt    time.Time      `db:"created_at"`
-	UpdatedAt    *time.Time     `db:"updated_at"`
-	CompanyID    *string        `db:"company_id"`
+	Name        string         `db:"name"`
+	Permissions pq.StringArray `db:"permissions"`
+	CreatedAt   time.Time      `db:"created_at"`
+	UpdatedAt   *time.Time     `db:"updated_at"`
+	CompanyID   *string        `db:"company_id"`
 }
 
 func (r *Role) DTO() *dto.Role {
 	return &dto.Role{
 		Name:        r.Name,
-		Permissions: r.Persmissions,
+		Permissions: r.Permissions,
 		CreatedAt:   timestamppb.New(r.CreatedAt),
 		UpdatedAt:   timestamppb.New(utils.Value(r.UpdatedAt)),
 		CompanyId:   utils.Value(r.CompanyID),

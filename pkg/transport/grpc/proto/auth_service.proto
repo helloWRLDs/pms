@@ -26,6 +26,8 @@ service AuthService {
 
     rpc InitiateOAuth2(InitiateOAuth2Request) returns (InitiateOAuth2Response);
     rpc CompleteOAuth2(CompleteOAuth2Request) returns (CompleteOAuth2Response);
+
+    rpc GetUserRole(GetUserRoleRequest) returns (GetUserRoleResponse);
 }
 
 // Company request/response messages
@@ -166,4 +168,14 @@ message CompleteOAuth2Response {
   bool success = 1;
   models.AuthPayload payload = 2;
   models.User user = 3;
+}
+
+message GetUserRoleRequest {
+    string user_id = 1;
+    string company_id = 2;
+}
+
+message GetUserRoleResponse {
+    bool success = 1;
+    models.Role role = 2;
 }
