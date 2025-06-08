@@ -21,7 +21,6 @@ func (s *ServerGRPC) CreateRole(ctx context.Context, req *pb.CreateRoleRequest) 
 		return nil, status.Error(codes.Internal, "failed to create role")
 	}
 
-	// Get the created role to return in response
 	role, err := s.logic.GetRole(ctx, req.Role.Name)
 	if err != nil {
 		log.Errorw("failed to get created role", "err", err)
@@ -82,7 +81,6 @@ func (s *ServerGRPC) UpdateRole(ctx context.Context, req *pb.UpdateRoleRequest) 
 	)
 	log.Debug("UpdateRole called")
 
-	// Convert dto.Role to dto.NewRole
 	newRole := &dto.NewRole{
 		Name:        req.Role.Name,
 		Permissions: req.Role.Permissions,
@@ -94,7 +92,6 @@ func (s *ServerGRPC) UpdateRole(ctx context.Context, req *pb.UpdateRoleRequest) 
 		return nil, status.Error(codes.Internal, "failed to update role")
 	}
 
-	// Get the updated role to return in response
 	role, err := s.logic.GetRole(ctx, req.Role.Name)
 	if err != nil {
 		log.Errorw("failed to get updated role", "err", err)
