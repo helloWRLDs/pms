@@ -56,16 +56,20 @@ func (l *Logic) LoginUser(ctx context.Context, provider *string, creds *dto.User
 	if err == nil {
 		payload.User.Permissions = make(map[string]*dto.StringArray)
 		for _, participation := range participations {
+			log.Infow("participation check", "company_id", participation.CompanyID, "role", participation.Role)
 			role, err := l.Repo.Role.GetByName(ctx, participation.Role)
 			if err != nil {
+				log.Errorw("failed to get role", "err", err)
 				continue
-
 			}
 			payload.User.Permissions[participation.CompanyID] = &dto.StringArray{
 				Values: role.Permissions,
 			}
 		}
+	} else {
+		log.Errorw("failed to get participations", "err", err)
 	}
+	log.Infow("user permissions", "permissions", payload.User.Permissions)
 
 	sessionID := uuid.NewString()
 

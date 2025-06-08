@@ -29,6 +29,7 @@ func (r *Repository) MigrateAdminRole() error {
 		consts.USER_READ_PERMISSION,
 		consts.USER_WRITE_PERMISSION,
 		consts.USER_DELETE_PERMISSION,
+		consts.USER_ADD_PERMISSION,
 		consts.PROJECT_READ_PERMISSION,
 		consts.PROJECT_WRITE_PERMISSION,
 		consts.PROJECT_DELETE_PERMISSION,
@@ -40,6 +41,10 @@ func (r *Repository) MigrateAdminRole() error {
 		consts.ROLE_WRITE_PERMISSION,
 		consts.ROLE_DELETE_PERMISSION,
 		consts.ROLE_ADD_PERMISSION,
+		consts.SPRINT_READ_PERMISSION,
+		consts.SPRINT_WRITE_PERMISSION,
+		consts.SPRINT_DELETE_PERMISSION,
+		consts.SPRINT_ADD_PERMISSION,
 	}
 
 	q := `

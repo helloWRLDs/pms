@@ -19,6 +19,7 @@ func (l *Logic) ListCompanies(ctx context.Context, filter *dto.CompanyFilter) (*
 		log.Errorw("failed to get session", "err", err)
 		return nil, err
 	}
+	filter.UserId = session.UserID
 	log.Infow("retrieved session", "session", session)
 	companyRes, err := l.authClient.ListCompanies(ctx, &pb.ListCompaniesRequest{
 		Filter: filter,

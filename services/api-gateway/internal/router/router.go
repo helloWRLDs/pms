@@ -35,8 +35,8 @@ func (s *Server) SetupREST() {
 		user.Use(s.RequireAuthService())
 		user.Use(s.Authorize())
 
-		user.Get("/:id", s.RequirePermission(consts.USER_READ_PERMISSION), s.GetUser)
-		user.Get("/", s.RequirePermission(consts.USER_READ_PERMISSION), s.ListUsers)
+		user.Get("/:id", s.GetUser)
+		user.Get("/", s.ListUsers)
 		user.Put("/:id", s.RequirePermission(consts.USER_WRITE_PERMISSION), s.UpdateUser)
 	})
 
@@ -77,11 +77,11 @@ func (s *Server) SetupREST() {
 
 		tasks.Route("/:taskID/assignments", func(assignment fiber.Router) {
 			assignment.Post("/:userID", s.RequirePermission(consts.TASK_ADD_PERMISSION), s.CreateTaskAssignment)
-			assignment.Delete("/:userID", s.RequirePermission(consts.TASK_ADD_PERMISSION), s.DeleteTaskAssignment)
+			assignment.Delete("/:userID", s.RequirePermission(consts.TASK_DELETE_PERMISSION), s.DeleteTaskAssignment)
 		})
 
 		tasks.Route("/:taskID/comments", func(comment fiber.Router) {
-			comment.Get("/", s.RequirePermission(consts.TASK_READ_PERMISSION), s.ListTaskComments)
+			comment.Get("/", s.RequirePermission(consts.TASK_WRITE_PERMISSION), s.ListTaskComments)
 			comment.Post("/", s.RequirePermission(consts.TASK_WRITE_PERMISSION), s.CreateTaskComments)
 		})
 	})

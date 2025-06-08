@@ -19,7 +19,7 @@ export type User = {
     seconds: number;
     nanos: number;
   };
-  permissions?: Record<string, string[]>;
+  permissions?: Record<string, { values: string[] } | string[]>;
 };
 
 export type UserCredentials = Pick<User, "email" | "password">;

@@ -22,12 +22,6 @@ func (s *ServerGRPC) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (r
 	res.Success = true
 	res.Payload = payload
 
-	user, err := s.logic.GetProfile(ctx, payload.User.Id)
-	if err != nil {
-		log.Errorw("failed to get user profile", "err", err)
-		return nil, err
-	}
-	res.Payload.User = user
 	return res, nil
 }
 

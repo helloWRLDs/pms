@@ -205,35 +205,19 @@ func (s *Server) RequirePermission(permission consts.Permission) fiber.Handler {
 			}
 		}
 
-		companyID := c.Get("X-Company-ID")
-		if companyID == "" {
+		if _, ok := c.Locals("company_id").(string); !ok {
+			log.Errorw("company_id not found in context")
 			return errs.ErrBadGateway{
 				Object: "company_id",
 			}
-		}
 
-		// Get user's role for this company
-		role, err := s.Logic.GetUserRole(c.UserContext(), session.UserID, companyID)
-		if err != nil {
-			log.Errorw("failed to get user role", "err", err)
-			return errs.ErrUnauthorized{
-				Reason: "failed to get user role",
-			}
 		}
+		companyID := c.Locals("company_id").(string)
 
-		// Check if role has required permission
-		hasPermission := false
-		for _, p := range role.Permissions {
-			if p == string(permission) {
-				hasPermission = true
-				break
-			}
-		}
-
-		if !hasPermission {
+		if !utils.ContainsInArray(session.Permissions[companyID], permission) {
 			log.Errorw("user does not have required permission",
 				"user_id", session.UserID,
-				"role", role.Name,
+				"company_id", companyID,
 				"permission", permission)
 			return errs.ErrUnauthorized{
 				Reason: "insufficient permissions",
