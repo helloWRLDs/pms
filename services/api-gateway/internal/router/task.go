@@ -127,6 +127,13 @@ func (s *Server) DeleteTask(c *fiber.Ctx) error {
 		}
 	}
 
+	log.Infow("deleting task", "task_id", taskID)
+
+	if err := s.Logic.DeleteTask(c.UserContext(), taskID); err != nil {
+		log.Errorw("failed to delete task", "err", err)
+		return err
+	}
+
 	return c.SendStatus(200)
 }
 

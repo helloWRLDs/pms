@@ -1,7 +1,6 @@
 import { useState, ReactNode, FC } from "react";
 import { IoClose, IoMenu } from "react-icons/io5";
 import { FiChevronDown, FiChevronRight } from "react-icons/fi";
-import { SideBarItem } from "../../lib/ui/sidebar";
 
 interface SideBarProps {
   logo?: {
@@ -35,7 +34,6 @@ const SideBarDropdown: FC<SideBarDropdownProps> = ({
   onClick,
   className = "",
   isActive,
-  isOpen,
   defaultOpen = false,
   badge,
   label,
@@ -99,21 +97,37 @@ const SideBarElement: FC<SideBarElementProps> = ({
   level = 0,
 }) => {
   return (
-    <button
-      onClick={onClick}
-      className={`
-        w-full flex items-center gap-3 px-4 py-2.5
-        text-white/80 hover:text-white
-        bg-[var(--color-primary-400)] hover:bg-[var(--color-primary-300)] active:bg-[var(--color-primary-200)]
-        transition-all duration-200 rounded-lg
-        ${isActive ? "bg-[var(--color-primary-200)] text-white" : ""}
-        ${level > 0 ? "ml-4" : ""}
-        ${className}
-      `}
-    >
-      {icon}
-      <span className="text-sm font-medium">{children}</span>
-    </button>
+    <div className="relative">
+      {/* L-shaped connector using absolute positioning */}
+      {level > 0 && (
+        <div className={`absolute left-0 top-0 w-6 h-6 pointer-events-none`}>
+          {/* Vertical line (top part of L) */}
+          <div className={`absolute left-3 top-0 w-px h-3 bg-white/30`} />
+          {/* Horizontal line (bottom part of L) */}
+          <div
+            className={`absolute left-3 top-3 w-[${
+              level * 3
+            }px] h-px bg-white/30`}
+          />
+        </div>
+      )}
+
+      <button
+        onClick={onClick}
+        className={`
+          w-full flex items-center gap-3 px-4 py-2.5
+          text-white/80 hover:text-white
+          bg-[var(--color-primary-400)] hover:bg-[var(--color-primary-300)] active:bg-[var(--color-primary-200)]
+          transition-all duration-200 rounded-lg
+          ${isActive ? "bg-[var(--color-primary-200)] text-white" : ""}
+          ${level > 0 ? "ml-6" : ""}
+          ${className}
+        `}
+      >
+        {icon}
+        <span className="text-sm font-medium">{children}</span>
+      </button>
+    </div>
   );
 };
 
@@ -123,10 +137,18 @@ const SideBar: FC<SideBarProps> & {
 } = ({ logo, children, className = "" }) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
   return (
     <>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggle}
         className="fixed top-4 left-4 z-50 p-2.5 bg-[var(--color-accent-400)] text-white shadow-lg rounded-lg lg:hidden hover:bg-[var(--color-accent-300)] transition-colors duration-200"
         aria-label="Toggle Menu"
       >
@@ -142,7 +164,7 @@ const SideBar: FC<SideBarProps> & {
         className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-30 transition-opacity duration-300 lg:hidden ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
-        onClick={() => setIsOpen(false)}
+        onClick={handleClose}
       />
 
       <aside
@@ -168,7 +190,11 @@ const SideBar: FC<SideBarProps> & {
             </a>
           </div>
         )}
-        <nav className="flex flex-col h-[calc(100vh-4rem)] overflow-y-auto p-3 space-y-1">
+        <nav
+          className={`flex flex-col h-[calc(100vh-4rem)] overflow-y-auto p-3 space-y-1 ${
+            isOpen ? "block" : "hidden lg:block"
+          }`}
+        >
           {children}
         </nav>
       </aside>

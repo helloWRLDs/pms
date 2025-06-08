@@ -133,3 +133,45 @@ func (l *Logic) ListTasks(ctx context.Context, filter *dto.TaskFilter) (result l
 
 	return result, nil
 }
+
+func (l *Logic) DeleteTask(ctx context.Context, id string) (err error) {
+	log := l.log.With(
+		zap.String("func", "DeleteTask"),
+		zap.String("id", id),
+	)
+	log.Debug("DeleteTask called")
+
+	tx, err := l.Repo.StartTx(ctx)
+	if err != nil {
+		log.Errorw("failed to start tx", "err", err)
+		return err
+	}
+	defer func() {
+		l.Repo.EndTx(tx, err)
+	}()
+
+	if assignment, err := l.Repo.TaskAssignment.GetByTask(tx, id); err == nil {
+		if err = l.Repo.TaskAssignment.Delete(tx, *assignment); err != nil {
+			log.Errorw("failed to delete task assignment", "err", err)
+			return err
+		}
+	}
+
+	if comments, err := l.Repo.TaskComment.List(tx, &dto.TaskCommentFilter{
+		TaskId: id,
+	}); err == nil {
+		for _, comment := range comments.Items {
+			if err = l.Repo.TaskComment.Delete(tx, comment.ID); err != nil {
+				log.Errorw("failed to delete task comment", "err", err)
+				return err
+			}
+		}
+	}
+
+	if err = l.Repo.Task.Delete(tx, id); err != nil {
+		log.Errorw("failed to delete task", "err", err)
+		return err
+	}
+
+	return nil
+}

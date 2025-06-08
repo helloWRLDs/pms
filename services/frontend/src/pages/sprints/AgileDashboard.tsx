@@ -3,8 +3,6 @@ import DashboardDndKit from "../../components/dashboard/DashboardDndKit";
 import { usePageSettings } from "../../hooks/usePageSettings";
 import { useNavigate, useParams } from "react-router-dom";
 import { Modal } from "../../components/ui/Modal";
-import { useQuery } from "@tanstack/react-query";
-import sprintAPI from "../../api/sprintAPI";
 
 const AgileDashboard: FC = () => {
   usePageSettings({ requireAuth: true, title: "Agile Dashboard" });
@@ -14,19 +12,14 @@ const AgileDashboard: FC = () => {
   const [manageTasksModal, setManageTasksModal] = useState(false);
 
   const sprintID = useParams().sprintID;
-
-  const { data: sprint, isLoading: isSprintLoading } = useQuery({
-    queryKey: ["sprints", sprintID],
-    queryFn: () => sprintAPI.get(sprintID ?? ""),
-    enabled: !!sprintID,
-  });
+  console.log(sprintID);
 
   useEffect(() => {
-    if (!sprintID || isSprintLoading) {
+    if (!sprintID) {
       navigate("/sprints");
       return;
     }
-  }, [navigate, sprintID, isSprintLoading]);
+  }, [navigate, sprintID]);
 
   return (
     <div className="w-full flex flex-col p-4 bg-primary-600 text-neutral-100">

@@ -182,7 +182,6 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
               className="w-full px-4 py-2 bg-secondary-100 cursor-pointer text-neutral-200 hover:bg-accent-500 hover:text-secondary-100 transition-colors"
               onClick={async () => {
                 try {
-                  
                   await taskAPI.assign(task.id, assignee.id);
                 } catch (e) {
                   console.error(e);
@@ -203,7 +202,9 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
         onClose={() => setAddSprintDropDown(false)}
         className="z-50"
       >
-        {sprints && sprints.items && sprints.items.length > 0 && 
+        {sprints &&
+          sprints.items &&
+          sprints.items.length > 0 &&
           sprints.items.map((sprint) => (
             <DropDownList.Element
               key={sprint.id}
@@ -295,11 +296,21 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
                     className="bg-secondary-400/5 border border-secondary-200/20 rounded-lg p-3 hover:bg-secondary-400/10 transition-colors"
                   >
                     <div className="flex items-center gap-2 mb-2">
-                      <img
-                        src={`data:image/jpeg;base64,${comment.user.avatar_img}`}
-                        alt={`${comment.user.first_name}'s avatar`}
-                        className="w-8 h-8 rounded-full bg-neutral-300 ring-2 ring-secondary-200/30"
-                      />
+                      {comment.user.avatar_url ? (
+                        <img
+                          src={comment.user.avatar_url}
+                          alt=""
+                          className="w-8 h-8 rounded-full bg-neutral-300 ring-2 ring-secondary-200/30"
+                        />
+                      ) : comment.user.avatar_img ? (
+                        <img
+                          src={`data:image/jpeg;base64,${comment.user.avatar_img}`}
+                          alt={`${comment.user.first_name}'s avatar`}
+                          className="w-8 h-8 rounded-full bg-neutral-300 ring-2 ring-secondary-200/30"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-neutral-300 ring-2 ring-secondary-200/30"></div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <div className="text-xs font-semibold text-neutral-200 truncate">
                           {comment.user.first_name} {comment.user.last_name}

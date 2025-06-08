@@ -4,6 +4,7 @@ import authAPI from "../api/authAPI";
 import projectAPI from "../api/projectsAPI";
 import companyAPI from "../api/company";
 import { Company } from "../lib/company/company";
+import { useAuthStore } from "../store/authStore";
 
 const useCompanyList = () => {
   const {
@@ -42,6 +43,7 @@ const useCompanyList = () => {
 };
 
 const useProjectList = (companyID: string) => {
+  const { isAuthenticated } = useAuthStore();
   const {
     data: projects,
     isLoading: isLoadingProjects,
@@ -55,7 +57,7 @@ const useProjectList = (companyID: string) => {
         page: 1,
         per_page: 1000,
       }),
-    enabled: !!companyID,
+    enabled: !!companyID && isAuthenticated(),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -80,6 +82,8 @@ const useProjectList = (companyID: string) => {
 };
 
 const useSprintList = (projectID: string) => {
+  const { isAuthenticated } = useAuthStore();
+  const isLoggedIn = isAuthenticated();
   const {
     data: sprints,
     isLoading: isLoadingSprints,
@@ -93,7 +97,7 @@ const useSprintList = (projectID: string) => {
         page: 1,
         per_page: 1000,
       }),
-    enabled: !!projectID,
+    enabled: !!projectID && isLoggedIn,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,

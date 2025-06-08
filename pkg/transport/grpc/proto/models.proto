@@ -146,6 +146,13 @@ message UserTaskStats {
     map<string, TaskStats> stats = 4;
 }
 
+message Event {
+    string id = 1;
+    string body = 2;
+    string company_id = 3;
+    string date = 4;
+}
+
 // FILTERS
 
 message DocumentFilter {

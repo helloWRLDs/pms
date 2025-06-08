@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SprintCreation } from "../../lib/sprint/sprint";
-import { useProjectStore } from "../../store/selectedProjectStore";
+import useMetaCache from "../../store/useMetaCache";
 import Input from "../ui/Input";
 import { errorToast, infoToast } from "../../lib/utils/toast";
 
@@ -14,7 +14,7 @@ const NewSprintForm = ({
   className,
   ...props
 }: NewSprintFormProps) => {
-  const { project: selectedProject } = useProjectStore();
+  const metaCache = useMetaCache();
 
   const NULL_SPRINT: SprintCreation = {
     title: "",
@@ -25,7 +25,7 @@ const NewSprintForm = ({
     end_date: {
       seconds: new Date().getTime() / 1000,
     },
-    project_id: selectedProject?.id ?? "",
+    project_id: metaCache.metadata.selectedProject?.id ?? "",
     tasks: [],
   };
 

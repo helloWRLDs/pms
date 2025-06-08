@@ -7,10 +7,10 @@ import { Modal } from "../../components/ui/Modal";
 import NewProjectForm from "../../components/forms/NewProjectForm";
 import { useNavigate } from "react-router-dom";
 import { usePageSettings } from "../../hooks/usePageSettings";
-import { Layouts } from "../../lib/layout/layout";    
+import { Layouts } from "../../lib/layout/layout";
 import authAPI from "../../api/authAPI";
 import Paginator from "../../components/ui/Paginator";
-import { BsFillPlusCircleFill } from "react-icons/bs";
+import { BsFillPlusCircleFill, BsThreeDotsVertical } from "react-icons/bs";
 import projectAPI from "../../api/projectsAPI";
 import Table from "../../components/ui/Table";
 import { UserFilter, User } from "../../lib/user/user";
@@ -20,6 +20,8 @@ import useMetaCache from "../../store/useMetaCache";
 import { Profile } from "../../components/profile/Profile";
 import { useAssigneeList } from "../../hooks/useSprintList";
 import { formatTime } from "../../lib/utils/time";
+import { ContextMenu } from "../../components/ui/ContextMenu";
+import { TbTrash } from "react-icons/tb";
 
 const CompanyOverviewPage = () => {
   usePageSettings({
@@ -36,10 +38,7 @@ const CompanyOverviewPage = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
-  const {
-    data: company,
-    
-  } = useQuery({
+  const { data: company } = useQuery({
     queryKey: ["company", metaCache.metadata.selectedCompany?.id],
     queryFn: () => companyAPI.get(metaCache.metadata.selectedCompany?.id ?? ""),
     enabled: !!metaCache.metadata.selectedCompany?.id,
@@ -67,11 +66,7 @@ const CompanyOverviewPage = () => {
   });
   console.log("selected company", company);
 
-  const {
-    data: users,
-   
-    refetch: usersRefetch,
-  } = useQuery({
+  const { data: users, refetch: usersRefetch } = useQuery({
     queryKey: [
       "users",
       userFilter.page,
@@ -93,7 +88,7 @@ const CompanyOverviewPage = () => {
   );
 
   return (
-    <div className="w-full h-[100lvh] px-5 py-10 bg-primary-600 text-neutral-100 ">
+    <div className="w-full h-[100lvh] px-5 py-10 bg-gradient-to-br from-primary-700 to-primary-600 text-neutral-100 ">
       <section>
         <Modal
           title="Create new project"
@@ -128,10 +123,11 @@ const CompanyOverviewPage = () => {
                 if (company?.id) {
                   await companyAPI.addParticipant(company.id, userID);
                   infoToast("user added");
-                  usersRefetch();
                 }
               } catch (e) {
                 console.error(e);
+              } finally {
+                await usersRefetch();
               }
             }}
           />
@@ -176,8 +172,6 @@ const CompanyOverviewPage = () => {
           <ProjectCardWrapper className="w-full flex-wrap">
             {isProjectsLoading ? (
               <p>Loading...</p>
-            ) : projects?.total_items === 0 ? (
-              <p>No projects found.</p>
             ) : (
               projects?.items?.map((project, i) => (
                 <ProjectCardWrapper.Card
@@ -220,6 +214,7 @@ const CompanyOverviewPage = () => {
               <Table.HeadCell>Name</Table.HeadCell>
               <Table.HeadCell>Email</Table.HeadCell>
               <Table.HeadCell>Joined</Table.HeadCell>
+              <Table.HeadCell></Table.HeadCell>
             </Table.Head>
             <Table.Body>
               {assignees?.items?.map((assignee, index) => (
@@ -250,6 +245,30 @@ const CompanyOverviewPage = () => {
                   <Table.Cell>{assignee.email}</Table.Cell>
                   <Table.Cell>
                     {formatTime(assignee.created_at.seconds)}
+                  </Table.Cell>
+                  <Table.Cell>
+                    <ContextMenu
+                      placement="left"
+                      items={[
+                        {
+                          icon: <TbTrash />,
+                          label: "Delete",
+                          onClick: async () => {
+                            try {
+                              await companyAPI.removeParticipant(
+                                company?.id ?? "",
+                                assignee.id
+                              );
+                              infoToast("user removed");
+                            } catch (e) {
+                              console.error(e);
+                            } finally {
+                              await usersRefetch();
+                            }
+                          },
+                        },
+                      ]}
+                    />
                   </Table.Cell>
                 </Table.Row>
               ))}

@@ -22,6 +22,7 @@ import {
   BsFilter,
   BsTable,
   BsGrid,
+  BsTrash,
 } from "react-icons/bs";
 import { FiCalendar, FiUser } from "react-icons/fi";
 import { ListItems } from "../lib/utils/list";
@@ -33,6 +34,7 @@ import { getTaskTypeConfig, TaskType, TaskTypes } from "../lib/task/tasktype";
 import { useSprintList, useAssigneeList } from "../hooks/useSprintList";
 import FilterButton from "../components/ui/button/FilterButton";
 import TaskCard from "../components/task/TaskCard";
+import { ContextMenu } from "../components/ui/ContextMenu";
 
 type ViewMode = "table" | "cards";
 
@@ -148,7 +150,7 @@ const BacklogPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-primary-600 text-neutral-100">
+    <div className="min-h-screen bg-gradient-to-br from-primary-700 to-primary-600 text-neutral-100">
       {/* Header Section */}
       <div className="px-6 py-8">
         <div className="max-w-7xl mx-auto">
@@ -315,10 +317,10 @@ const BacklogPage = () => {
             </div>
           ) : (
             <div className="mb-8 bg-secondary-200 rounded-lg overflow-hidden shadow-lg">
-              <div className="overflow-x-auto">
+              <div className="min-h-[50vh] overflow-x-auto">
                 <table className="w-full border-collapse rounded-lg overflow-hidden">
                   <Table.Head className="bg-primary-400 text-neutral-100 sticky top-0 z-10">
-                    <tr>
+                    <Table.Row>
                       <Table.HeadCell className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide w-[8%] border-r border-primary-300">
                         ID
                       </Table.HeadCell>
@@ -343,7 +345,8 @@ const BacklogPage = () => {
                       <Table.HeadCell className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide w-[15%]">
                         Due Date
                       </Table.HeadCell>
-                    </tr>
+                      <Table.HeadCell className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wide w-[15%]"></Table.HeadCell>
+                    </Table.Row>
                   </Table.Head>
                   <Table.Body className="divide-y divide-secondary-100">
                     {isLoading ? (
@@ -378,6 +381,7 @@ const BacklogPage = () => {
                             <Table.Cell className="px-6 py-4">
                               <div className="h-4 bg-secondary-100 rounded w-28"></div>
                             </Table.Cell>
+                            <Table.Cell className="px-6 py-4"></Table.Cell>
                           </Table.Row>
                         ))
                     ) : !taskList?.items || taskList.items.length === 0 ? (
@@ -493,6 +497,26 @@ const BacklogPage = () => {
                                 <span>{formatTime(task.due_date.seconds)}</span>
                               </div>
                             </Table.Cell>
+                            <Table.Cell className="px-6 py-4">
+                              <ContextMenu
+                                items={[
+                                  {
+                                    label: "Delete",
+                                    icon: <BsTrash />,
+                                    onClick: async () => {
+                                      try {
+                                        await taskAPI.delete(task.id);
+                                        infoToast("Task deleted successfully");
+                                        refetchTasks();
+                                      } catch (error) {
+                                        errorToast("Failed to delete task");
+                                        console.error(error);
+                                      }
+                                    },
+                                  },
+                                ]}
+                              />
+                            </Table.Cell>
                           </Table.Row>
                         );
                       })
@@ -525,6 +549,7 @@ const BacklogPage = () => {
         visible={taskViewModal}
         onClose={() => setTaskViewModal(false)}
         className="bg-secondary-300"
+        size="2xl"
       >
         {task && <TaskView refetchTasks={refetchTasks} task={task} />}
       </Modal>

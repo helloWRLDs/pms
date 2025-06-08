@@ -25,6 +25,12 @@ class CompanyAPI extends API {
     );
   }
 
+  async removeParticipant(companyID: string, userID: string): Promise<void> {
+    await this.req.delete(
+      `${this.baseURL}/companies/${companyID}/participants/${userID}`
+    );
+  }
+
   async create(creation: CompanyCreation): Promise<void> {
     try {
       await this.req.post(`${this.baseURL}/companies`, creation);

@@ -13,6 +13,7 @@ import (
 	"pms.pkg/errs"
 	"pms.pkg/transport/grpc/dto"
 	"pms.pkg/transport/ws"
+	"pms.pkg/utils"
 )
 
 func (s *Server) StreamDocument(c *websocket.Conn) {
@@ -118,20 +119,25 @@ func (s *Server) StreamSprint(c *websocket.Conn) {
 		err error
 	)
 
-	log.Infow("trying to list tasks", "sprint_id", sprintID)
-	tasks, err := s.Logic.ListTasks(context.Background(), &dto.TaskFilter{
-		SprintId: sprintID,
-		// AssigneeId: c.Query("assignee_id"),
-		Page:    1,
-		PerPage: 10000,
-	})
+	taskQueue, err := s.Logic.TaskQueue.Get(context.Background(), hubID)
 	if err != nil {
-		log.Errorw("failed to fetch tasks", "err", err)
-		return
-	} else {
-		log.Infow("fetched tasks", "tasks", tasks)
-		c.WriteJSON(tasks.Items)
+		tasks, err := s.Logic.ListTasks(context.Background(), &dto.TaskFilter{
+			SprintId: sprintID,
+			Page:     1,
+			PerPage:  10000,
+		})
+		if err != nil {
+			log.Errorw("failed to fetch tasks", "err", err)
+			return
+		}
+		taskQueue.Tasks = make(map[string]*dto.Task)
+		for _, task := range tasks.Items {
+			taskQueue.Tasks[task.Id] = task
+		}
+		s.Logic.TaskQueue.Set(context.Background(), hubID, taskQueue, 24)
 	}
+
+	c.WriteJSON(utils.MapToArray(taskQueue.Tasks))
 
 	for {
 		mt, msg, err = c.ReadMessage()
@@ -146,9 +152,21 @@ func (s *Server) StreamSprint(c *websocket.Conn) {
 			if err := json.Unmarshal(msg, task); err != nil {
 				log.Errorw("failed to resolve response")
 			} else {
-				s.Logic.TaskQueue.Rpush(context.Background(), hubID, models.TaskQueueElement{
-					Value: task,
-				})
+				taskQueue, err := s.Logic.TaskQueue.Get(context.Background(), hubID)
+				if err != nil {
+					log.Errorw("failed to get task queue", "err", err)
+					return
+				}
+				taskQueue.Tasks[task.Id] = task
+				taskQueue.TasksToUpdate = append(taskQueue.TasksToUpdate, task)
+				s.Logic.TaskQueue.Set(context.Background(), hubID, taskQueue, 24)
+				msg, err := json.Marshal(utils.MapToArray(taskQueue.Tasks))
+				if err != nil {
+					log.Errorw("failed marshaling trask list", "err", err)
+					return
+				}
+				log.Debug("broadcasting to all connected clients")
+				s.Logic.WsHubs[hubID].Broadcast(msg)
 			}
 		}
 	}

@@ -95,7 +95,7 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
           onChange={(e) => handleChange("type", e.currentTarget.value)}
         />
       </Input>
-      
+
       <Input>
         <Input.Element
           type="select"

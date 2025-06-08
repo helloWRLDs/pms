@@ -55,6 +55,23 @@ func (l *Logic) CreateTask(ctx context.Context, creation *dto.TaskCreation) (err
 	return nil
 }
 
+func (l *Logic) DeleteTask(ctx context.Context, taskID string) (err error) {
+	log := l.log.With(
+		zap.String("func", "DeleteTask"),
+		zap.String("task_id", taskID),
+	)
+	log.Debug("DeleteTask called")
+
+	res, err := l.projectClient.DeleteTask(ctx, &pb.DeleteTaskRequest{Id: taskID})
+	if err != nil {
+		log.Errorw("failed to delete task", "err", err)
+		return err
+	}
+	log.Debug("task deleted", "res", res)
+
+	return nil
+}
+
 func (l *Logic) UpdateTask(ctx context.Context, taskID string, task *dto.Task) (err error) {
 	log := l.log.With(
 		zap.String("func", "UpdateTask"),

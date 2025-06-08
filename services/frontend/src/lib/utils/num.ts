@@ -1,3 +1,8 @@
+/**
+ * Returns the safe number of a value
+ * @param value - The value to get the safe number of
+ * @returns The safe number of the value
+ */
 export const safeNumber = (value: number | undefined | null): number => {
   if (value === undefined || value === null || isNaN(value)) {
     return 0;
@@ -5,6 +10,12 @@ export const safeNumber = (value: number | undefined | null): number => {
   return value;
 };
 
+/**
+ * Returns the safe percentage of a numerator and denominator
+ * @param numerator - The numerator of the percentage
+ * @param denominator - The denominator of the percentage
+ * @returns The safe percentage of the numerator and denominator
+ */
 export const safePercentage = (
   numerator: number,
   denominator: number

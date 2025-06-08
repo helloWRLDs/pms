@@ -90,3 +90,19 @@ func (s *ServerGRPC) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest) 
 	res.Success = true
 	return res, nil
 }
+
+func (s *ServerGRPC) DeleteTask(ctx context.Context, req *pb.DeleteTaskRequest) (res *pb.DeleteTaskResponse, err error) {
+	defer func() {
+		err = errs.WrapGRPC(err)
+	}()
+
+	res = new(pb.DeleteTaskResponse)
+	res.Success = false
+
+	if err = s.logic.DeleteTask(ctx, req.Id); err != nil {
+		return res, err
+	}
+
+	res.Success = true
+	return res, nil
+}

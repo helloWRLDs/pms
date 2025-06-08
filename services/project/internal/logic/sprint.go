@@ -82,6 +82,16 @@ func (l *Logic) ListSprints(ctx context.Context, filter *dto.SprintFilter) (res 
 
 	for _, s := range sprints.Items {
 		dtoSprint := s.DTO()
+		tasks, err := l.Repo.Task.List(ctx, &dto.TaskFilter{
+			SprintId: s.ID,
+			Page:     1,
+			PerPage:  10000,
+		})
+		if err == nil {
+			for _, t := range tasks.Items {
+				dtoSprint.Tasks = append(dtoSprint.Tasks, t.DTO())
+			}
+		}
 		res.Items = append(res.Items, dtoSprint)
 	}
 	res.TotalItems = sprints.TotalItems

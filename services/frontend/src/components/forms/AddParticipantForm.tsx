@@ -41,22 +41,15 @@ const AddParticipantForm = ({
       const res = await authAPI.listUsers(filter);
       if (res && res.items && res.total_items !== 0) {
         onFinish(res.items[0].id);
-        setSuccess(`Successfully added ${filter.user_email}`);
+        setSuccess(`Successfully added ${res.items[0].email}`);
         setFilter({ ...filter, user_email: "" });
       } else {
         setError("User not found with this email address");
       }
     } catch (err) {
-      console.error(err);
       setError("Failed to add participant. Please try again.");
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleAddParticipant();
     }
   };
 
@@ -93,7 +86,6 @@ const AddParticipantForm = ({
                   setError(null);
                   setSuccess(null);
                 }}
-                onKeyPress={handleKeyPress}
                 className="bg-white/10 border-white/20 text-white placeholder-white/50 focus:border-accent-500 focus:ring-accent-500/20"
                 disabled={isLoading}
               />

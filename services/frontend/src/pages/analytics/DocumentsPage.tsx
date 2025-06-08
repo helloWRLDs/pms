@@ -12,7 +12,10 @@ import Table from "../../components/ui/Table";
 import { useNavigate } from "react-router-dom";
 import Paginator from "../../components/ui/Paginator";
 import { SlOptionsVertical } from "react-icons/sl";
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import {
+  ContextMenu,
+  ContextMenuItemProps,
+} from "../../components/ui/ContextMenu";
 import {
   BsDownload,
   BsFillPlusCircleFill,
@@ -104,7 +107,7 @@ const DocumentsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-primary-600 text-neutral-100">
+    <div className="min-h-screen bg-gradient-to-br from-primary-700 to-primary-600 text-neutral-100">
       <div className="px-6 py-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
@@ -260,48 +263,28 @@ const DocumentsPage = () => {
                             : "Unknown"}
                         </Table.Cell>
                         <Table.Cell className="px-6 py-4">
-                          <Menu>
-                            <MenuButton
-                              className="p-2 rounded-md text-neutral-300 hover:text-accent-400 hover:bg-secondary-100 transition-all"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <SlOptionsVertical size={16} />
-                            </MenuButton>
-                            <MenuItems className="absolute right-0 mt-1 w-48 bg-secondary-100 rounded-lg shadow-xl border border-secondary-50 py-1 z-20">
-                              <MenuItem>
-                                {({ active }) => (
-                                  <button
-                                    className={`${
-                                      active ? "bg-secondary-200" : ""
-                                    } flex items-center w-full px-4 py-2 text-sm text-neutral-100 gap-3 transition-colors`}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      navigate(`/documents/${doc.id}`);
-                                    }}
-                                  >
-                                    <MdOpenInNew className="text-accent-500" />
-                                    Open Document
-                                  </button>
-                                )}
-                              </MenuItem>
-                              <MenuItem>
-                                {({ active }) => (
-                                  <button
-                                    className={`${
-                                      active ? "bg-secondary-200" : ""
-                                    } flex items-center w-full px-4 py-2 text-sm text-neutral-100 gap-3 transition-colors`}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDownloadDocument(doc);
-                                    }}
-                                  >
-                                    <BsDownload className="text-accent-500" />
-                                    Download PDF
-                                  </button>
-                                )}
-                              </MenuItem>
-                            </MenuItems>
-                          </Menu>
+                          <ContextMenu
+                            // placement="right"
+                            trigger={<SlOptionsVertical size={16} />}
+                            items={[
+                              {
+                                icon: <MdOpenInNew />,
+                                label: "Open Document",
+                                onClick: (e) => {
+                                  e.stopPropagation();
+                                  navigate(`/documents/${doc.id}`);
+                                },
+                              },
+                              {
+                                icon: <BsDownload />,
+                                label: "Download PDF",
+                                onClick: (e) => {
+                                  e.stopPropagation();
+                                  handleDownloadDocument(doc);
+                                },
+                              },
+                            ]}
+                          />
                         </Table.Cell>
                       </Table.Row>
                     ))

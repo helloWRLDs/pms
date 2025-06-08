@@ -26,7 +26,7 @@ export const useAuthStore = create<AuthStore>()(
           return false;
         }
         const decoded = jwtDecode(auth.access_token);
-        if (!decoded.exp || decoded.exp > Date.now()) {
+        if (!decoded.exp || decoded.exp * 1000 < Date.now()) {
           set({ auth: null });
           return false;
         }

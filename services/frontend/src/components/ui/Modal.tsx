@@ -2,7 +2,7 @@ import { IoCloseSharp } from "react-icons/io5";
 import { useOutsideClick } from "../../hooks/useModal";
 import { useEffect } from "react";
 
-type ModalSize = "sm" | "md" | "lg" | "xl" | "full";
+type ModalSize = "sm" | "md" | "lg" | "xl" | "2xl" | "full";
 
 type ModalProps = React.HTMLAttributes<HTMLDivElement> & {
   onClose: () => void;
@@ -24,6 +24,7 @@ const sizeClasses: Record<ModalSize, string> = {
   md: "max-w-lg",
   lg: "max-w-2xl",
   xl: "max-w-4xl",
+  "2xl": "max-w-6xl",
   full: "max-w-full m-4",
 };
 

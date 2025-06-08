@@ -1,4 +1,4 @@
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import TestPage from "./TestPage";
 import HomePage from "./HomePage";
 import AgileDashboard from "./sprints/AgileDashboard";
@@ -7,186 +7,102 @@ import RegisterPage from "./auth/RegisterPage";
 import ProfilePage from "./auth/ProfilePage";
 import CompaniesPage from "./company/CompaniesPage";
 import BacklogPage from "./BacklogPage";
-import { MdOutlineLogin } from "react-icons/md";
-import { PiUserCirclePlusLight } from "react-icons/pi";
-import { IoIosLogOut } from "react-icons/io";
 import { useAuthStore } from "../store/authStore";
-import { useCallback, useMemo, useEffect } from "react";
+import { useEffect } from "react";
 import CompanyOverviewPage from "./company/CompanyOverview";
 import TestPage1 from "./TestPage1";
 import SprintsPage from "./sprints/SprintsPage";
 import DocumentsPage from "./analytics/DocumentsPage";
 import DocumentPage from "./analytics/DocumentPage";
-import { RiProfileLine } from "react-icons/ri";
-import TreeView, { TreeNode } from "../components/ui/TreeView";
-import useNavigationTree from "../hooks/useNavigationTree";
 import AnalyticsPage from "./analytics/AnalyticsPage";
 import OAuthCallback from "../components/auth/OAuthCallback";
 import useMetaCache from "../store/useMetaCache";
+import CalendarPage from "./calendar/CalendarPage";
+import ChatPage from "./ChatPage";
+import Breadcrumb from "../components/ui/Breadcrumb";
+import { useBreadcrumb } from "../hooks/useBreadcrumb";
+import SideBar from "../components/ui/SideBar";
+import { useSideBar } from "../hooks/useSideBar";
 
 const Main = () => {
-  const navigate = useNavigate();
-  const { isAuthenticated, clearAuth, auth } = useAuthStore();
+  const { auth, isAuthenticated } = useAuthStore();
   const metaCache = useMetaCache();
+  const { breadcrumbItems } = useBreadcrumb();
+  const { sideBarSections } = useSideBar();
 
-  // Check for user changes on auth state update
   useEffect(() => {
-    if (auth?.user?.id) {
-      metaCache.checkUserAndClearIfDifferent(auth.user.id);
+    const currentUserId = auth?.user?.id;
+    if (currentUserId && metaCache.metadata.currentUserId !== currentUserId) {
+      metaCache.clearCache();
+      metaCache.setCurrentUser(currentUserId);
     }
-  }, [auth?.user?.id]);
-
-  const handleLogout = useCallback(() => {
-    console.log("🚪 Logging out user:", auth?.user?.email);
-
-    // Clear authentication state
-    clearAuth();
-
-    // Clear meta cache
-    metaCache.clearCache();
-
-    // Clear all localStorage data
-    try {
-      // Clear specific application keys
-      const keysToRemove = [
-        "auth-store",
-        "meta-cache",
-        "selected-company",
-        "selected-project",
-        "user-session",
-        "access-token",
-        "refresh-token",
-      ];
-
-      keysToRemove.forEach((key) => {
-        localStorage.removeItem(key);
-        sessionStorage.removeItem(key);
-      });
-
-      // Clear all localStorage and sessionStorage as fallback
-      localStorage.clear();
-      sessionStorage.clear();
-
-      console.log("🧹 Storage cleared successfully");
-    } catch (error) {
-      console.error("❌ Error clearing storage:", error);
-    }
-
-    // Navigate to login page
-    navigate("/login");
-
-    // Force page reload to ensure clean state
-    setTimeout(() => {
-      window.location.reload();
-    }, 100);
-  }, [clearAuth, navigate, metaCache, auth?.user?.email]);
-
-  const navigationTree = useNavigationTree();
-
-  const profileNodes: TreeNode[] = useMemo(() => {
-    const isLoggedIn = isAuthenticated();
-
-    if (!isLoggedIn || !auth?.user?.id) return [];
-
-    return [
-      {
-        id: `profile-${auth.user.id}`,
-        label: "Profile",
-        icon: RiProfileLine,
-        onClick: () => navigate("/profile"),
-        isActive: window.location.pathname === "/profile",
-      },
-    ];
-  }, [isAuthenticated, auth?.user?.id, navigate]);
-
-  const authNodes: TreeNode[] = useMemo(() => {
-    const isLoggedIn = isAuthenticated();
-
-    if (isLoggedIn) {
-      const userEmail = auth?.user?.email || "Unknown User";
-
-      return [
-        {
-          id: `logout-${auth?.user?.id}`,
-          label: `Log out (${userEmail})`,
-          icon: IoIosLogOut,
-          onClick: handleLogout,
-          className: "text-red-400 hover:text-red-300",
-        },
-      ];
-    }
-
-    return [
-      {
-        id: "login",
-        label: "Log in",
-        icon: MdOutlineLogin,
-        onClick: () => navigate("/login"),
-        isActive: window.location.pathname === "/login",
-      },
-      {
-        id: "register",
-        label: "Register",
-        icon: PiUserCirclePlusLight,
-        onClick: () => navigate("/register"),
-        isActive: window.location.pathname === "/register",
-      },
-    ];
-  }, [isAuthenticated, handleLogout, navigate, auth?.user]);
+  }, [auth?.user?.id, metaCache]);
 
   return (
     <>
-      <div className="fixed top-0 left-0 w-72 h-screen bg-[#1a1a1a] border-r border-[#2a2a2a]">
-        <div className="flex items-center gap-3 px-6 py-4 border-b border-[#2a2a2a] bg-[#1a1a1a]">
-          <a href="/" className="flex items-center gap-3">
-            <img
-              src="https://flowbite.com/docs/images/logo.svg"
-              className="h-8"
-              alt="Logo"
+      <SideBar
+        logo={{
+          href: "/",
+          imgSrc: "https://flowbite.com/docs/images/logo.svg",
+          label: "Taskflow",
+        }}
+      >
+        {sideBarSections.map((section) => (
+          <div key={section.id} className="space-y-1">
+            {section.title && section.items.length > 0 && (
+              <div className="px-3 py-2">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  {section.title}
+                </p>
+              </div>
+            )}
+            {section.items.map((item) => (
+              <SideBar.Element
+                key={item.id}
+                icon={item.icon}
+                onClick={item.onClick}
+                isActive={item.isActive}
+                level={item.level}
+              >
+                {item.label}
+              </SideBar.Element>
+            ))}
+            {section.id !== "auth-section" && <div className="h-2" />}
+          </div>
+        ))}
+      </SideBar>
+
+      {/* Main Content */}
+      <div className="transition-all bg-gradient-to-br from-primary-700 to-primary-600 duration-300 ml-0 lg:ml-72">
+        {/* Breadcrumb Context */}
+        {isAuthenticated() && breadcrumbItems.length > 2 && (
+          <div className="px-4 py-3 hidden lg:block">
+            <Breadcrumb
+              items={breadcrumbItems}
+              className="overflow-x-auto"
+              maxItems={10}
             />
-            <span className="text-xl font-semibold text-white">Taskflow</span>
-          </a>
-        </div>
-
-        <div className="flex flex-col h-[calc(100vh-4rem)] bg-[#1a1a1a]">
-          <div className="flex-grow overflow-y-auto">
-            <TreeView nodes={navigationTree} />
           </div>
-
-          <div className="border-t border-[#2a2a2a] bg-[#1a1a1a]">
-            <TreeView nodes={profileNodes} />
-            <TreeView nodes={authNodes} />
-          </div>
-        </div>
-      </div>
-
-      <div className="transition-all duration-300 md:ml-72">
+        )}
         <Routes>
-          <Route path="/test1" element={<TestPage1 />} />
-          <Route path="/test" element={<TestPage />} />
           <Route path="/" element={<HomePage />} />
-          <Route path="/sprints/:sprintID" element={<AgileDashboard />} />
-          <Route path="/agile-dashboard" element={<AgileDashboard />} />
-
-          {/* authorization */}
+          <Route path="/test" element={<TestPage />} />
+          <Route path="/test1" element={<TestPage1 />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/auth/callback" element={<OAuthCallback />} />
-
-          {/* application routes */}
           <Route path="/companies" element={<CompaniesPage />} />
           <Route path="/projects" element={<CompanyOverviewPage />} />
           <Route path="/backlog" element={<BacklogPage />} />
           <Route path="/sprints" element={<SprintsPage />} />
-          <Route path="/analytics" element={<AnalyticsPage />} />
-          <Route path="/documents/:documentID" element={<DocumentPage />} />
+          <Route path="/sprints/:sprintID" element={<AgileDashboard />} />
           <Route path="/documents" element={<DocumentsPage />} />
-          <Route path="/projects/:projectID/sprints/:sprintID" />
-          <Route path="/projects/:projectID/sprints/:sprintID/tasks/:taskID" />
-
-          {/* admin */}
-          <Route path="/users" />
+          <Route path="/documents/:documentID" element={<DocumentPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/auth/google/callback" element={<OAuthCallback />} />
+          <Route path="/auth/callback" element={<OAuthCallback />} />
         </Routes>
       </div>
     </>

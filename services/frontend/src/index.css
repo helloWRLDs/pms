@@ -66,3 +66,33 @@ footer {
   --color-soft-600: rgb(187, 199, 193);
   --color-soft-700: rgb(177, 189, 183);
 }
+
+/* Utility classes for adaptive breadcrumb */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
+/* Smooth transitions for adaptive elements */
+.adaptive-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus styles for accessibility */
+.breadcrumb-item:focus-visible {
+  outline: 2px solid var(--color-accent-400);
+  outline-offset: 2px;
+}
+
+/* Table context menu overflow fix */
+.table-with-context-menu {
+  overflow-x: auto;
+}
+
+.table-with-context-menu:has([data-headlessui-state="open"]) {
+  overflow: visible;
+}

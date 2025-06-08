@@ -11,6 +11,7 @@ import (
 	"pms.pkg/transport/grpc/dto"
 	pb "pms.pkg/transport/grpc/services"
 	"pms.pkg/transport/ws"
+	"pms.pkg/utils"
 )
 
 func (l *Logic) processDocumentStream() {
@@ -107,53 +108,56 @@ func (l *Logic) processTaskStream() {
 				if !strings.HasPrefix(hubID, "sprint") {
 					return
 				}
-
 				log.Debugw("ws hub info", "type", name, "id", id)
 
-				task, err := l.TaskQueue.Rpop(context.Background(), hubID)
-				if err != nil || task.Value == nil {
-					log.Debugw("no tasks found in queue")
+				taskQueue, err := l.TaskQueue.Get(context.Background(), hubID)
+				if err != nil {
+					log.Errorw("failed to get task queue", "err", err)
 					return
 				}
-				if err := l.UpdateTask(context.Background(), task.Value.Id, task.Value); err != nil {
-					log.Errorw("failed to update task", "err", err)
-					return
-				}
-				log.Debug("task is updated")
-
-				if hub.CountClient() == 0 {
-					log.Infow("no clients found")
-					return
-				}
-				log.Infow("filters", "filter", dto.TaskFilter{
-					SprintId: id,
-					Page:     1,
-					PerPage:  10000,
-				})
 
 				tasks, err := l.ListTasks(context.Background(), &dto.TaskFilter{
 					SprintId: id,
 					Page:     1,
 					PerPage:  10000,
 				})
-				if err != nil {
-					log.Errorw("failed to fetch tasks", "err", err)
-					return
+				isChanged := false
+				if err == nil {
+					for _, task := range tasks.Items {
+						if _, exist := taskQueue.Tasks[task.Id]; !exist {
+							taskQueue.Tasks[task.Id] = task
+							isChanged = true
+						}
+					}
 				}
-				msg, err := json.Marshal(tasks.Items)
-				if err != nil {
-					log.Errorw("failed marshaling trask list", "err", err)
-					return
+				if isChanged {
+					msg, err := json.Marshal(utils.MapToArray(taskQueue.Tasks))
+					if err != nil {
+						log.Errorw("failed marshaling trask list", "err", err)
+					}
+					log.Debug("broadcasting to all connected clients")
+					hub.Broadcast(msg)
 				}
-				log.Debug("broadcasting to all connected clients")
 
-				hub.Broadcast(msg)
+				if len(taskQueue.TasksToUpdate) == 0 {
+					log.Debugw("no tasks found in queue")
+					return
+				}
+				for _, task := range taskQueue.TasksToUpdate {
+					if err := l.UpdateTask(context.Background(), task.Id, task); err != nil {
+						log.Errorw("failed to update task", "err", err)
+						return
+					}
+					log.Debug("task is updated")
+				}
+				taskQueue.TasksToUpdate = nil
+				l.TaskQueue.Set(context.Background(), hubID, taskQueue, 24)
+
 				if len(hub.GetClients()) == 0 {
 					log.Debugw("no more clients. removing from queue", "hub_id", id)
 					delete(l.WsHubs, hubID)
 				}
 			}(hubID, hub)
-
 		}
 		wg.Wait()
 	}

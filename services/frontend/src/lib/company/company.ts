@@ -18,7 +18,10 @@ export type Company = {
   description?: string;
 };
 
-export type CompanyCreation = Pick<Company, "name" | "codename" | "bin" | "address" | "description">;
+export type CompanyCreation = Pick<
+  Company,
+  "name" | "codename" | "bin" | "address" | "description"
+>;
 
 export type CompanyFilters = Pagination & {
   user_id?: string;

@@ -97,7 +97,7 @@ const SprintsPage = () => {
   };
 
   return (
-    <div className="w-full h-[100vh] overflow-y-auto bg-primary-500">
+    <div className="w-full h-[100vh] overflow-y-auto bg-gradient-to-br from-primary-700 to-primary-600">
       <div className="flex flex-col gap-6 p-6">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-primary-400 p-4 rounded-lg">

@@ -62,7 +62,7 @@ const AnalyticsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-primary-600 text-neutral-100">
+    <div className="min-h-screen bg-gradient-to-br from-primary-700 to-primary-600 text-neutral-100">
       <div className="px-6 py-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
