@@ -8,7 +8,6 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"go.uber.org/zap"
 	"pms.pkg/errs"
-	"pms.pkg/tools/transaction"
 	"pms.pkg/type/list"
 )
 
@@ -156,20 +155,8 @@ func (r *Repository) GetByName(ctx context.Context, name string) (role Role, err
 		)
 	}()
 
-	tx := transaction.Retrieve(ctx)
-	if tx == nil {
-		ctx, err := transaction.Start(ctx, r.DB)
-		if err != nil {
-			return Role{}, err
-		}
-		tx = transaction.Retrieve(ctx)
-		defer func() {
-			transaction.End(ctx, err)
-		}()
-	}
-
 	q, a, _ := r.gen.Select("*").From("\"Role\"").Where(sq.Eq{"name": name}).ToSql()
-	if err = tx.QueryRowx(q, a...).StructScan(&role); err != nil {
+	if err = r.DB.QueryRowx(q, a...).StructScan(&role); err != nil {
 		log.Errorw("failed to get role", "err", err)
 		return Role{}, err
 	}

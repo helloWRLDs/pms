@@ -22,6 +22,8 @@ import { useAssigneeList } from "../../hooks/useSprintList";
 import { formatTime } from "../../lib/utils/time";
 import { ContextMenu } from "../../components/ui/ContextMenu";
 import { TbTrash } from "react-icons/tb";
+import { usePermission } from "../../hooks/usePermission";
+import { Permissions } from "../../lib/permission";
 
 const CompanyOverviewPage = () => {
   usePageSettings({
@@ -30,6 +32,7 @@ const CompanyOverviewPage = () => {
     layout: Layouts.Companies,
   });
 
+  const { hasPermission } = usePermission();
   const metaCache = useMetaCache();
   const navigate = useNavigate();
 
@@ -276,6 +279,7 @@ const CompanyOverviewPage = () => {
           </table>
           <button
             className="w-full cursor-pointer group hover:bg-secondary-100 py-4 group:transition-all duration-300"
+            disabled={!hasPermission(Permissions.USER_ADD_PERMISSION)}
             onClick={() => {
               setAddUserModal(true);
             }}

@@ -31,6 +31,7 @@ import {
   useProjectList,
   useSprintList,
 } from "../../hooks/useSprintList";
+import DropDownable from "../ui/DropDownable";
 
 type TaskViewProps = React.HTMLAttributes<HTMLDivElement> & {
   task: Task;
@@ -142,38 +143,33 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
             label="Project"
             value={getProjectName(task.project_id ?? "") ?? "none"}
           />
-          <MetadataItem
-            icon={<MdAssignment className="text-sm" />}
-            label="Assignee"
-            value={getAssigneeName(task.assignee_id)}
-            onClick={() => setReassignDropDown(true)}
+          <DropDownable
+            options={[
+              {
+                label: "unassigned",
+                isActive: !task.assignee_id,
+                onClick: () => {
+                  taskAPI.unassign(task.id, task.assignee_id ?? "");
+                },
+              },
+              ...(assignees?.items && assignees?.items.length > 0
+                ? assignees?.items.map((assignee) => ({
+                    label: `${assignee.first_name} ${assignee.last_name}`,
+                    isActive: assignee.id === task.assignee_id,
+                    onClick: () => {
+                      taskAPI.assign(task.id, assignee.id);
+                    },
+                  }))
+                : []),
+            ]}
           >
-            <DropDownList
-              visible={reassignDropDown}
-              onClose={() => setReassignDropDown(false)}
-              className="absolute top-full left-0 mt-1 w-48 z-50"
-            >
-              {assignees &&
-                assignees.items.map((assignee) => (
-                  <DropDownList.Element
-                    key={assignee.id}
-                    className="w-full px-4 py-2 bg-secondary-100 cursor-pointer text-neutral-200 hover:bg-accent-500 hover:text-secondary-100 transition-colors"
-                    onClick={async () => {
-                      try {
-                        await taskAPI.assign(task.id, assignee.id);
-                      } catch (e) {
-                        console.error(e);
-                      } finally {
-                        setReassignDropDown(false);
-                        props.refetchTasks && props.refetchTasks();
-                      }
-                    }}
-                  >
-                    {assignee.first_name} {assignee.last_name}
-                  </DropDownList.Element>
-                ))}
-            </DropDownList>
-          </MetadataItem>
+            <MetadataItem
+              icon={<MdAssignment className="text-sm" />}
+              label="Assignee"
+              value={getAssigneeName(task.assignee_id)}
+              onClick={() => setReassignDropDown(true)}
+            />
+          </DropDownable>
           <MetadataItem
             icon={<MdCode className="text-sm" />}
             label="Code"
@@ -193,67 +189,33 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
               task.type ? getTaskTypeConfig(task.type as any).label : "none"
             }
           />
-          <MetadataItem
-            icon={<MdTimer className="text-sm" />}
-            label="Sprint"
-            value={getSprintName(task.sprint_id)}
-            onClick={() => setAddSprintDropDown(true)}
-          />
+          <DropDownable
+            options={[
+              {
+                label: "none",
+                isActive: !task.sprint_id,
+                onClick: () => {
+                  taskAPI.update(task.id, { ...task, sprint_id: "" });
+                },
+              },
+              ...(sprints?.items.map((sprint) => ({
+                label: sprint.title,
+                isActive: sprint.id === task.sprint_id,
+                onClick: () => {
+                  taskAPI.update(task.id, { ...task, sprint_id: sprint.id });
+                },
+              })) ?? []),
+            ]}
+          >
+            <MetadataItem
+              icon={<MdTimer className="text-sm" />}
+              label="Sprint"
+              value={getSprintName(task.sprint_id)}
+              onClick={() => setAddSprintDropDown(true)}
+            />
+          </DropDownable>
         </div>
       </div>
-
-      <DropDownList
-        visible={reassignDropDown}
-        onClose={() => setReassignDropDown(false)}
-        className="z-50"
-      >
-        {assignees &&
-          assignees.items.map((assignee) => (
-            <DropDownList.Element
-              key={assignee.id}
-              className="w-full px-4 py-2 bg-secondary-100 cursor-pointer text-neutral-200 hover:bg-accent-500 hover:text-secondary-100 transition-colors"
-              onClick={async () => {
-                try {
-                  await taskAPI.assign(task.id, assignee.id);
-                } catch (e) {
-                  console.error(e);
-                } finally {
-                  setReassignDropDown(false);
-                  props.refetchTasks && props.refetchTasks();
-                  setAddSprintDropDown(false);
-                }
-              }}
-            >
-              {assignee.first_name} {assignee.last_name}
-            </DropDownList.Element>
-          ))}
-      </DropDownList>
-
-      <DropDownList
-        visible={addSprintDropDown}
-        onClose={() => setAddSprintDropDown(false)}
-        className="z-50"
-      >
-        {sprints &&
-          sprints.items &&
-          sprints.items.length > 0 &&
-          sprints.items.map((sprint) => (
-            <DropDownList.Element
-              key={sprint.id}
-              onClick={() => {
-                const updatedTask: Task = JSON.parse(JSON.stringify(task));
-                updatedTask.sprint_id = sprint.id;
-                taskAPI.update(updatedTask.id, updatedTask);
-                refetch();
-                props.refetchTasks && props.refetchTasks();
-                setAddSprintDropDown(false);
-              }}
-              className="w-full px-4 py-2 bg-secondary-100 cursor-pointer text-neutral-200 hover:bg-accent-500 hover:text-secondary-100 transition-colors"
-            >
-              {sprint.title}
-            </DropDownList.Element>
-          ))}
-      </DropDownList>
 
       {/* Comments Section */}
       <div className="space-y-3">

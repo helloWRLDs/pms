@@ -240,12 +240,10 @@ const CompaniesPage: FC = () => {
                 </Table.Head>
                 <Table.Body className="divide-y divide-primary-400/20">
                   {isCompanyListLoading ? (
-                    // Loading state
                     Array(5)
                       .fill(0)
                       .map((_, index) => <LoadingRow key={index} />)
                   ) : !companyList?.items || companyList.items.length === 0 ? (
-                    // Empty state
                     <Table.Row>
                       <td colSpan={5} className="px-4 py-12 text-center">
                         <div className="text-white/70">
@@ -260,7 +258,6 @@ const CompaniesPage: FC = () => {
                       </td>
                     </Table.Row>
                   ) : (
-                    // Data rows
                     companyList.items.map((company) => (
                       <Table.Row
                         key={company.id}

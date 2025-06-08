@@ -63,20 +63,12 @@ func (l *Logic) UnassignTask(ctx context.Context, userID, taskID string) (err er
 	)
 	log.Debug("UnassignTask called")
 
-	tx, err := l.Repo.StartTx(ctx)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		l.Repo.EndTx(ctx, err)
-	}()
-
-	existing, _ := l.Repo.TaskAssignment.Get(tx, userID, taskID)
+	existing, _ := l.Repo.TaskAssignment.Get(ctx, taskID, userID)
 	if existing == nil {
 		return nil
 	}
 
-	if err := l.Repo.TaskAssignment.Delete(tx, assignmentdata.AssignmentData{
+	if err := l.Repo.TaskAssignment.Delete(ctx, assignmentdata.AssignmentData{
 		UserID: userID,
 		TaskID: taskID,
 	}); err != nil {
