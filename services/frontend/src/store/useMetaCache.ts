@@ -1,8 +1,7 @@
 import { create } from "zustand";
 import { Company } from "../lib/company/company";
 import { Project } from "../lib/project/project";
-import { Sprint } from "../lib/sprint/sprint";
-import { User } from "../lib/user/user";
+
 import { persist } from "zustand/middleware";
 
 interface CacheState {

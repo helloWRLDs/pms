@@ -4,7 +4,7 @@ import {
   MdOutlineHome,
   MdTaskAlt,
   MdOutlineCalendarToday,
-  MdOutlineChat,
+  // MdOutlineChat,
   MdOutlineLogin,
 } from "react-icons/md";
 import { PiUserCirclePlusLight } from "react-icons/pi";

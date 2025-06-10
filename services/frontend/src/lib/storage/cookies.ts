@@ -1,7 +1,7 @@
 import Cookies from "js-cookie";
 import type { PersistStorage } from "zustand/middleware";
 
-const createCookieStorage = <T>(key: string): PersistStorage<T> => ({
+const createCookieStorage = <T>(): PersistStorage<T> => ({
   getItem: (name) => {
     const cookie = Cookies.get(name);
     if (!cookie) return null;

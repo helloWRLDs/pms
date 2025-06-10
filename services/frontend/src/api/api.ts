@@ -1,9 +1,9 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
-import { LocalStorageKeysMap } from "../lib/consts/localstorage";
+// import { LocalStorageKeysMap } from "../lib/consts/localstorage";
 import { ErrorResponse } from "../lib/errors";
 import { toastOpts } from "../lib/utils/toast";
 import { toast } from "react-toastify";
-import { AuthData } from "../lib/user/session";
+// import { AuthData } from "../lib/user/session";
 import useMetaCache from "../store/useMetaCache";
 import { useAuthStore } from "../store/authStore";
 
