@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -44,4 +45,15 @@ func TestUnassignTask(t *testing.T) {
 			assert.NoError(t, err)
 		})
 	}
+}
+
+func Test_AssignTask(t *testing.T) {
+	taskID := "761c5db6-93a3-4cf2-b897-15a4249053ee"
+	userID := "2b2d7f88-7b26-4584-9b67-38c4921f4b78"
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := logic.AssignTask(ctx, userID, taskID)
+	assert.NoError(t, err)
 }

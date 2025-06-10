@@ -6,6 +6,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"go.uber.org/zap"
 	"pms.pkg/errs"
+	"pms.pkg/tools/transaction"
 )
 
 func (r *Repository) GetByTask(ctx context.Context, taskID string) (assignment *AssignmentData, err error) {
@@ -24,13 +25,25 @@ func (r *Repository) GetByTask(ctx context.Context, taskID string) (assignment *
 		)
 	}()
 
+	tx := transaction.Retrieve(ctx)
+	if tx == nil {
+		ctx, err := transaction.Start(ctx, r.DB)
+		if err != nil {
+			return nil, err
+		}
+		tx = transaction.Retrieve(ctx)
+		defer func() {
+			transaction.End(ctx, err)
+		}()
+	}
+
 	q, a, _ := r.gen.
 		Select("*").
 		From(r.tableName).
 		Where(sq.Eq{"task_id": taskID}).
 		Limit(1).ToSql()
 
-	if err = r.DB.QueryRowx(q, a...).StructScan(assignment); err != nil {
+	if err = tx.QueryRowx(q, a...).StructScan(assignment); err != nil {
 		return nil, err
 	}
 	return assignment, nil

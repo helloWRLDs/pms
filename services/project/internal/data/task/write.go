@@ -122,6 +122,9 @@ func (r *Repository) Update(ctx context.Context, id string, updated Task) (err e
 	for i, col := range cols {
 		builder = builder.Set(col, args[i])
 	}
+	if updated.SprintID == nil {
+		builder = builder.Set("sprint_id", nil)
+	}
 	builder = builder.Where(squirrel.Eq{"id": id})
 
 	q, a, _ := builder.ToSql()

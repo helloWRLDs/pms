@@ -257,7 +257,7 @@ func (s *Server) RequirePermission(permission consts.Permission) fiber.Handler {
 				Object: "roles",
 			}
 		}
-		log.Infow("roles", "roles", rolesReq.Items)
+		// log.Infow("roles", "roles", rolesReq.Items)
 		if !utils.ContainsInArray(rolesReq.Items[0].Permissions, string(permission)) {
 			log.Errorw("user does not have required permission",
 				"user_id", session.UserID,

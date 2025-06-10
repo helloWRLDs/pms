@@ -154,8 +154,11 @@ const TaskView = ({ task_id, refetchTasks, ...props }: TaskViewProps) => {
                     label: "unassigned",
                     isActive: !task.assignee_id,
                     onClick: async () => {
-                      await taskAPI.unassign(task_id, task.assignee_id ?? "");
-                      refetchTask();
+                      if (task.assignee_id) {
+                        await taskAPI.unassign(task_id, task.assignee_id);
+                        refetchTask();
+                        refetchTasks?.();
+                      }
                     },
                   },
                   ...(assignees?.items && assignees?.items.length > 0
@@ -211,7 +214,13 @@ const TaskView = ({ task_id, refetchTasks, ...props }: TaskViewProps) => {
                     label: "none",
                     isActive: !task.sprint_id,
                     onClick: async () => {
-                      await taskAPI.update(task_id, { ...task, sprint_id: "" });
+                      console.log(
+                        `unassigning sprint ${task.sprint_id} from task: ${task_id}`
+                      );
+                      await taskAPI.update(task_id, {
+                        ...task,
+                        sprint_id: "",
+                      });
                       refetchTask();
                       refetchTasks && refetchTasks();
                     },

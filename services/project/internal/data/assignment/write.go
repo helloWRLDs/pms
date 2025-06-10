@@ -41,7 +41,7 @@ func (r *Repository) Delete(ctx context.Context, assignment AssignmentData) (err
 		Where("task_id = $1 AND user_id = $2", assignment.TaskID, assignment.UserID).
 		ToSql()
 
-	if _, err = tx.ExecContext(ctx, q, a...); err != nil {
+	if _, err = tx.Exec(q, a...); err != nil {
 		log.Errorw("failed to delete assignment", "err", err)
 		return err
 	}
@@ -81,7 +81,7 @@ func (r *Repository) Create(ctx context.Context, assignment AssignmentData) (err
 		Values(utils.GetArguments(assignment)...).
 		ToSql()
 
-	if _, err = tx.ExecContext(ctx, q, a...); err != nil {
+	if _, err = tx.Exec(q, a...); err != nil {
 		log.Errorw("failed to create assignment", "err", err)
 		return err
 	}

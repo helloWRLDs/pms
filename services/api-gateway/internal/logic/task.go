@@ -136,7 +136,7 @@ func (l *Logic) TaskAssign(ctx context.Context, taskID, userID string) error {
 		zap.String("task_id", taskID),
 		zap.String("user_id", userID),
 	)
-	log.Debug("TaskAssign called")
+	log.Info("TaskAssign called")
 	assignRes, err := l.projectClient.TaskAssign(ctx, &pb.TaskAssignRequest{
 		TaskId: taskID,
 		UserId: userID,

@@ -43,7 +43,7 @@ func (l *Logic) ListRoles(ctx context.Context, filter *dto.RoleFilter) (*dto.Rol
 		return nil, err
 	}
 
-	log.Infow("roles listed", "res", zap.Any("roles", roleRes))
+	// log.Infow("roles listed", "res", zap.Any("roles", roleRes))
 
 	return roleRes.Roles, nil
 }

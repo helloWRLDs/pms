@@ -32,22 +32,24 @@ func (l *Logic) AssignTask(ctx context.Context, userID, taskID string) (err erro
 		return err
 	}
 	defer func() {
-		l.Repo.EndTx(ctx, err)
+		l.Repo.EndTx(tx, err)
 	}()
 
 	existing, _ := l.Repo.TaskAssignment.GetByTask(tx, taskID)
 
 	if existing != nil {
-		l.Repo.TaskAssignment.Delete(tx, assignmentdata.AssignmentData{
+		if err := l.Repo.TaskAssignment.Delete(tx, assignmentdata.AssignmentData{
 			TaskID: taskID,
 			UserID: existing.UserID,
-		})
+		}); err != nil {
+			return err
+		}
 	}
-	newAssignment := assignmentdata.AssignmentData{
+
+	err = l.Repo.TaskAssignment.Create(tx, assignmentdata.AssignmentData{
 		TaskID: taskID,
 		UserID: userID,
-	}
-	err = l.Repo.TaskAssignment.Create(tx, newAssignment)
+	})
 	if err != nil {
 		return err
 	}

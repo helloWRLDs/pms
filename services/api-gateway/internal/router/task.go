@@ -91,7 +91,7 @@ func (s *Server) UpdateTask(c *fiber.Ctx) error {
 		zap.String("func", "UpdateTask"),
 		zap.String("ip", c.IP()),
 	)
-	log.Debug("UpdateTask called")
+	log.Info("UpdateTask called")
 
 	taskID := c.Params("taskID", "")
 	if strings.Trim(taskID, " ") == "" {
