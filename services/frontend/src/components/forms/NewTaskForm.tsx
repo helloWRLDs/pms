@@ -24,13 +24,14 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
     title: "",
     body: "",
     status: getTaskStatuses[0],
-    priority: 0,
+    priority: 1,
     assignee_id: "",
     sprint_id: "",
     project_id: props.project.id ?? "",
     due_date: {
       seconds: new Date().getTime(),
     },
+    type: getTaskTypes[1],
   };
   const [newTask, setNewTask] = useState<TaskCreation>(NULL_TASK);
   const { assignees } = useAssigneeList(

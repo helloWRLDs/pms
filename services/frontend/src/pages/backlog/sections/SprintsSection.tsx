@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { BsFillPlusCircleFill, BsThreeDotsVertical } from "react-icons/bs";
-import { TbEdit, TbCalendarEvent } from "react-icons/tb";
+import { BsFillPlusCircleFill } from "react-icons/bs";
+import { TbCalendarEvent } from "react-icons/tb";
 import { Modal } from "../../../components/ui/Modal";
 import Table from "../../../components/ui/Table";
 import { Button } from "../../../components/ui/Button";
-import { ContextMenu } from "../../../components/ui/ContextMenu";
 import Paginator from "../../../components/ui/Paginator";
 import sprintAPI from "../../../api/sprintAPI";
 import { usePermission } from "../../../hooks/usePermission";
@@ -252,7 +251,7 @@ const SprintsSection = ({ projectId }: SprintsSectionProps) => {
                             {duration} days
                           </Table.Cell>
                           <Table.Cell>
-                            {(hasPermission(
+                            {/* {(hasPermission(
                               Permissions.SPRINT_WRITE_PERMISSION
                             ) ||
                               hasPermission(
@@ -278,7 +277,7 @@ const SprintsSection = ({ projectId }: SprintsSectionProps) => {
                                     : []),
                                 ]}
                               />
-                            )}
+                            )} */}
                           </Table.Cell>
                         </Table.Row>
                       );

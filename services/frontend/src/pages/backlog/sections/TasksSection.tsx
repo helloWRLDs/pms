@@ -431,7 +431,7 @@ const TasksSection = ({
                           </Table.Cell>
                           <Table.Cell className="px-6 py-4 border-r border-secondary-100">
                             <Badge
-                              className={`bg-${priority.getColor()}-500 text-${priority.getColor()}-500 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide`}
+                              className={`bg-${priority.getColor()}-500 text-white px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide`}
                             >
                               {priority.toString()}
                             </Badge>
