@@ -19,9 +19,13 @@ class CompanyAPI extends API {
     return {} as Company;
   }
 
-  async addParticipant(companyID: string, userID: string): Promise<void> {
+  async addParticipant(
+    companyID: string,
+    userID: string,
+    role: string
+  ): Promise<void> {
     await this.req.post(
-      `${this.baseURL}/companies/${companyID}/participants/${userID}`
+      `${this.baseURL}/companies/${companyID}/participants/${userID}?role=${role}`
     );
   }
 

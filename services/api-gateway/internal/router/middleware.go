@@ -8,6 +8,7 @@ import (
 	"pms.pkg/consts"
 	"pms.pkg/errs"
 	"pms.pkg/tools/jwtoken"
+	"pms.pkg/transport/grpc/dto"
 	"pms.pkg/type/claims"
 	"pms.pkg/utils"
 	ctxutils "pms.pkg/utils/ctx"
@@ -38,6 +39,26 @@ func (s *Server) RequireCompany() fiber.Handler {
 		return c.Next()
 	}
 }
+
+func (s *Server) RequireCompanyFromPath() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		// First try to get from URL parameter
+		companyID := c.Params("companyID")
+
+		// If not in params, try header
+		if companyID == "" {
+			companyID = c.Get("X-Company-ID")
+		}
+
+		if companyID == "" {
+			return errs.ErrBadGateway{Object: "company_id"}
+		}
+
+		c.Locals("company_id", companyID)
+		return c.Next()
+	}
+}
+
 func (s *Server) ValidateCompanyContext() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		log := s.log.With(
@@ -205,21 +226,44 @@ func (s *Server) RequirePermission(permission consts.Permission) fiber.Handler {
 			}
 		}
 
-		if _, ok := c.Locals("company_id").(string); !ok {
+		if c.Locals("company_id") == nil {
 			log.Errorw("company_id not found in context")
 			return errs.ErrBadGateway{
 				Object: "company_id",
 			}
-
 		}
 		companyID := c.Locals("company_id").(string)
 
-		if !utils.ContainsInArray(session.Permissions[companyID], permission) {
+		log.Infow("checking permission",
+			"company_id", companyID,
+			"permission", permission,
+			// "is_allowed", utils.ContainsInArray(session.Permissions[companyID], permission),
+		)
+
+		rolesReq, err := s.Logic.ListRoles(c.UserContext(), &dto.RoleFilter{
+			CompanyId:   companyID,
+			UserId:      session.UserID,
+			WithDefault: true,
+		})
+		if err != nil {
+			log.Errorw("failed to get roles", "err", err)
+			return errs.ErrBadGateway{
+				Object: "roles",
+			}
+		}
+		if len(rolesReq.Items) == 0 {
+			log.Errorw("no roles found", "user_id", session.UserID)
+			return errs.ErrBadGateway{
+				Object: "roles",
+			}
+		}
+		log.Infow("roles", "roles", rolesReq.Items)
+		if !utils.ContainsInArray(rolesReq.Items[0].Permissions, string(permission)) {
 			log.Errorw("user does not have required permission",
 				"user_id", session.UserID,
 				"company_id", companyID,
 				"permission", permission)
-			return errs.ErrUnauthorized{
+			return errs.ErrForbidden{
 				Reason: "insufficient permissions",
 			}
 		}

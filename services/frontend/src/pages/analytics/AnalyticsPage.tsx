@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import analyticsAPI from "../../api/analyticsAPI";
 import useMetaCache from "../../store/useMetaCache";
 import UserTaskPieChart from "../../components/charts/UserTaskPieChart";
-import { useSprintList } from "../../hooks/useSprintList";
+import { useSprintList } from "../../hooks/useData";
 import { IoAnalyticsOutline } from "react-icons/io5";
 import { BsPeople, BsTrophy } from "react-icons/bs";
 import { BiChevronDown, BiChevronRight } from "react-icons/bi";

@@ -1,12 +1,13 @@
 import { FC } from "react";
 import { Icon } from "../ui/Icon";
 import { Task } from "../../lib/task/task";
-import { useCacheStore } from "../../store/cacheStore";
 import { capitalize } from "../../lib/utils/string";
 import { formatTime } from "../../lib/utils/time";
 import { MdAccessTime, MdPerson, MdLabel } from "react-icons/md";
 import { Priority } from "../../lib/task/priority";
 import Badge from "../ui/Badge";
+import useMetaCache from "../../store/useMetaCache";
+import { useAssigneeList } from "../../hooks/useData";
 
 interface Props {
   task: Task;
@@ -15,8 +16,10 @@ interface Props {
 }
 
 const TaskCard: FC<Props> = ({ task, onClick, isDragging }) => {
-  const { getAssignee } = useCacheStore();
-  const assignee = task.assignee_id ? getAssignee(task.assignee_id) : null;
+  const metaCache = useMetaCache();
+  const { getAssigneeName } = useAssigneeList(
+    metaCache.metadata.selectedCompany?.id ?? ""
+  );
   const priority = new Priority(task.priority);
 
   return (
@@ -50,11 +53,7 @@ const TaskCard: FC<Props> = ({ task, onClick, isDragging }) => {
         {/* Assignee */}
         <div className="flex items-center gap-1.5">
           <MdPerson className="text-accent-500" />
-          <span className="truncate">
-            {assignee
-              ? `${assignee.first_name} ${assignee.last_name}`
-              : "Unassigned"}
-          </span>
+          <span className="truncate">{getAssigneeName(task.assignee_id)}</span>
         </div>
 
         {/* Due Date */}

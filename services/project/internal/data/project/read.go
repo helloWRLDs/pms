@@ -142,10 +142,10 @@ func (r *Repository) List(ctx context.Context, filter *dto.ProjectFilter) (res l
 		builder = builder.Where(sq.Eq{"p.company_id": filter.CompanyId})
 	}
 	if filter.Title != "" {
-		builder = builder.Where(sq.Eq{"p.title": filter.Title})
+		builder = builder.Where(sq.ILike{"p.title": "%" + filter.Title + "%"})
 	}
 	if filter.Description != "" {
-		builder = builder.Where(sq.Eq{"p.description": filter.Description})
+		builder = builder.Where(sq.ILike{"p.description": "%" + filter.Description + "%"})
 	}
 	if filter.Status != "" {
 		builder = builder.Where(sq.Eq{"p.status": filter.Status})

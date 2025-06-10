@@ -18,7 +18,7 @@ func (s *ServerGRPC) AddParticipant(ctx context.Context, req *pb.AddParticipantR
 		err = errs.WrapGRPC(err)
 	}()
 
-	participant, err := s.logic.AddParticipant(ctx, req.UserId, req.CompanyId)
+	participant, err := s.logic.AddParticipant(ctx, req.UserId, req.CompanyId, req.Role)
 	if err != nil {
 		log.Errorw("failed to remove participant", "err", err)
 		return nil, err

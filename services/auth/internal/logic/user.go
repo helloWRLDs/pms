@@ -29,21 +29,30 @@ func (l *Logic) ListUsers(ctx context.Context, filter *dto.UserFilter) (result l
 	for _, usr := range entities.Items {
 		result.Items = append(result.Items, func() (u *dto.User) {
 			u = usr.DTO()
-			participantList, err := l.Repo.Participant.List(ctx, &dto.ParticipantFilter{
-				Page:    1,
-				PerPage: 1000,
-				UserId:  usr.ID,
-			})
+			participantList, err := l.getParticipations(ctx, usr.ID, filter.CompanyId)
 			if err == nil {
-				for _, p := range participantList.Items {
-					u.Participants = append(u.Participants, p.DTO())
-				}
+				u.Participants = participantList
 			}
 			return u
 		}())
 	}
 
 	return result, nil
+}
+
+func (l *Logic) getParticipations(ctx context.Context, userID string, companyID string) (participations []*dto.Participant, err error) {
+	participationList, err := l.Repo.Participant.List(ctx, &dto.ParticipantFilter{
+		Page:      1,
+		PerPage:   1000,
+		UserId:    userID,
+		CompanyId: companyID,
+	})
+	if err == nil {
+		for _, p := range participationList.Items {
+			participations = append(participations, p.DTO())
+		}
+	}
+	return participations, nil
 }
 
 func (l *Logic) GetProfile(ctx context.Context, userID string) (profile *dto.User, err error) {
@@ -61,7 +70,10 @@ func (l *Logic) GetProfile(ctx context.Context, userID string) (profile *dto.Use
 	profile = new(dto.User)
 
 	profile = user.DTO()
-
+	participations, err := l.getParticipations(ctx, userID, "")
+	if err == nil {
+		profile.Participants = participations
+	}
 	return profile, nil
 }
 

@@ -136,7 +136,7 @@ message ListParticipantsResponse {
 message AddParticipantRequest {
     string company_id = 1;
     string user_id = 2;
-    string role_id = 3;
+    string role = 3;
 }
 
 message AddParticipantResponse {
@@ -207,18 +207,18 @@ message GetRoleResponse {
 }
 
 message ListRolesRequest {
-    string company_id = 1;
+    models.RoleFilter filter = 1;
 }
 
 message ListRolesResponse {
     bool success = 1;
-    repeated models.Role roles = 2;
+    models.RoleList roles = 2;
 }
 
 message UpdateRoleRequest {
     string name = 1;
-    string company_id = 2;
-    models.Role role = 3;
+    models.Role role = 2;
+    string company_id = 3;
 }
 
 message UpdateRoleResponse {

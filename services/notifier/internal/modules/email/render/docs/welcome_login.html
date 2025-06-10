@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to {{.CompanyName}} - Getting Started</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            color: #333333;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .content {
+            padding: 30px;
+        }
+        .welcome-message {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .feature-list {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .feature-list h3 {
+            color: #667eea;
+            margin-top: 0;
+            font-size: 16px;
+        }
+        .feature-list ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .feature-list li {
+            margin: 8px 0;
+            color: #555;
+        }
+        .cta-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+        .info-card {
+            background: #e8f4fd;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .support-section {
+            background: #fff9e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #ffd93d;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            border-top: 1px solid #e9ecef;
+        }
+        .social-links {
+            margin: 15px 0;
+        }
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #667eea;
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            .header, .content {
+                padding: 20px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Welcome to {{.CompanyName}}!</h1>
+            <p>Your project management journey starts here</p>
+        </div>
+        
+        <div class="content">
+            <div class="welcome-message">
+                <strong>Hello {{.Name}},</strong>
+            </div>
+            
+            <p>Welcome to your {{.CompanyName}} account! We're thrilled to have you join our project management platform. You've just taken the first step towards more organized, efficient, and collaborative project management.</p>
+            
+            {{if .IsFirstLogin}}
+            <div class="info-card">
+                <strong>🎉 First Login Detected!</strong><br>
+                This appears to be your first time logging in. Let's get you started with the basics.
+            </div>
+            {{end}}
+            
+            <div class="feature-list">
+                <h3>🚀 What you can do with {{.CompanyName}}:</h3>
+                <ul>
+                    <li><strong>Project Management:</strong> Create and organize projects with ease</li>
+                    <li><strong>Sprint Planning:</strong> Plan sprints and track progress efficiently</li>
+                    <li><strong>Task Tracking:</strong> Assign tasks, set deadlines, and monitor completion</li>
+                    <li><strong>Team Collaboration:</strong> Work seamlessly with your team members</li>
+                    <li><strong>Analytics & Reports:</strong> Get insights into your project performance</li>
+                    <li><strong>Document Management:</strong> Store and organize project documents</li>
+                </ul>
+            </div>
+            
+            <div class="cta-section">
+                <h3>Ready to get started?</h3>
+                <a href="{{.DashboardURL}}" class="cta-button">Go to Dashboard</a>
+                {{if .SetupGuideURL}}
+                <a href="{{.SetupGuideURL}}" class="cta-button" style="background: #28a745;">Setup Guide</a>
+                {{end}}
+            </div>
+            
+            {{if .LoginDetails}}
+            <div class="info-card">
+                <strong>Login Details:</strong><br>
+                <small>
+                    Logged in on: {{.LoginDetails.Timestamp}}<br>
+                    {{if .LoginDetails.Location}}Location: {{.LoginDetails.Location}}<br>{{end}}
+                    {{if .LoginDetails.Device}}Device: {{.LoginDetails.Device}}<br>{{end}}
+                    IP Address: {{.LoginDetails.IPAddress}}
+                </small>
+            </div>
+            {{end}}
+            
+            <div class="support-section">
+                <h3>Need Help Getting Started?</h3>
+                <p>Our support team is here to help you every step of the way:</p>
+                <ul>
+                    <li>Email us at: <a href="mailto:{{.SupportEmail}}">{{.SupportEmail}}</a></li>
+                    {{if .SupportPhone}}<li>📞 Call us at: {{.SupportPhone}}</li>{{end}}
+                    {{if .DocumentationURL}}<li>📚 Check our <a href="{{.DocumentationURL}}">Documentation</a></li>{{end}}
+                    {{if .VideoTutorialsURL}}<li>🎥 Watch our <a href="{{.VideoTutorialsURL}}">Video Tutorials</a></li>{{end}}
+                </ul>
+            </div>
+            
+            <p>We're excited to see what you'll accomplish with {{.CompanyName}}. If you have any questions or need assistance, don't hesitate to reach out to our support team.</p>
+            
+            <p><strong>Happy project managing!</strong></p>
+            
+            <p>Best regards,<br>
+            The {{.CompanyName}} Team</p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>{{.CompanyName}}</strong></p>
+            {{if .CompanyAddress}}<p>{{.CompanyAddress}}</p>{{end}}
+            
+            <div class="social-links">
+                {{if .SocialLinks.Website}}<a href="{{.SocialLinks.Website}}">Website</a>{{end}}
+                {{if .SocialLinks.Twitter}}<a href="{{.SocialLinks.Twitter}}">Twitter</a>{{end}}
+                {{if .SocialLinks.LinkedIn}}<a href="{{.SocialLinks.LinkedIn}}">LinkedIn</a>{{end}}
+            </div>
+            
+            <p><small>You're receiving this email because you recently logged into your {{.CompanyName}} account.<br>
+            If this wasn't you, please contact our support team immediately.</small></p>
+        </div>
+    </div>
+</body>
+</html> 

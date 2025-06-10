@@ -5,6 +5,41 @@ import projectAPI from "../api/projectsAPI";
 import companyAPI from "../api/company";
 import { Company } from "../lib/company/company";
 import { useAuthStore } from "../store/authStore";
+import useMetaCache from "../store/useMetaCache";
+
+const useRolesList = () => {
+  const { isAuthenticated } = useAuthStore();
+
+  const metaCache = useMetaCache();
+
+  const {
+    data: roles,
+    isLoading: isLoadingRoles,
+    error: errorRoles,
+    refetch: refetchRoles,
+  } = useQuery({
+    queryKey: ["roles", metaCache.metadata.selectedCompany?.id],
+    queryFn: () =>
+      authAPI.listRoles({
+        page: 1,
+        per_page: 1000,
+        company_id: metaCache.metadata.selectedCompany?.id,
+        with_default: true,
+      }),
+    enabled: isAuthenticated(),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+  });
+
+  return {
+    roles,
+    isLoadingRoles,
+    errorRoles,
+    refetchRoles,
+  };
+};
 
 const useCompanyList = () => {
   const {
@@ -155,4 +190,10 @@ const useAssigneeList = (companyID: string) => {
   };
 };
 
-export { useCompanyList, useSprintList, useAssigneeList, useProjectList };
+export {
+  useCompanyList,
+  useSprintList,
+  useAssigneeList,
+  useProjectList,
+  useRolesList,
+};

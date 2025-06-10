@@ -4,9 +4,10 @@ import { UserFilter } from "../../lib/user/user";
 import authAPI from "../../api/authAPI";
 import Input from "../ui/Input";
 import { Button } from "../ui/Button";
+import { useRolesList } from "../../hooks/useData";
 
 type AddParticipantFormProps = React.HTMLAttributes<HTMLDivElement> & {
-  onFinish: (userID: string) => void;
+  onFinish: (userID: string, role: string) => void;
   title?: string;
   placeholder?: string;
 };
@@ -26,6 +27,8 @@ const AddParticipantForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [role, setRole] = useState<string>("admin");
+  const { roles, isLoadingRoles, errorRoles, refetchRoles } = useRolesList();
 
   const handleAddParticipant = async () => {
     if (!filter.user_email?.trim()) {
@@ -40,7 +43,7 @@ const AddParticipantForm = ({
     try {
       const res = await authAPI.listUsers(filter);
       if (res && res.items && res.total_items !== 0) {
-        onFinish(res.items[0].id);
+        onFinish(res.items[0].id, role);
         setSuccess(`Successfully added ${res.items[0].email}`);
         setFilter({ ...filter, user_email: "" });
       } else {
@@ -74,8 +77,8 @@ const AddParticipantForm = ({
       {/* Form */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1">
-            <Input className="w-full">
+          <div className="flex-1 flex-row items-center gap-2">
+            <Input className="">
               <Input.Element
                 label=""
                 type="email"
@@ -90,30 +93,45 @@ const AddParticipantForm = ({
                 disabled={isLoading}
               />
             </Input>
-          </div>
 
-          <Button
-            onClick={handleAddParticipant}
-            disabled={isLoading || !filter.user_email?.trim()}
-            className={`
+            <Input>
+              <Input.Element
+                label="Role"
+                type="select"
+                options={
+                  roles?.items?.map((role) => ({
+                    label: role.name,
+                    value: role.name,
+                  })) ?? []
+                }
+                value={role}
+                onChange={(e) => setRole(e.currentTarget.value)}
+              />
+            </Input>
+
+            <Button
+              onClick={handleAddParticipant}
+              disabled={isLoading || !filter.user_email?.trim()}
+              className={`
               px-4 py-2 bg-accent-600 hover:bg-accent-700 text-white font-medium rounded-lg 
               transition-all duration-200 flex items-center gap-2 min-w-[80px] justify-center
               disabled:bg-white/20 disabled:cursor-not-allowed disabled:text-white/50
-              hover:scale-105 hover:shadow-lg text-sm
+              hover:scale-105 hover:shadow-lg text-sm w-full
             `}
-          >
-            {isLoading ? (
-              <>
-                <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Adding...</span>
-              </>
-            ) : (
-              <>
-                <MdSearch size={14} />
-                <span>Add</span>
-              </>
-            )}
-          </Button>
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Adding...</span>
+                </>
+              ) : (
+                <>
+                  <MdSearch size={14} />
+                  <span>Add</span>
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Status Messages */}

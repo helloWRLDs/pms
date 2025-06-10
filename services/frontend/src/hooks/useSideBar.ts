@@ -60,7 +60,6 @@ export const useSideBar = () => {
     ];
 
     if (isLoggedIn) {
-      // Core navigation items
       items.push(
         {
           id: "companies",
@@ -78,7 +77,6 @@ export const useSideBar = () => {
         }
       );
 
-      // Project-specific items (only show if project is selected)
       const selectedProject = metaCache.metadata.selectedProject;
       if (selectedProject) {
         items.push(
@@ -113,23 +111,13 @@ export const useSideBar = () => {
         );
       }
 
-      // Global features
-      items.push(
-        {
-          id: "calendar",
-          icon: createElement(MdOutlineCalendarToday),
-          label: "Calendar",
-          onClick: () => navigate("/calendar"),
-          isActive: currentPath === "/calendar",
-        },
-        {
-          id: "chat",
-          icon: createElement(MdOutlineChat),
-          label: "Chat",
-          onClick: () => navigate("/chat"),
-          isActive: currentPath === "/chat",
-        }
-      );
+      items.push({
+        id: "calendar",
+        icon: createElement(MdOutlineCalendarToday),
+        label: "Calendar",
+        onClick: () => navigate("/calendar"),
+        isActive: currentPath === "/calendar",
+      });
     }
 
     return items;

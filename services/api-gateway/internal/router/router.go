@@ -37,7 +37,7 @@ func (s *Server) SetupREST() {
 
 		user.Get("/:id", s.GetUser)
 		user.Get("/", s.ListUsers)
-		user.Put("/:id", s.RequirePermission(consts.USER_WRITE_PERMISSION), s.UpdateUser)
+		user.Put("/:id", s.RequireCompany(), s.RequirePermission(consts.USER_WRITE_PERMISSION), s.UpdateUser)
 	})
 
 	v1.Route("/companies", func(comp fiber.Router) {
@@ -46,22 +46,26 @@ func (s *Server) SetupREST() {
 
 		comp.Get("/", s.ListCompanies)
 		comp.Get("/:companyID", s.GetCompany)
-		comp.Post("/", s.CreateCompany)
 		comp.Get("/:companyID/stats", s.GetCompanyStats)
 
-		comp.Route("/:companyID/participants", func(participants fiber.Router) {
+		comp.Post("/", s.CreateCompany)
 
-			participants.Post("/:userID", s.CompanyAddParticipant)
-			participants.Delete("/:userID", s.CompanyRemoveParticipant)
+		comp.Route("/:companyID/participants", func(participants fiber.Router) {
+			participants.Use(s.RequireCompanyFromPath())
+			participants.Post("/:userID", s.RequirePermission(consts.COMPANY_INVITE_PERMISSION), s.CompanyAddParticipant)
+			participants.Delete("/:userID", s.RequirePermission(consts.USER_DELETE_PERMISSION), s.CompanyRemoveParticipant)
 		})
 	})
 
 	v1.Route("/docs", func(docs fiber.Router) {
-		docs.Post("/", s.CreateReportTemplate)
-		docs.Get("/:docID", s.GetDocument)
-		docs.Get("/", s.ListDocuments)
-		docs.Put("/:docID", s.UpdateDocument)
-		docs.Get(":docID/download", s.DownloadDocument)
+		docs.Use(s.Authorize())
+		docs.Use(s.RequireCompany())
+
+		docs.Post("/", s.RequirePermission(consts.COMPANY_WRITE_PERMISSION), s.CreateReportTemplate)
+		docs.Get("/:docID", s.RequirePermission(consts.COMPANY_READ_PERMISSION), s.GetDocument)
+		docs.Get("/", s.RequirePermission(consts.COMPANY_READ_PERMISSION), s.ListDocuments)
+		docs.Put("/:docID", s.RequirePermission(consts.COMPANY_WRITE_PERMISSION), s.UpdateDocument)
+		docs.Get(":docID/download", s.RequirePermission(consts.COMPANY_READ_PERMISSION), s.DownloadDocument)
 	})
 
 	v1.Route("/tasks", func(tasks fiber.Router) {
@@ -76,14 +80,26 @@ func (s *Server) SetupREST() {
 		tasks.Delete("/:taskID", s.RequirePermission(consts.TASK_DELETE_PERMISSION), s.DeleteTask)
 
 		tasks.Route("/:taskID/assignments", func(assignment fiber.Router) {
-			assignment.Post("/:userID", s.RequirePermission(consts.TASK_ADD_PERMISSION), s.CreateTaskAssignment)
+			assignment.Post("/:userID", s.RequirePermission(consts.TASK_INVITE_PERMISSION), s.CreateTaskAssignment)
 			assignment.Delete("/:userID", s.RequirePermission(consts.TASK_DELETE_PERMISSION), s.DeleteTaskAssignment)
 		})
 
 		tasks.Route("/:taskID/comments", func(comment fiber.Router) {
-			comment.Get("/", s.RequirePermission(consts.TASK_WRITE_PERMISSION), s.ListTaskComments)
+			comment.Get("/", s.RequirePermission(consts.TASK_READ_PERMISSION), s.ListTaskComments)
 			comment.Post("/", s.RequirePermission(consts.TASK_WRITE_PERMISSION), s.CreateTaskComments)
 		})
+	})
+
+	v1.Route("/roles", func(roles fiber.Router) {
+		roles.Use(s.RequireAuthService())
+		roles.Use(s.Authorize())
+		roles.Get("/", s.ListRoles)
+
+		roles.Use(s.RequireCompany())
+		roles.Post("/", s.RequirePermission(consts.ROLE_WRITE_PERMISSION), s.CreateRole)
+		roles.Get("/:roleName", s.RequirePermission(consts.ROLE_READ_PERMISSION), s.GetRole)
+		roles.Put("/:roleName", s.RequirePermission(consts.ROLE_WRITE_PERMISSION), s.UpdateRole)
+		roles.Delete("/:roleName", s.RequirePermission(consts.ROLE_DELETE_PERMISSION), s.DeleteRole)
 	})
 
 	v1.Route("/sprints", func(sprints fiber.Router) {
@@ -108,6 +124,9 @@ func (s *Server) SetupREST() {
 	})
 
 	v1.Route("/background-tasks", func(tasks fiber.Router) {
-		tasks.Get("/", s.ListBackgroundTasks)
+		tasks.Use(s.Authorize())
+		tasks.Use(s.RequireCompany())
+
+		tasks.Get("/", s.RequirePermission(consts.COMPANY_READ_PERMISSION), s.ListBackgroundTasks)
 	})
 }

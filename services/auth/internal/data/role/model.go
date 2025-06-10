@@ -26,12 +26,3 @@ func (r *Role) DTO() *dto.Role {
 		CompanyId:   utils.Value(r.CompanyID),
 	}
 }
-
-// type RoleFilter struct {
-// 	list.Pagination
-// 	list.Date
-// 	list.Order
-// 	CompanyID   string `json:"company_id"`
-// 	CompanyName string `json:"company_name"`
-// 	Name        string `json:"name"`
-// }

@@ -214,6 +214,7 @@ message TaskFilter {
     string order_by = 14;
     string order_direction = 15;
     string code = 16;
+    string type = 17;
 }
 
 message TaskCommentFilter {
@@ -281,6 +282,8 @@ message RoleFilter {
     string date_to = 7;
     string order_by = 8;
     string order_direction = 9;
+    bool with_default = 10;
+    string user_id = 11;
 }
 
 // LISTS
@@ -299,6 +302,14 @@ message SprintList {
     int32 total_pages = 3;
     int32 total_items = 4;
     repeated Sprint items = 5;
+}
+
+message RoleList {
+    int32 page = 1;
+    int32 per_page = 2;
+    int32 total_pages = 3;
+    int32 total_items = 4;
+    repeated Role items = 5;
 }
 
 message ProjectList {

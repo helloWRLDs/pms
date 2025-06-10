@@ -5,6 +5,7 @@ import { toastOpts } from "../lib/utils/toast";
 import { toast } from "react-toastify";
 import { AuthData } from "../lib/user/session";
 import useMetaCache from "../store/useMetaCache";
+import { useAuthStore } from "../store/authStore";
 
 export class API {
   protected baseURL: string;
@@ -15,15 +16,16 @@ export class API {
     this.req = axios.create({ baseURL: this.baseURL });
 
     this.req.interceptors.request.use((config) => {
-      const auth: {
-        state: {
-          auth: AuthData;
-        };
-      } | null = localStorage.getItem(LocalStorageKeysMap.AUTH)
-        ? JSON.parse(localStorage.getItem(LocalStorageKeysMap.AUTH)!)
-        : null;
-      if (auth && auth.state && auth.state.auth) {
-        config.headers.Authorization = `Bearer ${auth.state.auth.access_token}`;
+      const { auth } = useAuthStore.getState();
+      // const auth: {
+      //   state: {
+      //     auth: AuthData;
+      //   };
+      // } | null = localStorage.getItem(LocalStorageKeysMap.AUTH)
+      //   ? JSON.parse(localStorage.getItem(LocalStorageKeysMap.AUTH)!)
+      //   : null;
+      if (auth && auth.access_token) {
+        config.headers.Authorization = `Bearer ${auth.access_token}`;
       }
       const metaCache = useMetaCache.getState();
       if (metaCache.metadata.selectedProject?.id) {
@@ -45,17 +47,20 @@ export class API {
 
           switch (status) {
             case 400:
-              toast.warning(resBody?.msg || "Bad request", toastOpts);
+              toast.warning(resBody?.err || "Bad request", toastOpts);
               break;
             case 401:
-              toast.error("Unauthorized! Please login.", toastOpts);
+              toast.error(
+                resBody?.err || "Unauthorized! Please login.",
+                toastOpts
+              );
               break;
             case 404:
-              toast.error(resBody?.msg || "Not found", toastOpts);
+              toast.error(resBody?.err || "Not found", toastOpts);
               break;
             case 500:
               toast.error(
-                `Server error: ${resBody.msg}! Please try again later.`,
+                `Server error: ${resBody.err}! Please try again later.`,
                 toastOpts
               );
               break;

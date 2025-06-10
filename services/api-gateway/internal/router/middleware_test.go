@@ -42,8 +42,8 @@ func TestRequirePermission(t *testing.T) {
 			role: &dto.Role{
 				Name: "ceo",
 				Permissions: []string{
-					string(consts.ORG_READ_PERMISSION),
-					string(consts.ORG_WRITE_PERMISSION),
+					string(consts.COMPANY_READ_PERMISSION),
+					string(consts.COMPANY_WRITE_PERMISSION),
 					string(consts.USER_READ_PERMISSION),
 					string(consts.USER_WRITE_PERMISSION),
 					string(consts.PROJECT_READ_PERMISSION),
@@ -54,7 +54,7 @@ func TestRequirePermission(t *testing.T) {
 					string(consts.SPRINT_WRITE_PERMISSION),
 				},
 			},
-			permission:     string(consts.ORG_WRITE_PERMISSION),
+			permission:     string(consts.COMPANY_WRITE_PERMISSION),
 			expectedStatus: http.StatusOK,
 		},
 		{
@@ -70,7 +70,7 @@ func TestRequirePermission(t *testing.T) {
 					string(consts.SPRINT_WRITE_PERMISSION),
 				},
 			},
-			permission:     string(consts.ORG_WRITE_PERMISSION),
+			permission:     string(consts.COMPANY_WRITE_PERMISSION),
 			expectedStatus: http.StatusUnauthorized,
 		},
 		{

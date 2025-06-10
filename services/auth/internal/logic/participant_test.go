@@ -19,7 +19,7 @@ func TestAddParticipant(t *testing.T) {
 			name:      "add valid participant",
 			companyID: "60cde332-ad5a-4aab-932b-81b5f16a61d2",
 			userID:    "eb306dc5-52bb-4009-88af-347b4d040718",
-			roleID:    "1",
+			roleID:    "admin",
 			wantErr:   false,
 		},
 		{
@@ -40,7 +40,7 @@ func TestAddParticipant(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := logic.AddParticipant(context.Background(), tt.companyID, tt.userID)
+			_, err := logic.AddParticipant(context.Background(), tt.companyID, tt.userID, tt.roleID)
 			if tt.wantErr {
 				assert.Error(t, err)
 				return

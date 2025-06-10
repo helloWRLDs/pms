@@ -23,7 +23,7 @@ import {
 } from "react-icons/bs";
 import { parseError } from "../../lib/errors";
 import useMetaCache from "../../store/useMetaCache";
-import { useAssigneeList } from "../../hooks/useSprintList";
+import { useAssigneeList } from "../../hooks/useData";
 import { ContextMenu } from "../../components/ui/ContextMenu";
 
 const CompaniesPage: FC = () => {
@@ -51,6 +51,7 @@ const CompaniesPage: FC = () => {
           page: filter.page,
           per_page: filter.per_page,
           user_id: auth?.user.id ?? "",
+          company_name: filter.company_name,
         });
         return res;
       } catch (e) {
@@ -84,6 +85,16 @@ const CompaniesPage: FC = () => {
       refetchAssignees();
     }
   }, [metaCache.metadata.selectedCompany]);
+
+  const handleSearch = () => {
+    setFilter({ ...filter, company_name: search, page: 1 }); // Reset to page 1 when searching
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   const LoadingRow = () => (
     <Table.Row>
@@ -208,11 +219,12 @@ const CompaniesPage: FC = () => {
                     label="Search organizations"
                     value={search}
                     onInput={(e) => setSearch(e.currentTarget.value)}
+                    onKeyPress={handleKeyPress}
                   />
                 </Input>
               </div>
               <Button
-                onClick={() => setFilter({ ...filter, company_name: search })}
+                onClick={handleSearch}
                 className="flex items-center gap-2"
               >
                 <BsSearch />
@@ -223,7 +235,7 @@ const CompaniesPage: FC = () => {
         </section>
 
         <section id="table-section">
-          <div className="bg-primary-500/50 backdrop-blur-sm rounded-xl border border-primary-400/30 overflow-hidden">
+          <div className="bg-primary-500/50 backdrop-blur-sm rounded-xl border border-primary-400/30 overflow-visible">
             <div className="h-[50vh] overflow-x-auto">
               <table className="w-full border-collapse">
                 <Table.Head className="bg-primary-400/70 text-white sticky top-0">
@@ -245,7 +257,7 @@ const CompaniesPage: FC = () => {
                       .map((_, index) => <LoadingRow key={index} />)
                   ) : !companyList?.items || companyList.items.length === 0 ? (
                     <Table.Row>
-                      <td colSpan={5} className="px-4 py-12 text-center">
+                      <td colSpan={8} className="px-4 py-12 text-center">
                         <div className="text-white/70">
                           <BsBuilding className="mx-auto text-4xl mb-4 opacity-50" />
                           <p className="text-lg font-medium mb-2">

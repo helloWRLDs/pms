@@ -5,15 +5,15 @@ import { formatTime } from "../../lib/utils/time";
 import Badge from "../ui/Badge";
 import { capitalize } from "../../lib/utils/string";
 import { Priority } from "../../lib/task/priority";
-import { useSprintList } from "../../hooks/useSprintList";
+import { useSprintList } from "../../hooks/useData";
 import useMetaCache from "../../store/useMetaCache";
-import { useAssigneeList } from "../../hooks/useSprintList";
+import { useAssigneeList } from "../../hooks/useData";
 import { Task } from "../../lib/task/task";
 
 const TaskCard = ({ task, onClick }: { task: Task; onClick: () => void }) => {
   const metaCache = useMetaCache();
   const { getAssigneeName } = useAssigneeList(
-    metaCache.metadata.selectedProject?.id ?? ""
+    metaCache.metadata.selectedCompany?.id ?? ""
   );
   const { getSprintName } = useSprintList(
     metaCache.metadata.selectedProject?.id ?? ""

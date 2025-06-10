@@ -31,7 +31,7 @@ import { Button } from "../components/ui/Button";
 import useMetaCache from "../store/useMetaCache";
 import Table from "../components/ui/Table";
 import { getTaskTypeConfig, TaskType, TaskTypes } from "../lib/task/tasktype";
-import { useSprintList, useAssigneeList } from "../hooks/useSprintList";
+import { useSprintList, useAssigneeList } from "../hooks/useData";
 import FilterButton from "../components/ui/button/FilterButton";
 import TaskCard from "../components/task/TaskCard";
 import { ContextMenu } from "../components/ui/ContextMenu";
@@ -106,6 +106,7 @@ const BacklogPage = () => {
       filter.priority,
       filter.assignee_id,
       filter.sprint_id,
+      filter.type,
     ],
     queryFn: async () => {
       try {
@@ -172,7 +173,7 @@ const BacklogPage = () => {
               <ViewToggle view={viewMode} onViewChange={handleViewChange} />
               <Button
                 onClick={() => setTaskCreationModal(true)}
-                className="flex items-center gap-2 bg-accent-500 text-primary-700 hover:bg-accent-400"
+                className="flex items-center gap-2 bg-accent-500 text-white hover:bg-accent-400"
               >
                 <BsFillPlusCircleFill />
                 Create Task
@@ -238,10 +239,13 @@ const BacklogPage = () => {
                   <FilterButton
                     label="Type"
                     value={filter.type}
-                    options={Object.values(TaskTypes).map((type) => ({
-                      label: getTaskTypeConfig(type).label,
-                      value: type,
-                    }))}
+                    options={[
+                      { value: "", label: "All" },
+                      ...Object.values(TaskTypes).map((type) => ({
+                        label: getTaskTypeConfig(type).label,
+                        value: type,
+                      })),
+                    ]}
                     onChange={(value) =>
                       setFilter({ ...filter, type: value as TaskType })
                     }
@@ -558,13 +562,16 @@ const BacklogPage = () => {
         title="Create New Task"
         visible={taskCreationModal}
         onClose={() => setTaskCreationModal(false)}
-        className="max-w-3xl mx-auto bg-secondary-300"
+        className="w-full max-w-2xl mx-auto bg-secondary-300 max-h-[90vh] overflow-y-auto"
+        size="lg"
       >
         {metaCache.metadata.selectedProject && (
-          <NewTaskForm
-            project={metaCache.metadata.selectedProject}
-            onSubmit={handleCreateTask}
-          />
+          <div className="p-1">
+            <NewTaskForm
+              project={metaCache.metadata.selectedProject}
+              onSubmit={handleCreateTask}
+            />
+          </div>
         )}
       </Modal>
     </div>

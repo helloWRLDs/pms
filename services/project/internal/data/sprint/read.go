@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	"github.com/Masterminds/squirrel"
 	sq "github.com/Masterminds/squirrel"
 	"go.uber.org/zap"
 
@@ -60,16 +59,16 @@ func (r *Repository) List(ctx context.Context, filter *dto.SprintFilter) (res li
 		From("\"Sprint\" s")
 
 	if filter.ProjectName != "" {
-		builder = builder.LeftJoin("\"Project\" p ON p.id = s.project_id").Where(squirrel.Eq{"p.name": filter.ProjectName})
+		builder = builder.LeftJoin("\"Project\" p ON p.id = s.project_id").Where(sq.ILike{"p.name": "%" + filter.ProjectName + "%"})
 	}
 	if filter.Title != "" {
-		builder = builder.Where(squirrel.Eq{"s.title": filter.Title})
+		builder = builder.Where(sq.ILike{"s.title": "%" + filter.Title + "%"})
 	}
 	if filter.Description != "" {
-		builder = builder.Where(squirrel.Eq{"s.description": filter.Description})
+		builder = builder.Where(sq.ILike{"s.description": "%" + filter.Description + "%"})
 	}
 	if filter.ProjectId != "" {
-		builder = builder.Where(squirrel.Eq{"s.project_id": filter.ProjectId})
+		builder = builder.Where(sq.Eq{"s.project_id": filter.ProjectId})
 	}
 
 	{
@@ -88,10 +87,10 @@ func (r *Repository) List(ctx context.Context, filter *dto.SprintFilter) (res li
 	}
 
 	if filter.DateFrom != "" {
-		builder = builder.Where(squirrel.GtOrEq{"s.created_at": filter.DateFrom})
+		builder = builder.Where(sq.GtOrEq{"s.created_at": filter.DateFrom})
 	}
 	if filter.DateTo != "" {
-		builder = builder.Where(squirrel.LtOrEq{"s.created_at": filter.DateTo})
+		builder = builder.Where(sq.LtOrEq{"s.created_at": filter.DateTo})
 	}
 	if filter.OrderBy != "" {
 		builder = builder.OrderBy(filter.OrderBy + " " + filter.OrderDirection)

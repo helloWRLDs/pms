@@ -1,3 +1,5 @@
+import { Role } from "../lib/roles";
+import { RoleFilter } from "../lib/roles";
 import { AuthData, Session } from "../lib/user/session";
 import { User, UserCredentials, UserFilter, UserNew } from "../lib/user/user";
 import { buildQuery, ListItems } from "../lib/utils/list";
@@ -86,6 +88,57 @@ class AuthAPI extends API {
       userData
     );
     return response.data;
+  }
+
+  async listRoles(filter: RoleFilter): Promise<ListItems<Role>> {
+    try {
+      const res = await this.req.get(
+        buildQuery(`${this.baseURL}/roles`, filter)
+      );
+      return res.data;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+
+  async getRole(name: string): Promise<Role> {
+    try {
+      const res = await this.req.get(`${this.baseURL}/roles/${name}`);
+      return res.data;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+
+  async createRole(role: Role): Promise<Role> {
+    try {
+      const res = await this.req.post(`${this.baseURL}/roles`, role);
+      return res.data;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+
+  async updateRole(name: string, role: Role): Promise<Role> {
+    try {
+      const res = await this.req.put(`${this.baseURL}/roles/${name}`, role);
+      return res.data;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+
+  async deleteRole(name: string): Promise<void> {
+    try {
+      await this.req.delete(`${this.baseURL}/roles/${name}`);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
 }
 

@@ -1,3 +1,4 @@
+import { Participant } from "../paticipantion";
 import { DeepPartial } from "../utils/generics";
 import { Pagination } from "../utils/list";
 
@@ -20,6 +21,7 @@ export type User = {
     nanos: number;
   };
   permissions?: Record<string, { values: string[] } | string[]>;
+  participants?: Participant[];
 };
 
 export type UserCredentials = Pick<User, "email" | "password">;

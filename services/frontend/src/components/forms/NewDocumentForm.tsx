@@ -3,7 +3,7 @@ import Input from "../ui/Input";
 import { DocumentCreation } from "../../lib/document/document";
 import { errorToast } from "../../lib/utils/toast";
 import useMetaCache from "../../store/useMetaCache";
-import { useSprintList } from "../../hooks/useSprintList";
+import { useSprintList } from "../../hooks/useData";
 
 type NewDocumentProps = {
   onSubmit: (newDoc: DocumentCreation) => Promise<void>;

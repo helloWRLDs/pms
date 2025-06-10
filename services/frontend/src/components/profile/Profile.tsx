@@ -27,8 +27,18 @@ export const Profile: FC<ProfileProps> = ({
   const [userProfile, setUserProfile] = useState<UserOptional>(initialUser);
 
   const updateProfileMutation = useMutation({
-    mutationFn: (updatedProfile: UserOptional) =>
-      authAPI.updateUser(initialUser.id, updatedProfile),
+    mutationFn: (updatedProfile: UserOptional) => {
+      // Only send fields that can be updated, excluding email and system fields
+      const updateData: Partial<User> = {
+        first_name: updatedProfile.first_name,
+        last_name: updatedProfile.last_name,
+        phone: updatedProfile.phone,
+        bio: updatedProfile.bio,
+        avatar_img: updatedProfile.avatar_img,
+        avatar_url: updatedProfile.avatar_url,
+      };
+      return authAPI.updateUser(initialUser.id, updateData);
+    },
     onSuccess: () => {
       toast.success("Profile updated successfully!");
       onUpdate?.();
@@ -40,6 +50,16 @@ export const Profile: FC<ProfileProps> = ({
   });
 
   const handleSaveChanges = async () => {
+    // Validation for required fields
+    if (!userProfile?.first_name?.trim()) {
+      toast.error("First name is required");
+      return;
+    }
+    if (!userProfile?.last_name?.trim()) {
+      toast.error("Last name is required");
+      return;
+    }
+
     updateProfileMutation.mutate(userProfile);
   };
 
@@ -120,7 +140,7 @@ export const Profile: FC<ProfileProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-white/90 mb-2">
-                  First Name
+                  First Name <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="text"
@@ -132,12 +152,17 @@ export const Profile: FC<ProfileProps> = ({
                     })
                   }
                   disabled={!isEditable}
-                  className="w-full bg-primary-400/20 border border-primary-400/30 rounded-lg py-2 px-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-accent-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  required
+                  className={`w-full bg-primary-400/20 border rounded-lg py-2 px-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-accent-500 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    !userProfile?.first_name?.trim()
+                      ? "border-red-400/50"
+                      : "border-primary-400/30"
+                  }`}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-white/90 mb-2">
-                  Last Name
+                  Last Name <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="text"
@@ -149,24 +174,24 @@ export const Profile: FC<ProfileProps> = ({
                     })
                   }
                   disabled={!isEditable}
-                  className="w-full bg-primary-400/20 border border-primary-400/30 rounded-lg py-2 px-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-accent-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  required
+                  className={`w-full bg-primary-400/20 border rounded-lg py-2 px-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-accent-500 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    !userProfile?.last_name?.trim()
+                      ? "border-red-400/50"
+                      : "border-primary-400/30"
+                  }`}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-white/90 mb-2">
-                  Email
+                  Email{" "}
+                  <span className="text-white/50 text-xs">(Read-only)</span>
                 </label>
                 <input
                   type="email"
                   value={userProfile?.email}
-                  onChange={(e) =>
-                    setUserProfile({
-                      ...userProfile,
-                      email: e.target.value,
-                    })
-                  }
-                  disabled={!isEditable}
-                  className="w-full bg-primary-400/20 border border-primary-400/30 rounded-lg py-2 px-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-accent-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={true}
+                  className="w-full bg-primary-400/10 border border-primary-400/20 rounded-lg py-2 px-3 text-white/60 placeholder-white/30 cursor-not-allowed opacity-60"
                 />
               </div>
               <div>

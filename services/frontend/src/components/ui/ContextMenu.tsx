@@ -2,9 +2,9 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { cn } from "../../lib/utils/cn";
 import { ReactNode, useRef, useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import { createPortal } from "react-dom";
 
 export interface ContextMenuItemProps {
-  /** Icon to display next to the label */
   icon?: ReactNode;
   /** Text label for the menu item */
   label: string;
@@ -59,27 +59,56 @@ export const ContextMenu = ({
   };
 
   const getMenuStyle = () => {
-    if (!buttonRect) return {};
+    if (!buttonRect)
+      return {
+        position: "absolute" as const,
+        top: "100%",
+        right: "0px",
+        zIndex: 99999,
+      };
 
     const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
     const menuWidth = 192;
+    const menuHeight = 200;
 
     let left = buttonRect.left;
     let top = buttonRect.bottom + 4;
 
-    if (left + menuWidth > viewportWidth) {
-      left = buttonRect.right - menuWidth;
+    // For "left" placement, position menu to the left of the button
+    if (placement === "left") {
+      left = buttonRect.left - menuWidth + buttonRect.width;
+      if (left < 8) {
+        left = buttonRect.right - menuWidth;
+      }
+    } else {
+      // For "right" placement, position menu to the right
+      if (left + menuWidth > viewportWidth) {
+        left = buttonRect.right - menuWidth;
+      }
     }
 
-    if (left < 8) {
-      left = 8;
+    // Handle bottom edge overflow
+    if (top + menuHeight > viewportHeight) {
+      top = buttonRect.top - menuHeight - 4;
     }
+
+    // Ensure minimum spacing from edges
+    if (left < 8) left = 8;
+    if (top < 8) top = buttonRect.bottom + 4;
+
+    console.log("Positioning debug:", {
+      buttonRect,
+      calculated: { left, top },
+      placement,
+      viewport: { width: viewportWidth, height: viewportHeight },
+    });
 
     return {
       position: "fixed" as const,
       left: `${left}px`,
       top: `${top}px`,
-      zIndex: 9999,
+      zIndex: 99999,
     };
   };
 
@@ -107,86 +136,90 @@ export const ContextMenu = ({
         </MenuButton>
       )}
 
-      <MenuItems
-        style={getMenuStyle()}
-        className={cn(
-          "w-48 bg-secondary-100 rounded-lg shadow-xl border border-secondary-50 py-1 focus:outline-none",
-          "transform transition-all duration-200 ease-out",
-          "data-[closed]:scale-95 data-[closed]:opacity-0 data-[open]:scale-100 data-[open]:opacity-100",
-          "hover:shadow-2xl hover:border-secondary-100",
-          menuClassName
-        )}
-      >
-        {items.map((item, index) => (
-          <MenuItem key={index} disabled={item.disabled}>
-            {({ active, focus }) => (
-              <button
-                className={cn(
-                  "flex items-center w-full px-4 py-2 text-sm gap-3 transition-all duration-200 ease-in-out",
-                  "group relative overflow-hidden cursor-pointer",
-                  active || focus
-                    ? "bg-secondary-200 transform translate-x-1"
-                    : "",
-                  getVariantStyles(item.variant),
-                  item.disabled &&
-                    "opacity-50 cursor-not-allowed hover:bg-transparent hover:text-neutral-400",
-                  item.className
-                )}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (!item.disabled) {
-                    item.onClick(e);
-                  }
-                }}
-                disabled={item.disabled}
-              >
-                {/* Hover background effect */}
-                <span
-                  className={cn(
-                    "absolute inset-0 bg-gradient-to-r from-accent-500/10 to-transparent",
-                    "transform transition-transform duration-300 ease-out",
-                    active || focus ? "translate-x-0" : "-translate-x-full"
-                  )}
-                />
-
-                {item.icon && (
-                  <span
-                    className={cn(
-                      "flex-shrink-0 text-accent-500 transition-all duration-200",
-                      active || focus ? "text-accent-400 scale-110" : "",
-                      item.disabled && "text-neutral-500"
-                    )}
-                  >
-                    {item.icon}
-                  </span>
-                )}
-
-                <span
-                  className={cn(
-                    "truncate relative z-10 transition-all duration-200",
-                    active || focus ? "font-medium" : ""
-                  )}
-                >
-                  {item.label}
-                </span>
-
-                {/* Ripple effect on hover */}
-                <span
-                  className={cn(
-                    "absolute right-0 top-1/2 w-2 h-2 bg-accent-500/30 rounded-full transform -translate-y-1/2 transition-all duration-300 ease-out",
-                    active || focus
-                      ? "scale-50 opacity-100"
-                      : "scale-0 opacity-0"
-                  )}
-                />
-              </button>
+      {typeof window !== "undefined" &&
+        createPortal(
+          <MenuItems
+            style={getMenuStyle()}
+            className={cn(
+              "w-48 bg-secondary-100 rounded-lg shadow-xl border border-secondary-50 py-1 focus:outline-none",
+              "transform transition-all duration-200 ease-out",
+              "data-[closed]:scale-95 data-[closed]:opacity-0 data-[open]:scale-100 data-[open]:opacity-100",
+              "hover:shadow-2xl hover:border-secondary-100",
+              menuClassName
             )}
-          </MenuItem>
-        ))}
+          >
+            {items.map((item, index) => (
+              <MenuItem key={index} disabled={item.disabled}>
+                {({ active, focus }) => (
+                  <button
+                    className={cn(
+                      "flex items-center w-full px-4 py-2 text-sm gap-3 transition-all duration-200 ease-in-out",
+                      "group relative overflow-hidden cursor-pointer",
+                      active || focus
+                        ? "bg-secondary-200 transform translate-x-1"
+                        : "",
+                      getVariantStyles(item.variant),
+                      item.disabled &&
+                        "opacity-50 cursor-not-allowed hover:bg-transparent hover:text-neutral-400",
+                      item.className
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!item.disabled) {
+                        item.onClick(e);
+                      }
+                    }}
+                    disabled={item.disabled}
+                  >
+                    {/* Hover background effect */}
+                    <span
+                      className={cn(
+                        "absolute inset-0 bg-gradient-to-r from-accent-500/10 to-transparent",
+                        "transform transition-transform duration-300 ease-out",
+                        active || focus ? "translate-x-0" : "-translate-x-full"
+                      )}
+                    />
 
-        {/* Menu container hover glow effect */}
-        <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-accent-500/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-      </MenuItems>
+                    {item.icon && (
+                      <span
+                        className={cn(
+                          "flex-shrink-0 text-accent-500 transition-all duration-200",
+                          active || focus ? "text-accent-400 scale-110" : "",
+                          item.disabled && "text-neutral-500"
+                        )}
+                      >
+                        {item.icon}
+                      </span>
+                    )}
+
+                    <span
+                      className={cn(
+                        "truncate relative z-10 transition-all duration-200",
+                        active || focus ? "font-medium" : ""
+                      )}
+                    >
+                      {item.label}
+                    </span>
+
+                    {/* Ripple effect on hover */}
+                    <span
+                      className={cn(
+                        "absolute right-0 top-1/2 w-2 h-2 bg-accent-500/30 rounded-full transform -translate-y-1/2 transition-all duration-300 ease-out",
+                        active || focus
+                          ? "scale-50 opacity-100"
+                          : "scale-0 opacity-0"
+                      )}
+                    />
+                  </button>
+                )}
+              </MenuItem>
+            ))}
+
+            {/* Menu container hover glow effect */}
+            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-accent-500/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+          </MenuItems>,
+          document.body
+        )}
     </Menu>
   );
 };

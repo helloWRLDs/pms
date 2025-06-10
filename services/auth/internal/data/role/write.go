@@ -44,7 +44,7 @@ func (r *Repository) Create(ctx context.Context, newRole Role) (err error) {
 
 	_, err = tx.Exec(q, a...)
 	if err != nil {
-		log.Errorw("failed to add participant", "err", err)
+		log.Errorw("failed to add role", "err", err)
 		return err
 	}
 	return nil
@@ -78,7 +78,7 @@ func (r *Repository) Update(ctx context.Context, name string, updated Role) (err
 		}()
 	}
 
-	builder := r.gen.Update("Role")
+	builder := r.gen.Update(r.tableName)
 
 	cols := utils.GetColumns(updated)
 	args := utils.GetArguments(updated)

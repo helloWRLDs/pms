@@ -28,7 +28,7 @@ import { MdOpenInNew } from "react-icons/md";
 import { formatTime } from "../../lib/utils/time";
 import { infoToast, errorToast } from "../../lib/utils/toast";
 import useMetaCache from "../../store/useMetaCache";
-import { useProjectList } from "../../hooks/useSprintList";
+import { useProjectList } from "../../hooks/useData";
 import analyticsAPI from "../../api/analyticsAPI";
 
 const DocumentsPage = () => {

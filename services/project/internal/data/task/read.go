@@ -134,12 +134,12 @@ func (r *Repository) List(ctx context.Context, filter *dto.TaskFilter) (res list
 	if filter.ProjectName != "" {
 		builder = builder.
 			LeftJoin("\"Project\" p ON p.id = t.project_id").
-			Where(sq.Eq{"p.name": filter.ProjectName})
+			Where(sq.ILike{"p.name": "%" + filter.ProjectName + "%"})
 	}
 	if filter.SprintName != "" {
 		builder = builder.
 			LeftJoin("\"Sprint\" s ON s.id = t.sprint_id").
-			Where(sq.Eq{"s.title": filter.SprintName})
+			Where(sq.ILike{"s.title": "%" + filter.SprintName + "%"})
 	}
 
 	if filter.DateFrom != "" {
@@ -150,7 +150,7 @@ func (r *Repository) List(ctx context.Context, filter *dto.TaskFilter) (res list
 	}
 
 	if filter.Title != "" {
-		builder = builder.Where(sq.Eq{"t.title": filter.Title})
+		builder = builder.Where(sq.ILike{"t.title": "%" + filter.Title + "%"})
 	}
 	if filter.Priority != 0 {
 		builder = builder.Where(sq.Eq{"t.priority": filter.Priority})
@@ -163,6 +163,9 @@ func (r *Repository) List(ctx context.Context, filter *dto.TaskFilter) (res list
 	}
 	if filter.SprintId != "" {
 		builder = builder.Where(sq.Eq{"t.sprint_id": filter.SprintId})
+	}
+	if filter.Type != "" {
+		builder = builder.Where(sq.Eq{"t.type": filter.Type})
 	}
 
 	{

@@ -40,7 +40,7 @@ func (l *Logic) DeleteParticipant(ctx context.Context, userID, companyID string)
 	return nil
 }
 
-func (l *Logic) AddParticipant(ctx context.Context, userID, companyID string) (*dto.Participant, error) {
+func (l *Logic) AddParticipant(ctx context.Context, userID, companyID, role string) (*dto.Participant, error) {
 	log := l.log.With(
 		zap.String("func", "AddParticipant"),
 		zap.String("user_id", userID),
@@ -72,7 +72,7 @@ func (l *Logic) AddParticipant(ctx context.Context, userID, companyID string) (*
 		ID:        uuid.NewString(),
 		UserID:    userID,
 		CompanyID: companyID,
-		Role:      "admin",
+		Role:      role,
 	}
 	if err := l.Repo.Participant.Create(ctx, participant); err != nil {
 		return nil, err

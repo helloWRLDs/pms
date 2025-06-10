@@ -7,8 +7,9 @@ import { Sprint } from "../../lib/sprint/sprint";
 import { Project } from "../../lib/project/project";
 import Input from "../ui/Input";
 import { Priority } from "../../lib/task/priority";
-import { useAssigneeList } from "../../hooks/useSprintList";
+import { useAssigneeList } from "../../hooks/useData";
 import { getTaskTypes } from "../../lib/task/tasktype";
+import TiptapEditor from "../text/TiptapEditor";
 
 type NewTaskFormProps = {
   className?: string;
@@ -44,7 +45,10 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
     console.log(newTask);
   }, [newTask]);
 
-  const handleChange = (field: keyof TaskCreation, value: string | number | { seconds: number }) => {
+  const handleChange = (
+    field: keyof TaskCreation,
+    value: string | number | { seconds: number }
+  ) => {
     setNewTask({ ...newTask, [field]: value });
   };
 
@@ -74,15 +78,19 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
         />
       </Input>
 
-      <Input>
-        <Input.Element
-          type="textarea"
-          label="Body"
-          value={newTask.body}
-          required
-          onChange={(e) => handleChange("body", e.currentTarget.value)}
-        />
-      </Input>
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Body *
+        </label>
+        <div className="bg-white rounded-lg [&_.ProseMirror]:!text-gray-900 [&_.ProseMirror]:!bg-white [&_.ProseMirror_p]:!text-gray-900 [&_.ProseMirror_h1]:!text-gray-900 [&_.ProseMirror_h2]:!text-gray-900 [&_.ProseMirror_h3]:!text-gray-900 [&_.ProseMirror_li]:!text-gray-900 [&_.ProseMirror_ul]:!text-gray-900 [&_.ProseMirror_ol]:!text-gray-900">
+          <TiptapEditor
+            content={newTask.body}
+            onChange={(content) => handleChange("body", content)}
+            placeholder="Enter task description..."
+            className="min-h-[150px] text-sm text-black"
+          />
+        </div>
+      </div>
 
       <Input>
         <Input.Element
@@ -93,6 +101,7 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
           })}
           value={newTask.type}
           onChange={(e) => handleChange("type", e.currentTarget.value)}
+          required
         />
       </Input>
 
@@ -103,6 +112,7 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
           options={getTaskStatuses.map((item) => {
             return { label: capitalize(item.replace("_", " ")), value: item };
           })}
+          required
         />
       </Input>
 
@@ -121,6 +131,7 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
           onChange={(e) => {
             handleChange("priority", parseInt(e.currentTarget.value));
           }}
+          required
         />
       </Input>
 
@@ -152,6 +163,7 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
               seconds: new Date(e.currentTarget.value).getTime() / 1000,
             })
           }
+          required
         />
       </Input>
 
@@ -169,6 +181,7 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
             ]}
             value={newTask.sprint_id}
             onChange={(e) => handleChange("sprint_id", e.currentTarget.value)}
+            required
           />
         </Input>
       )}

@@ -5,7 +5,7 @@ import { FiChevronDown, FiChevronRight } from "react-icons/fi";
 interface SideBarProps {
   logo?: {
     href: string;
-    imgSrc: string;
+    imgSrc?: string;
     label: string;
   };
   children?: ReactNode;
@@ -98,12 +98,9 @@ const SideBarElement: FC<SideBarElementProps> = ({
 }) => {
   return (
     <div className="relative">
-      {/* L-shaped connector using absolute positioning */}
       {level > 0 && (
         <div className={`absolute left-0 top-0 w-6 h-6 pointer-events-none`}>
-          {/* Vertical line (top part of L) */}
           <div className={`absolute left-3 top-0 w-px h-3 bg-white/30`} />
-          {/* Horizontal line (bottom part of L) */}
           <div
             className={`absolute left-3 top-3 w-[${
               level * 3
@@ -159,7 +156,6 @@ const SideBar: FC<SideBarProps> & {
         )}
       </button>
 
-      {/* Overlay */}
       <div
         className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-30 transition-opacity duration-300 lg:hidden ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -183,7 +179,7 @@ const SideBar: FC<SideBarProps> & {
         {logo && (
           <div className="flex items-center gap-3 px-6 py-4 border-b border-[var(--color-primary-300)]">
             <a href={logo.href} className="flex items-center gap-3">
-              <img src={logo.imgSrc} className="h-8" alt="Logo" />
+              <img src={logo.imgSrc} className="h-8" />
               <span className="text-xl font-semibold text-white">
                 {logo.label}
               </span>

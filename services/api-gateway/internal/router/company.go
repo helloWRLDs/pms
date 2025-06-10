@@ -98,7 +98,9 @@ func (s *Server) CompanyAddParticipant(c *fiber.Ctx) error {
 		}
 	}
 
-	if err := s.Logic.CompanyAddParticipant(c.UserContext(), companyID, userID); err != nil {
+	role := c.Query("role", "admin")
+
+	if err := s.Logic.CompanyAddParticipant(c.UserContext(), companyID, userID, role); err != nil {
 		return err
 	}
 

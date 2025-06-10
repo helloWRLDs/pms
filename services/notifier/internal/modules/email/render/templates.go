@@ -16,11 +16,15 @@ var (
 
 	//go:embed docs/task_assignment.html
 	taskAssignmentTemplate string
+
+	//go:embed docs/welcome_login.html
+	welcomeLoginTemplate string
 )
 
 var templates = map[string]string{
 	"greet.html":           greetTemplate,
 	"task_assignment.html": taskAssignmentTemplate,
+	"welcome_login.html":   welcomeLoginTemplate,
 }
 
 func getTemplate(template string) ([]byte, error) {

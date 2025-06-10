@@ -66,7 +66,7 @@ func (l *Logic) CompanyRemoveParticipant(ctx context.Context, companyID, userID 
 	return nil
 }
 
-func (l *Logic) CompanyAddParticipant(ctx context.Context, companyID, userID string) error {
+func (l *Logic) CompanyAddParticipant(ctx context.Context, companyID, userID, role string) error {
 	log := l.log.Named("CompanyAddParticipant").With(
 		zap.Any("user_id", userID),
 		zap.String("company_id", companyID),
@@ -76,7 +76,7 @@ func (l *Logic) CompanyAddParticipant(ctx context.Context, companyID, userID str
 	res, err := l.authClient.AddParticipant(ctx, &pb.AddParticipantRequest{
 		CompanyId: companyID,
 		UserId:    userID,
-		RoleId:    "admin",
+		Role:      role,
 	})
 	log.Infow("adding participant", "res", res)
 

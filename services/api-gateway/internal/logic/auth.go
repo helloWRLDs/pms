@@ -9,6 +9,7 @@ import (
 	"pms.pkg/consts"
 	"pms.pkg/transport/grpc/dto"
 	pb "pms.pkg/transport/grpc/services"
+	"pms.pkg/utils"
 )
 
 func (l *Logic) CompleteOAuth2(ctx context.Context, provider string, code string) (*dto.User, *dto.AuthPayload, error) {
@@ -39,6 +40,7 @@ func (l *Logic) CompleteOAuth2(ctx context.Context, provider string, code string
 	if err != nil {
 		log.Errorw("failed to list companies", "err", err)
 	}
+	log.Infof("payload: %v", utils.JSON(payload))
 	session := models.Session{
 		ID:           payload.SessionId,
 		UserID:       payload.User.Id,
@@ -49,6 +51,7 @@ func (l *Logic) CompleteOAuth2(ctx context.Context, provider string, code string
 			for companyID, permissions := range payload.User.Permissions {
 				perm[companyID] = make([]consts.Permission, len(permissions.Values))
 				for i, value := range permissions.Values {
+					log.Infof("adding permission %d: %s", i, value)
 					perm[companyID][i] = consts.Permission(value)
 				}
 			}
@@ -141,8 +144,8 @@ func (l *Logic) LoginUser(ctx context.Context, creds *dto.UserCredentials) (*dto
 			perm = make(map[string][]consts.Permission)
 			for companyID, permissions := range loginRes.Payload.User.Permissions {
 				perm[companyID] = make([]consts.Permission, len(permissions.Values))
-				for i, value := range permissions.Values {
-					perm[companyID][i] = consts.Permission(value)
+				for _, value := range permissions.Values {
+					perm[companyID] = append(perm[companyID], consts.Permission(value))
 				}
 			}
 			return

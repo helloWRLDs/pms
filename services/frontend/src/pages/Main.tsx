@@ -18,7 +18,6 @@ import AnalyticsPage from "./analytics/AnalyticsPage";
 import OAuthCallback from "../components/auth/OAuthCallback";
 import useMetaCache from "../store/useMetaCache";
 import CalendarPage from "./calendar/CalendarPage";
-import ChatPage from "./ChatPage";
 import Breadcrumb from "../components/ui/Breadcrumb";
 import { useBreadcrumb } from "../hooks/useBreadcrumb";
 import SideBar from "../components/ui/SideBar";
@@ -43,7 +42,6 @@ const Main = () => {
       <SideBar
         logo={{
           href: "/",
-          imgSrc: "https://flowbite.com/docs/images/logo.svg",
           label: "Taskflow",
         }}
       >
@@ -72,9 +70,7 @@ const Main = () => {
         ))}
       </SideBar>
 
-      {/* Main Content */}
       <div className="transition-all bg-gradient-to-br from-primary-700 to-primary-600 duration-300 ml-0 lg:ml-72">
-        {/* Breadcrumb Context */}
         {isAuthenticated() && breadcrumbItems.length > 2 && (
           <div className="px-4 py-3 hidden lg:block">
             <Breadcrumb
@@ -100,7 +96,6 @@ const Main = () => {
           <Route path="/documents/:documentID" element={<DocumentPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/calendar" element={<CalendarPage />} />
-          <Route path="/chat" element={<ChatPage />} />
           <Route path="/auth/google/callback" element={<OAuthCallback />} />
           <Route path="/auth/callback" element={<OAuthCallback />} />
         </Routes>

@@ -50,10 +50,10 @@ func (r *Repository) List(ctx context.Context, filter *dto.CompanyFilter) (res l
 	}
 
 	if filter.CodeName != "" {
-		builder = builder.Where(sq.Eq{"c.codename": filter.CodeName})
+		builder = builder.Where(sq.ILike{"c.codename": "%" + filter.CodeName + "%"})
 	}
 	if filter.CompanyName != "" {
-		builder = builder.Where(sq.Eq{"c.name": filter.CompanyName})
+		builder = builder.Where(sq.ILike{"c.name": "%" + filter.CompanyName + "%"})
 	}
 	if filter.CompanyId != "" {
 		builder = builder.Where(sq.Eq{"c.id": filter.CompanyId})

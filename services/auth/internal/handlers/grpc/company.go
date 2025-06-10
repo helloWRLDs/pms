@@ -3,6 +3,7 @@ package grpchandler
 import (
 	"context"
 
+	"go.uber.org/zap"
 	"pms.pkg/errs"
 	"pms.pkg/transport/grpc/dto"
 	pb "pms.pkg/transport/grpc/services"
@@ -83,7 +84,9 @@ func (s *ServerGRPC) ListCompanies(ctx context.Context, req *pb.ListCompaniesReq
 }
 
 func (s *ServerGRPC) GetCompany(ctx context.Context, req *pb.GetCompanyRequest) (res *pb.GetCompanyResponse, err error) {
-	log := s.log.With("func", "RegisterUser", "pkg", "grpchandler")
+	log := s.log.Named("GetCompany").With(
+		zap.String("company_id", req.GetId()),
+	)
 	log.Debug("GetCompany called")
 
 	res = new(pb.GetCompanyResponse)

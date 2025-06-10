@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { BreadcrumbItem } from "../components/ui/Breadcrumb";
 import useMetaCache from "../store/useMetaCache";
-import { useSprintList } from "./useSprintList";
+import { useSprintList } from "./useData";
 import { Sprint } from "../lib/sprint/sprint";
 
 export const useBreadcrumb = () => {

@@ -86,7 +86,7 @@ func TestIntegration_Company(t *testing.T) {
 		companyID := "test-company-1" // Replace with actual company ID
 		userID := "test-user-1"       // Replace with actual user ID
 
-		err := l.CompanyAddParticipant(context.Background(), companyID, userID)
+		err := l.CompanyAddParticipant(context.Background(), companyID, userID, "admin")
 		require.NoError(t, err)
 
 		err = l.CompanyRemoveParticipant(context.Background(), companyID, userID)
@@ -108,7 +108,7 @@ func TestIntegration_Company(t *testing.T) {
 	})
 
 	t.Run("Add Participant with Invalid IDs", func(t *testing.T) {
-		err := l.CompanyAddParticipant(context.Background(), "invalid-company", "invalid-user")
+		err := l.CompanyAddParticipant(context.Background(), "invalid-company", "invalid-user", "admin")
 		assert.Error(t, err)
 	})
 

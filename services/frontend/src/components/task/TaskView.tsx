@@ -30,7 +30,7 @@ import {
   useAssigneeList,
   useProjectList,
   useSprintList,
-} from "../../hooks/useSprintList";
+} from "../../hooks/useData";
 import DropDownable from "../ui/DropDownable";
 
 type TaskViewProps = React.HTMLAttributes<HTMLDivElement> & {
@@ -43,7 +43,7 @@ type TaskViewProps = React.HTMLAttributes<HTMLDivElement> & {
 const MetadataItem: React.FC<{
   icon: React.ReactNode;
   label: string;
-  value: string;
+  value: string | React.ReactNode;
   onClick?: () => void;
   copyable?: boolean;
   children?: React.ReactNode;
@@ -61,7 +61,7 @@ const MetadataItem: React.FC<{
             : ""
         }`}
         onClick={onClick}
-        title={value}
+        title={typeof value === "string" ? value : undefined}
       >
         {value || "none"}
       </span>
@@ -125,14 +125,13 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
             Body
           </h3>
         </div>
-        <div
-          className="prose prose-invert prose-sm max-w-none text-neutral-200 leading-relaxed text-md"
-          dangerouslySetInnerHTML={{
-            __html:
-              HTMLReactParser(task.body) ||
-              '<p class="text-neutral-400 italic">No description provided.</p>',
-          }}
-        />
+        <div className="prose prose-invert prose-sm max-w-none text-neutral-200 leading-relaxed text-md">
+          {task.body ? (
+            HTMLReactParser(task.body)
+          ) : (
+            <p className="text-neutral-400 italic">No description provided.</p>
+          )}
+        </div>
       </div>
 
       {/* Compact Metadata Bar */}
@@ -186,7 +185,16 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
             icon={<MdCategory className="text-sm" />}
             label="Type"
             value={
-              task.type ? getTaskTypeConfig(task.type as any).label : "none"
+              task.type ? (
+                <div className="flex items-center gap-1">
+                  <span className="text-sm">
+                    {getTaskTypeConfig(task.type as any).icon}
+                  </span>
+                  <span>{getTaskTypeConfig(task.type as any).label}</span>
+                </div>
+              ) : (
+                "none"
+              )
             }
           />
           <DropDownable

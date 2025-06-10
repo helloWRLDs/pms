@@ -74,6 +74,7 @@ func (s *Server) ListTasks(c *fiber.Ctx) error {
 		AssigneeId:  c.Query("assignee_id", ""),
 		Status:      c.Query("status", ""),
 		Priority:    int32(c.QueryInt("priority", 0)),
+		Type:        c.Query("type", ""),
 	}
 	log.Infow("filters", "filters", filter)
 
