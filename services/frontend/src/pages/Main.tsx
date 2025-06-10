@@ -6,7 +6,7 @@ import LoginPage from "./auth/LoginPage";
 import RegisterPage from "./auth/RegisterPage";
 import ProfilePage from "./auth/ProfilePage";
 import CompaniesPage from "./company/CompaniesPage";
-import BacklogPage from "./BacklogPage";
+import BacklogPage from "./backlog/BacklogPage";
 import { useAuthStore } from "../store/authStore";
 import { useEffect } from "react";
 import CompanyOverviewPage from "./company/CompanyOverview";

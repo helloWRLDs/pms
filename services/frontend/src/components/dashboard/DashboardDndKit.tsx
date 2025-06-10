@@ -33,7 +33,6 @@ import { getTaskStatuses } from "../../lib/task/status";
 import { Modal } from "../ui/Modal";
 import TaskView from "../task/TaskView";
 import SortableTaskCard from "./SortableTaskCard";
-import useMetaCache from "../../store/useMetaCache";
 
 type TaskMap = Record<string, Task[]>;
 
@@ -65,7 +64,7 @@ const DroppableContainer: FC<DroppableContainerProps> = ({
       ref={setNodeRef}
       className={`flex-1 p-4 min-h-[calc(100vh-12rem)] rounded-lg transition-colors duration-200 ${
         isOver
-          ? "bg-primary-400/50 outline outline-2 outline-accent-500"
+          ? "bg-primary-400/50 outline-2 outline-accent-500"
           : "bg-primary-500/50"
       }`}
       data-status={id}
@@ -129,7 +128,9 @@ const DashboardDndKit: FC<DashboardDndKitProps> = ({
   const [enabledStatuses, setEnabledStatuses] = useState<Set<string>>(
     new Set(getTaskStatuses)
   );
-  const metaCache = useMetaCache();
+
+  console.log(activeContainer);
+  console.log(dragOverStatus);
 
   // Configure sensors for better drag detection
   const sensors = useSensors(

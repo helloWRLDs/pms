@@ -125,26 +125,6 @@ const DocumentsPage = () => {
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 bg-secondary-200 rounded-lg p-1 border border-secondary-100">
-                <Input className="border-0 bg-transparent">
-                  <Input.Element
-                    type="text"
-                    label=""
-                    placeholder="Search documents..."
-                    value={search}
-                    onInput={(e) => setSearch(e.currentTarget.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    className="bg-transparent border-0 focus:ring-0 text-sm"
-                  />
-                </Input>
-                <Button
-                  onClick={handleSearch}
-                  className="px-3 py-2 bg-accent-500 text-primary-700 hover:bg-accent-400 rounded-md"
-                >
-                  <BsSearch />
-                </Button>
-              </div>
-
               <Button
                 onClick={() => setNewDocumentModal(true)}
                 className="flex items-center gap-2 bg-accent-500 text-primary-700 hover:bg-accent-400"

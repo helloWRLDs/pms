@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useState, useEffect } from "react";
 import {
   MdNavigateBefore,
   MdNavigateNext,
@@ -98,11 +98,44 @@ const HARDCODED_EVENTS: CalendarEvent[] = [
   },
 ];
 
+// Cookie storage utilities
+const EVENTS_COOKIE_NAME = "calendar_events";
+
+const saveEventsToCookie = (events: CalendarEvent[]) => {
+  try {
+    const eventsJson = JSON.stringify(events);
+    // Set cookie with 30 days expiration
+    const expires = new Date();
+    expires.setTime(expires.getTime() + 30 * 24 * 60 * 60 * 1000);
+    document.cookie = `${EVENTS_COOKIE_NAME}=${encodeURIComponent(
+      eventsJson
+    )}; expires=${expires.toUTCString()}; path=/`;
+  } catch (error) {
+    console.error("Failed to save events to cookie:", error);
+  }
+};
+
+const loadEventsFromCookie = (): CalendarEvent[] => {
+  try {
+    const cookieValue = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith(`${EVENTS_COOKIE_NAME}=`));
+
+    if (cookieValue) {
+      const eventsJson = decodeURIComponent(cookieValue.split("=")[1]);
+      return JSON.parse(eventsJson);
+    }
+  } catch (error) {
+    console.error("Failed to load events from cookie:", error);
+  }
+  return [];
+};
+
 export const Calendar: FC<CalendarProps> = ({
   month,
   year,
   onMonthChange,
-  events = HARDCODED_EVENTS,
+  events: propEvents,
   onAddEvent,
 }) => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -111,11 +144,25 @@ export const Calendar: FC<CalendarProps> = ({
   const [newEventTime, setNewEventTime] = useState("");
   const [newEventType, setNewEventType] =
     useState<CalendarEvent["type"]>("meeting");
+  const [cookieEvents, setCookieEvents] = useState<CalendarEvent[]>([]);
+
+  // Load events from cookie on component mount
+  useEffect(() => {
+    const savedEvents = loadEventsFromCookie();
+    setCookieEvents(savedEvents);
+  }, []);
+
+  // Combine hardcoded events with cookie events and prop events
+  const allEvents = [
+    ...HARDCODED_EVENTS,
+    ...cookieEvents,
+    ...(propEvents || []),
+  ];
 
   const calendarData = useCalendarData(month, year);
 
   const getEventsForDate = (date: string) => {
-    return events.filter((event) => event.date === date);
+    return allEvents.filter((event) => event.date === date);
   };
 
   const handlePrevMonth = () => {
@@ -142,15 +189,26 @@ export const Calendar: FC<CalendarProps> = ({
   };
 
   const handleAddEvent = () => {
-    if (newEventTitle.trim() && selectedDate && onAddEvent) {
-      const newEvent: Omit<CalendarEvent, "id"> = {
+    if (newEventTitle.trim() && selectedDate) {
+      const newEvent: CalendarEvent = {
+        id: `cookie_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         date: selectedDate,
         body: newEventTitle.trim(),
         company_id: "company1",
         type: newEventType,
         time: newEventTime || undefined,
       };
-      onAddEvent(newEvent);
+
+      // Add to cookie events
+      const updatedCookieEvents = [...cookieEvents, newEvent];
+      setCookieEvents(updatedCookieEvents);
+      saveEventsToCookie(updatedCookieEvents);
+
+      // Also call the prop callback if provided
+      if (onAddEvent) {
+        onAddEvent(newEvent);
+      }
+
       setNewEventTitle("");
       setNewEventTime("");
       setNewEventType("meeting");
@@ -171,7 +229,6 @@ export const Calendar: FC<CalendarProps> = ({
   return (
     <>
       <div className="bg-primary-500/30 backdrop-blur-lg rounded-2xl shadow-2xl border border-primary-400/30 overflow-hidden w-full">
-        {/* Calendar Header */}
         <div className="bg-primary-600/50 px-6 py-4 border-b border-primary-400/30">
           <div className="flex items-center justify-between">
             <button
@@ -202,7 +259,6 @@ export const Calendar: FC<CalendarProps> = ({
           </div>
         </div>
 
-        {/* Days of Week Header */}
         <div className="grid grid-cols-7 bg-primary-600/30 border-b border-primary-400/30">
           {DAY_ABBR.map((day) => (
             <div
@@ -214,7 +270,6 @@ export const Calendar: FC<CalendarProps> = ({
           ))}
         </div>
 
-        {/* Calendar Grid */}
         <div className="grid grid-cols-7 bg-primary-500/20 min-h-[600px]">
           {calendarData.map((day, index) => {
             const dayEvents = getEventsForDate(day.fullDate);
@@ -356,9 +411,16 @@ export const Calendar: FC<CalendarProps> = ({
                             {event.time}
                           </p>
                         )}
-                        <p className="text-xs text-white/60 capitalize">
-                          {event.type}
-                        </p>
+                        <div className="flex items-center space-x-2">
+                          <p className="text-xs text-white/60 capitalize">
+                            {event.type}
+                          </p>
+                          {event.id.startsWith("cookie_") && (
+                            <span className="text-xs bg-green-500/20 text-green-300 px-1 py-0.5 rounded">
+                              Saved
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <span className="text-lg">
                         {eventTypeIcon(event.type as CalendarEventType)}
@@ -374,7 +436,7 @@ export const Calendar: FC<CalendarProps> = ({
           <div className="border-t border-white/20 pt-6">
             <h4 className="font-semibold text-white mb-3 flex items-center">
               <MdAdd className="mr-2" size={16} />
-              Add New Event
+              Add New Event (Saved to Cookies)
             </h4>
 
             <div className="space-y-4">

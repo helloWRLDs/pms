@@ -1,5 +1,4 @@
 import { FC } from "react";
-import { Icon } from "../ui/Icon";
 import { Task } from "../../lib/task/task";
 import { capitalize } from "../../lib/utils/string";
 import { formatTime } from "../../lib/utils/time";
@@ -8,6 +7,7 @@ import { Priority } from "../../lib/task/priority";
 import Badge from "../ui/Badge";
 import useMetaCache from "../../store/useMetaCache";
 import { useAssigneeList } from "../../hooks/useData";
+import { getTaskTypeIcon, TaskType } from "../../lib/task/tasktype";
 
 interface Props {
   task: Task;
@@ -71,15 +71,11 @@ const TaskCard: FC<Props> = ({ task, onClick, isDragging }) => {
         </div>
 
         {/* Project Icon */}
-        {task.project_id && (
-          <div className="flex items-center gap-1.5">
-            <Icon
-              name={task.project_id}
-              size={16}
-              className="text-accent-500"
-            />
-          </div>
-        )}
+        <div>
+          {getTaskTypeIcon(task.type as TaskType) +
+            " " +
+            capitalize(task.type ?? "")}
+        </div>
       </div>
     </div>
   );

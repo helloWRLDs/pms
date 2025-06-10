@@ -19,7 +19,6 @@ import {
 import { formatTime } from "../../lib/utils/time";
 import { useAuthStore } from "../../store/authStore";
 import Paginator from "../ui/Paginator";
-import DropDownList from "../ui/DropDown";
 import { infoToast } from "../../lib/utils/toast";
 import { ListItems } from "../../lib/utils/list";
 import useMetaCache from "../../store/useMetaCache";
@@ -82,8 +81,6 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
   const { getAssigneeName, assignees } = useAssigneeList(
     metadata.metadata.selectedCompany?.id ?? ""
   );
-  const [reassignDropDown, setReassignDropDown] = useState(false);
-  const [addSprintDropDown, setAddSprintDropDown] = useState(false);
   const [showCommentEditor, setShowCommentEditor] = useState(false);
 
   const [newComment, setNewComment] = useState<TaskCommentCreation>({
@@ -166,7 +163,6 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
               icon={<MdAssignment className="text-sm" />}
               label="Assignee"
               value={getAssigneeName(task.assignee_id)}
-              onClick={() => setReassignDropDown(true)}
             />
           </DropDownable>
           <MetadataItem
@@ -206,20 +202,24 @@ const TaskView = ({ task, ...props }: TaskViewProps) => {
                   taskAPI.update(task.id, { ...task, sprint_id: "" });
                 },
               },
-              ...(sprints?.items.map((sprint) => ({
-                label: sprint.title,
-                isActive: sprint.id === task.sprint_id,
-                onClick: () => {
-                  taskAPI.update(task.id, { ...task, sprint_id: sprint.id });
-                },
-              })) ?? []),
+              ...(sprints?.items && sprints?.items.length > 0
+                ? sprints?.items.map((sprint) => ({
+                    label: sprint.title,
+                    isActive: sprint.id === task.sprint_id,
+                    onClick: () => {
+                      taskAPI.update(task.id, {
+                        ...task,
+                        sprint_id: sprint.id,
+                      });
+                    },
+                  }))
+                : []),
             ]}
           >
             <MetadataItem
               icon={<MdTimer className="text-sm" />}
               label="Sprint"
               value={getSprintName(task.sprint_id)}
-              onClick={() => setAddSprintDropDown(true)}
             />
           </DropDownable>
         </div>

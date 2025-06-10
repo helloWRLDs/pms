@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { ProjectCreation } from "../../lib/project/project";
-import { useCompanyStore } from "../../store/selectedCompanyStore";
 import useMetaCache from "../../store/useMetaCache";
 
 type NewProjectFormProps = React.HTMLAttributes<HTMLFormElement> & {
