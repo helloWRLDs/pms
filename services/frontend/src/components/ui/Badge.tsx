@@ -4,7 +4,7 @@ type BadgeProps = React.HTMLAttributes<HTMLDivElement> & {
   className?: string;
 };
 
-const Badge: FC<BadgeProps> = ({ className, children, ...rest }) => {
+const Badge: FC<BadgeProps> = ({ className, children }) => {
   return (
     <div className={`rounded-xl text-sm py-1 px-3 w-fit ${className}`}>
       {children}

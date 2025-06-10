@@ -28,7 +28,7 @@ const AddParticipantForm = ({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [role, setRole] = useState<string>("admin");
-  const { roles, isLoadingRoles, errorRoles, refetchRoles } = useRolesList();
+  const { roles } = useRolesList();
 
   const handleAddParticipant = async () => {
     if (!filter.user_email?.trim()) {

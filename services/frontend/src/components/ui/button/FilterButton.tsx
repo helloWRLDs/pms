@@ -1,5 +1,5 @@
 const FilterButton = ({
-  label,
+  // label,
   value,
   options,
   onChange,

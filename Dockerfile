@@ -80,3 +80,5 @@ COPY --from=backend-builder /app/notifier/.env .
 RUN chmod +x /app/notifier
 EXPOSE 50052
 CMD ["./notifier", "--path", ".env"]
+
+
