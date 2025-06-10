@@ -29,14 +29,15 @@ import FilterButton from "../../../components/ui/button/FilterButton";
 import { usePermission } from "../../../hooks/usePermission";
 import { Permissions } from "../../../lib/permission";
 import { infoToast, errorToast } from "../../../lib/utils/toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Modal } from "../../../components/ui/Modal";
+import TaskView from "../../../components/task/TaskView";
 
 type ViewMode = "table" | "cards";
 
 interface TasksSectionProps {
   filter: TaskFilter;
   viewMode: ViewMode;
-  onTaskClick: (task: Task) => void;
   onFilterChange: (filter: TaskFilter) => void;
   onRefetch?: () => void;
   onTaskUpdate?: (updatedTask: Task) => void;
@@ -46,12 +47,14 @@ interface TasksSectionProps {
 const TasksSection = ({
   filter,
   viewMode,
-  onTaskClick,
   onFilterChange,
   onRefetch,
   onTaskUpdate,
   currentTaskId,
 }: TasksSectionProps) => {
+  const [taskViewModal, setTaskViewModal] = useState(false);
+  const [task, setTask] = useState<Task | null>(null);
+
   const { hasPermission } = usePermission();
   const metaCache = useMetaCache();
   const navigate = useNavigate();
@@ -271,7 +274,10 @@ const TasksSection = ({
                   <TaskCard
                     key={task.id}
                     task={task}
-                    onClick={() => onTaskClick(task)}
+                    onClick={() => {
+                      setTask(task);
+                      setTaskViewModal(true);
+                    }}
                   />
                 ))}
           </div>
@@ -374,7 +380,10 @@ const TasksSection = ({
                       return (
                         <Table.Row
                           key={task.id}
-                          onClick={() => onTaskClick(task)}
+                          onClick={() => {
+                            setTask(task);
+                            setTaskViewModal(true);
+                          }}
                           className="bg-secondary-200 hover:bg-secondary-100 transition-all duration-200 cursor-pointer group border-l-4 border-l-transparent hover:border-l-accent-500"
                         >
                           <Table.Cell className="px-6 py-4 font-mono text-neutral-400 text-sm border-r border-secondary-100 group-hover:text-accent-400 transition-colors">
@@ -498,6 +507,16 @@ const TasksSection = ({
             />
           </div>
         )}
+        {/*Modals */}
+        <Modal
+          title={task?.title ?? "Task Details"}
+          visible={taskViewModal}
+          onClose={() => setTaskViewModal(false)}
+          className="bg-secondary-300"
+          size="2xl"
+        >
+          {task && <TaskView task_id={task.id} refetchTasks={refetchTasks} />}
+        </Modal>
       </div>
     </div>
   );

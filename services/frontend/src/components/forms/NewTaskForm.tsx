@@ -131,7 +131,6 @@ const NewTaskForm = ({ onSubmit, className, ...props }: NewTaskFormProps) => {
         </div>
       </div>
 
-      {/* Priority and Assignee - Flex row */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
           <Input className="text-gray-700">

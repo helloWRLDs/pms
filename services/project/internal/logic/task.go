@@ -10,6 +10,7 @@ import (
 	"pms.pkg/transport/grpc/dto"
 	"pms.pkg/type/list"
 	"pms.pkg/utils"
+	assignmentdata "pms.project/internal/data/assignment"
 	taskdata "pms.project/internal/data/task"
 )
 
@@ -72,6 +73,16 @@ func (l *Logic) CreateTask(ctx context.Context, creation *dto.TaskCreation) (id 
 		return "", err
 	}
 
+	if creation.GetAssigneeId() != "" {
+		if err = l.Repo.TaskAssignment.Create(tx, assignmentdata.AssignmentData{
+			TaskID: newTask.ID,
+			UserID: creation.GetAssigneeId(),
+		}); err != nil {
+			log.Errorw("failed to create task assignment", "err", err)
+			return "", err
+		}
+	}
+
 	return newTask.ID, nil
 }
 
@@ -99,7 +110,11 @@ func (l *Logic) GetTask(ctx context.Context, id string) (task *dto.Task, err err
 		task = t.DTO()
 	}
 
-	return
+	if assignment, err := l.Repo.TaskAssignment.GetByTask(ctx, id); err == nil {
+		task.AssigneeId = assignment.UserID
+	}
+
+	return task, nil
 }
 
 func (l *Logic) ListTasks(ctx context.Context, filter *dto.TaskFilter) (result list.List[*dto.Task], err error) {

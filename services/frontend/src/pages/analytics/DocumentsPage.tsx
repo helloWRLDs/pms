@@ -12,18 +12,13 @@ import Table from "../../components/ui/Table";
 import { useNavigate } from "react-router-dom";
 import Paginator from "../../components/ui/Paginator";
 import { SlOptionsVertical } from "react-icons/sl";
-import {
-  ContextMenu,
-  ContextMenuItemProps,
-} from "../../components/ui/ContextMenu";
+import { ContextMenu } from "../../components/ui/ContextMenu";
 import {
   BsDownload,
   BsFillPlusCircleFill,
   BsFileEarmarkText,
-  BsSearch,
   BsFolder,
 } from "react-icons/bs";
-import Input from "../../components/ui/Input";
 import { MdOpenInNew } from "react-icons/md";
 import { formatTime } from "../../lib/utils/time";
 import { infoToast, errorToast } from "../../lib/utils/toast";
@@ -38,7 +33,6 @@ const DocumentsPage = () => {
     metaCache.metadata.selectedProject?.company_id ?? ""
   );
 
-  const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<DocumentFilter>({
     page: 1,
     per_page: 10,
@@ -100,10 +94,6 @@ const DocumentsPage = () => {
       console.error("failed to create doc: ", e);
       errorToast("Failed to create document");
     }
-  };
-
-  const handleSearch = () => {
-    setFilter({ ...filter, title: search, page: 1 });
   };
 
   return (

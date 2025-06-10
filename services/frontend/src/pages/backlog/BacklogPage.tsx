@@ -4,9 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { Modal } from "../../components/ui/Modal";
 import { taskAPI } from "../../api/taskAPI";
 import { infoToast, errorToast } from "../../lib/utils/toast";
-import { Task, TaskCreation, TaskFilter } from "../../lib/task/task";
+import { TaskCreation, TaskFilter } from "../../lib/task/task";
 import { usePageSettings } from "../../hooks/usePageSettings";
-import TaskView from "../../components/task/TaskView";
 import useMetaCache from "../../store/useMetaCache";
 import { usePermission } from "../../hooks/usePermission";
 import { Permissions } from "../../lib/permission";
@@ -24,8 +23,6 @@ const BacklogPage = () => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<ViewMode>("table");
 
-  const [task, setTask] = useState<Task>();
-  const [taskViewModal, setTaskViewModal] = useState(false);
   const [taskCreationModal, setTaskCreationModal] = useState(false);
   const [taskFilter, setTaskFilter] = useState<TaskFilter>({
     page: 1,
@@ -66,18 +63,6 @@ const BacklogPage = () => {
     }));
   };
 
-  const handleTaskClick = (task: Task) => {
-    setTask(task);
-    setTaskViewModal(true);
-  };
-
-  const handleTaskUpdate = (updatedTask: Task) => {
-    // Update the current task if it's being viewed in the modal
-    if (task && task.id === updatedTask.id) {
-      setTask(updatedTask);
-    }
-  };
-
   // Don't render anything if no project is selected
   if (!metaCache.metadata.selectedProject?.id) {
     return (
@@ -106,10 +91,7 @@ const BacklogPage = () => {
         <TasksSection
           filter={taskFilter}
           viewMode={viewMode}
-          onTaskClick={handleTaskClick}
           onFilterChange={setTaskFilter}
-          onTaskUpdate={handleTaskUpdate}
-          currentTaskId={task?.id}
         />
       )}
 
@@ -137,16 +119,6 @@ const BacklogPage = () => {
         )}
 
       {/* Modals */}
-      <Modal
-        title={task?.title ?? "Task Details"}
-        visible={taskViewModal}
-        onClose={() => setTaskViewModal(false)}
-        className="bg-secondary-300"
-        size="2xl"
-      >
-        {task && <TaskView task={task} />}
-      </Modal>
-
       <Modal
         title="Create New Task"
         visible={taskCreationModal}

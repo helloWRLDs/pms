@@ -21,23 +21,23 @@ const PRIORITY_CONFIG: Record<PriorityLevel, PriorityConfig> = {
   },
   [PriorityLevel.LOWEST]: {
     label: "Lowest",
-    color: "red",
+    color: "green",
   },
   [PriorityLevel.LOW]: {
     label: "Low",
-    color: "orange",
+    color: "yellow",
   },
   [PriorityLevel.MEDIUM]: {
     label: "Medium",
-    color: "yellow",
+    color: "orange",
   },
   [PriorityLevel.HIGH]: {
     label: "High",
-    color: "green",
+    color: "red",
   },
   [PriorityLevel.CRITICAL]: {
     label: "Critical",
-    color: "blue",
+    color: "purple",
   },
 };
 

@@ -19,12 +19,12 @@ import {
   BsBuilding,
   BsPeople,
   BsFolder,
-  BsThreeDotsVertical,
+  // BsThreeDotsVertical,
 } from "react-icons/bs";
 import { parseError } from "../../lib/errors";
 import useMetaCache from "../../store/useMetaCache";
 import { useAssigneeList } from "../../hooks/useData";
-import { ContextMenu } from "../../components/ui/ContextMenu";
+// import { ContextMenu } from "../../components/ui/ContextMenu";
 
 const CompaniesPage: FC = () => {
   usePageSettings({ requireAuth: true, title: "Companies" });
@@ -317,14 +317,14 @@ const CompaniesPage: FC = () => {
                           </div>
                         </Table.Cell>
                         <Table.Cell>
-                          <ContextMenu
+                          {/* <ContextMenu
                             placement="left"
                             trigger={<BsThreeDotsVertical />}
                             items={[
                               { label: "Edit", onClick: () => {} },
                               { label: "Delete", onClick: () => {} },
                             ]}
-                          />
+                          /> */}
                         </Table.Cell>
                       </Table.Row>
                     ))

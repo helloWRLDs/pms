@@ -326,7 +326,7 @@ const DashboardDndKit: FC<DashboardDndKitProps> = ({
           }}
           className="bg-secondary-300"
         >
-          <TaskView task={selectedTask ?? ({} as Task)} />
+          <TaskView task_id={selectedTask?.id ?? ""} />
         </Modal>
 
         <Modal
